@@ -7,10 +7,10 @@ public record Pos(int x, int y) {
     }
     public Pos neighbor(Direction direction) {
         return switch (direction) {
-            case E -> new Pos(x + 1, y);
-            case N -> new Pos(x, y - 1);
-            case S -> new Pos(x, y + 1);
-            case W -> new Pos(x - 1, y);
+            case E -> translated(1, 0);
+            case N -> translated(0, -1);
+            case S -> translated(0, 1);
+            case W -> translated(-1, 0);
         };
     }
 }
