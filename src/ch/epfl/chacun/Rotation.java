@@ -14,7 +14,7 @@ public enum Rotation {
         return ALL.get(position);
     };
     public Rotation negated() {
-        int position = (COUNT-this.ordinal());
+        int position = (COUNT - this.ordinal()) % COUNT;
         return ALL.get(position);
     };
     public int quarterTurnsCW() {

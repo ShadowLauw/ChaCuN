@@ -1,6 +1,6 @@
 package ch.epfl.chacun;
 
-public record Animal(Kind kind, int id) {
+public record Animal(int id, Kind kind) {
 
     static final int TILE_ID_DIVIDER = 100;
 

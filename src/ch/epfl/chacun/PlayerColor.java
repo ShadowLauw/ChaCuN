@@ -2,7 +2,7 @@ package ch.epfl.chacun;
 
 import java.util.List;
 
-enum PlayerColor {
+public enum PlayerColor {
     RED,
     BLUE,
     GREEN,
