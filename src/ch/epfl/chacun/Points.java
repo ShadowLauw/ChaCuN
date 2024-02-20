@@ -1,45 +1,33 @@
 package ch.epfl.chacun;
 
+import static ch.epfl.chacun.Preconditions.checkArgument;
+
 public final class Points {
     private Points() {}
-
-    public int forClosedForest (int tileCount, int mushroomGroupCount) {
-        checkArgument(1, tileCount, mushroomGroupCount);
+    public static int forClosedForest (int tileCount, int mushroomGroupCount) {
+        checkArgument(tileCount > 1 && mushroomGroupCount >= 0);
         return (2*tileCount + 3*mushroomGroupCount);
     };
 
-    public int forClosedRiver (int tileCount, int fishCount) {
-        checkArgument(1, tileCount, fishCount);
+    public static int forClosedRiver (int tileCount, int fishCount) {
+        checkArgument(tileCount > 1 && fishCount >= 0);
         return (tileCount + fishCount);
     };
 
-    public int forMeadow (int mammothCount, int aurochsCount, int deerCount) {
-        checkArgument(0, mammothCount, aurochsCount, deerCount);
+    public static int forMeadow (int mammothCount, int aurochsCount, int deerCount) {
+        checkArgument(mammothCount >= 0 && aurochsCount >= 0 && deerCount >= 0);
         return (3*mammothCount + 2*aurochsCount + deerCount);
     };
-    public int forRiverSystem (int fishCount) {
-        checkArgument(0, fishCount);
+    public static int forRiverSystem (int fishCount) {
+        checkArgument(fishCount >= 0);
         return (fishCount);
     };
-    public int forLogboat (int lakeCount) {
-        checkArgument(0, lakeCount);
+    public static int forLogboat (int lakeCount) {
+        checkArgument(lakeCount > 0);
         return (2*lakeCount);
     };
-    public int forRaft (int lakeCount) {
-        checkArgument(0, lakeCount);
+    public static int forRaft (int lakeCount) {
+        checkArgument(lakeCount > 0);
         return (lakeCount);
     };
-    /**
-     * This is a method to check if the arguments of the Point class are valid
-     * @param value the value to check for the first argument
-     * @param arguments the list of argument, the first argument is going to be checked against the value, and the other must be positive (or null)
-     */
-    private void checkArgument (int value, int... arguments) {
-        if(arguments.length < 1 || arguments[0] < value)
-            throw new IllegalArgumentException();
-        for(int i = 1; i < arguments.length; i++) {
-            if(arguments[i] < 0)
-                throw new IllegalArgumentException();
-        }
-    }
 }

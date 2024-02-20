@@ -12,4 +12,8 @@ public enum Direction {
     public Direction rotated(Rotation rotation) {
         return ALL.get((this.ordinal() + rotation.quarterTurnsCW()) % COUNT);
     }
+
+    public Direction opposite() {
+        return rotated(Rotation.HALF_TURN);
+    }
 }
