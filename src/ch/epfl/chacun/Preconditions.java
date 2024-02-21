@@ -4,7 +4,7 @@ package ch.epfl.chacun;
  * Utility immutable class for checking preconditions.
  *
  * @author Emmanuel Omont  (372632)
- * @ author Laura Paraboschi (364161)
+ * @author Laura Paraboschi (364161)
  */
 public final class Preconditions {
     /**
@@ -12,10 +12,10 @@ public final class Preconditions {
      */
     private Preconditions() {}
     /**
-     * Throws an IllegalArgumentException if the given boolean is false.
+     * Check if the given condition is true, otherwise throws an IllegalArgumentException.
      *
      * @param shouldBeTrue the boolean to check
-     * @throws IllegalArgumentException if the given boolean is false
+     * @throws IllegalArgumentException if the given condition is false
      */
     public static void checkArgument(boolean shouldBeTrue){
         if (!shouldBeTrue)
