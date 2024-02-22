@@ -9,8 +9,8 @@ import static java.util.Objects.requireNonNull;
  * @author Laura Paraboschi (364161)
  * @author Emmanuel Omont (372632)
  *
- * @param kind The kind of the occupant
- * @param zoneId The ID of the zone the occupant is in
+ * @param kind (Kind) The kind of the occupant
+ * @param zoneId (zoneId) The ID of the zone the occupant is in
  */
 public record Occupant(Kind kind, int zoneId) {
 
@@ -30,8 +30,8 @@ public record Occupant(Kind kind, int zoneId) {
     /**
      * Creates a new occupant with the given kind and zoneID
      *
-     * @param kind The kind of the occupant
-     * @param zoneId The ID of the zone the occupant is in
+     * @param kind (Kind) The kind of the occupant
+     * @param zoneId (int) The ID of the zone the occupant is in
      *
      * @throws NullPointerException if the kind is null
      * @throws IllegalArgumentException if the zoneId is not positive
@@ -44,9 +44,9 @@ public record Occupant(Kind kind, int zoneId) {
     /**
      * Returns the count of the given kind of occupant
      *
-     * @param kind The kind of the occupant
+     * @param kind (Kind) The kind of the occupant
      *
-     * @return the count of the given kind of occupant
+     * @return (int) the count of the given kind of occupant
      */
     public static int occupantsCount(Kind kind) {
         return switch (kind) {

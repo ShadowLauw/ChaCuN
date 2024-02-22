@@ -6,8 +6,8 @@ package ch.epfl.chacun;
  * @author Laura Paraboschi (364161)
  * @author Emmanuel Omont (372632)
  *
- * @param x Horizontal coordinate
- * @param y Vertical coordinate
+ * @param x (int) Horizontal coordinate
+ * @param y (int) Vertical coordinate
  */
 public record Pos(int x, int y) {
     public static final Pos ORIGIN = new Pos(0, 0);
@@ -15,10 +15,10 @@ public record Pos(int x, int y) {
     /**
      * Translates the current position by the given coordinates
      *
-     * @param dX delta of the horizontal coordinate
-     * @param dY delta of the vertical coordinate
+     * @param dX (int) delta of the horizontal coordinate
+     * @param dY (int) delta of the vertical coordinate
      *
-     * @return the translated position
+     * @return (Pos) the translated position
      */
     public Pos translated(int dX,int dY) {
         return new Pos(x + dX, y + dY);
@@ -27,9 +27,9 @@ public record Pos(int x, int y) {
     /**
      * Returns the neighbor of the current position in the given direction
      *
-     * @param direction the direction of the neighbor
+     * @param direction (Direction) the direction of the neighbor
      *
-     * @return the neighbor position
+     * @return (Pos) the neighbor position
      */
     public Pos neighbor(Direction direction) {
         return switch (direction) {

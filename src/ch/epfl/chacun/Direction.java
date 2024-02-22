@@ -24,8 +24,8 @@ public enum Direction {
 
     /**
      * Return the direction facing when rotated.
-     * @param rotation The rotation you want to apply.
-     * @return The direction facing after the rotation.
+     * @param rotation (Rotation) The rotation you want to apply.
+     * @return (Direction) The direction facing after the rotation.
      */
     public Direction rotated(Rotation rotation) {
         return ALL.get((this.ordinal() + rotation.quarterTurnsCW()) % COUNT);
@@ -33,7 +33,7 @@ public enum Direction {
 
     /**
      * Return the opposite direction of the current direction
-     * @return the opposite direction of the current direction
+     * @return (Direction) the opposite direction of the current direction
      */
     public Direction opposite() {
         return rotated(Rotation.HALF_TURN);
