@@ -15,6 +15,7 @@ import java.util.Set;
  * @param n (TileSide) The north side of the tile
  * @param e (TileSide) The east side of the tile
  * @param s (TileSide) The south side of the tile
+ * @param w (TileSide) The west side of the tile
  */
 public record Tile(int id, Kind kind, TileSide n, TileSide e, TileSide s, TileSide w) {
     /**
@@ -50,9 +51,10 @@ public record Tile(int id, Kind kind, TileSide n, TileSide e, TileSide s, TileSi
      */
     public Set<Zone> zones() {
         Set<Zone> zones = sideZones();
-        for (Zone zone: sideZones()) {
-            if(zone instanceof Zone.River river){
-                zones.add(river.lake());
+        for (Zone zone : zones) {
+            if(zone instanceof Zone.River river) {
+                if(river.hasLake())
+                    zones.add(river.lake());
             }
         }
         return zones;
