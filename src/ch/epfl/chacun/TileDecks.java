@@ -21,9 +21,9 @@ public record TileDecks(List<Tile> startTiles, List<Tile> normalTiles, List<Tile
      * @param menhirTiles (List<Tile>) the menhir tiles deck
      */
     public TileDecks {
-        this.startTiles = List.copyOf(startTiles);
-        this.normalTiles = List.copyOf(normalTiles);
-        this.menhirTiles = List.copyOf(menhirTiles);
+        startTiles = List.copyOf(startTiles);
+        normalTiles = List.copyOf(normalTiles);
+        menhirTiles = List.copyOf(menhirTiles);
     }
     /**
      * Returns the size of the deck of the given kind
@@ -58,10 +58,21 @@ public record TileDecks(List<Tile> startTiles, List<Tile> normalTiles, List<Tile
     public TileDecks withTopTileDrawn(Tile.Kind kind) {
         Preconditions.checkArgument(deckSize(kind) > 0);
         return switch (kind) {
-            case START -> new TileDecks(this.startTiles.remove(), this.normalTiles, this.menhirTiles);
-            case NORMAL -> new TileDecks(this.startTiles, this.normalTiles.remove() this.menhirTiles);
-            case MENHIR -> new TileDecks(this.startTiles, this.normalTiles, this.menhirTiles.remove());
+            case START -> new TileDecks(removeFirstElementDeck(this.normalTiles), normalTiles, menhirTiles);
+            case NORMAL -> new TileDecks(this.startTiles, removeFirstElementDeck(this.normalTiles), this.menhirTiles);
+            case MENHIR -> new TileDecks(this.startTiles, this.normalTiles, removeFirstElementDeck(this.menhirTiles));
         };
+    }
+    /**
+     * Returns a List of Tile with the first element removed
+     * @param initialDeck (List<Tile>) the initial deck
+     * @return (List<Tile>) a List of Tile with the first element removed
+     */
+    private List<Tile> removeFirstElementDeck(List<Tile> initialDeck) {
+        Preconditions.checkArgument(!initialDeck.isEmpty());
+        List<Tile> newDeck = List.copyOf(initialDeck);
+        newDeck.remove(0);
+        return newDeck;
     }
 
     /**

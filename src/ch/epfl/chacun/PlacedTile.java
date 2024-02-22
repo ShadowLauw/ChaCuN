@@ -159,13 +159,13 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
         } else {
             for (Zone zone : tile.zones()) {
                 //the player can place a hut on the lake if there is one
-                if (zone instanceof Zone.lake lake)
+                if (zone instanceof Zone.Lake lake)
                     occupants.add(new Occupant(Occupant.Kind.HUT, lake.id()));
                 else {
                     //the player can place a pawn on each sideZone of the tile
                     occupants.add(new Occupant(Occupant.Kind.PAWN, zone.id()));
                     //the player can place a hut on each river if it is not connected to a lake
-                    if (zone instanceof Zone.river river && !river.hasLake())
+                    if (zone instanceof Zone.River river && !river.hasLake())
                         occupants.add(new Occupant(Occupant.Kind.HUT, river.id()));
                 }
             }
