@@ -43,7 +43,7 @@ public sealed interface TileSide {
          */
         @Override
         public boolean isSameKindAs(TileSide that) {
-            return that instanceof Forest;
+            return that instanceof this;
         }
     };
     /**
@@ -66,7 +66,7 @@ public sealed interface TileSide {
          */
         @Override
         public boolean isSameKindAs(TileSide that) {
-            return that instanceof Meadow;
+            return that instanceof this;
         }
     };
     /**
@@ -91,7 +91,7 @@ public sealed interface TileSide {
          */
         @Override
         public boolean isSameKindAs(TileSide that) {
-            return that instanceof River;
+            return that instanceof this;
         }
     };
 }
