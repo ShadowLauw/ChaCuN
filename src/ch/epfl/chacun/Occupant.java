@@ -1,5 +1,7 @@
 package ch.epfl.chacun;
 
+import java.util.List;
+
 import static ch.epfl.chacun.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 

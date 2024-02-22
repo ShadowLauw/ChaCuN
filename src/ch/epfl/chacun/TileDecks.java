@@ -45,8 +45,8 @@ public record TileDecks(List<Tile> startTiles, List<Tile> normalTiles, List<Tile
     public Tile topTile (Tile.Kind kind) {
         return switch(kind) {
             case START -> startTiles.isEmpty() ? startTiles.getFirst() : null;
-            case NORMAL -> normalTiles.isEmpty() ? startTiles.getFirst() : null;
-            case MENHIR -> menhirTiles.isEmpty() ? startTiles.getFirst() : null;
+            case NORMAL -> normalTiles.isEmpty() ? normalTiles.getFirst() : null;
+            case MENHIR -> menhirTiles.isEmpty() ? menhirTiles.getFirst() : null;
         };
     }
     /**
@@ -69,9 +69,8 @@ public record TileDecks(List<Tile> startTiles, List<Tile> normalTiles, List<Tile
      * @return (List<Tile>) a List of Tile with the first element removed
      */
     private List<Tile> removeFirstElementDeck(List<Tile> initialDeck) {
-        Preconditions.checkArgument(!initialDeck.isEmpty());
         List<Tile> newDeck = List.copyOf(initialDeck);
-        newDeck.remove(0);
+        newDeck.removeFirst();
         return newDeck;
     }
 

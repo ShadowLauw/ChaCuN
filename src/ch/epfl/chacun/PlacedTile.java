@@ -56,42 +56,30 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
         return tile.kind();
     }
     /**
-     * Returns the side of the tile in the given direction
+     * Returns the TileSide in the given direction
      * @param direction (Direction) the direction of the side
-     * @return (TileSide) the side of the tile in the given direction
+     * @return (TileSide) the TileSide in the given direction
      */
-    //ici en vrai de vrai c'est un peu bancal mais je vois pas d'autres moyen de le faire autrement malheureusement...
     public TileSide side(Direction direction) {
         Direction dir = direction.rotated(this.rotation);
-        switch (dir) {
-            case E -> {
-                return tile.e();
-            }
-            case S -> {
-                return tile.s();
-            }
-            case W -> {
-                return tile.w();
-            }
-            case N -> {
-                return tile.n();
-            }
-            default -> {
-                throw new IllegalArgumentException();
-            }
-        }
+        return switch (dir) {
+            case E -> tile.e();
+            case S -> tile.s();
+            case W -> tile.w();
+            case N -> tile.n();
+        };
     }
     /**
      * Returns the zone of the tile corresponding with the given id
      * @param id (int) the id of the zone to search
      * @return (Set<Zone>) the zones of the tile
+     *
      * @throws IllegalArgumentException if the zone with the given id is not found
      */
     public Zone zoneWithId(int id) {
         for (Zone zone : tile.zones()) {
-            if(zone.id() == id) {
+            if (zone.id() == id)
                 return zone;
-            }
         };
         throw new IllegalArgumentException();
     }
@@ -102,9 +90,8 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
      */
     public Zone specialPowerZone() {
         for (Zone zone : tile.zones()) {
-            if(zone.specialPower() != null){
+            if (zone.specialPower() != null)
                 return zone;
-            }
         }
         return null;
     }
@@ -116,9 +103,8 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
     public Set<Zone.Forest> forestZones() {
         Set<Zone.Forest> forests = new HashSet<>();
         for (Zone zone : tile.zones()) {
-            if(zone instanceof Zone.Forest forest) {
+            if (zone instanceof Zone.Forest forest)
                 forests.add(forest);
-            }
         }
         return forests;
     }
@@ -129,9 +115,8 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
     public Set<Zone.Meadow> meadowZones() {
         Set<Zone.Meadow> meadows = new HashSet<>();
         for (Zone zone : tile.zones()) {
-            if(zone instanceof Zone.Meadow meadow) {
+            if (zone instanceof Zone.Meadow meadow)
                 meadows.add(meadow);
-            }
         }
         return meadows;
     }
@@ -142,9 +127,8 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
     public Set<Zone.River> riverZones() {
         Set<Zone.River> rivers = new HashSet<>();
         for (Zone zone : tile.zones()) {
-            if(zone instanceof Zone.River river) {
+            if (zone instanceof Zone.River river)
                 rivers.add(river);
-            }
         }
         return rivers;
     }
@@ -154,7 +138,7 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
      */
     public Set<Occupant> potentialOccupants() {
         Set<Occupant> occupants = new HashSet<>();
-        if(this.placer == null) {
+        if (this.placer == null) {
             return occupants;
         } else {
             for (Zone zone : tile.zones()) {
@@ -176,6 +160,7 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
      * Returns the same tile but with a given occupant
      * @param occupant (Occupant) the occupant to add
      * @return (PlacedTile) the tile with the given occupant
+     * 
      * @throws IllegalArgumentException if the tile already has an occupant
      */
     public PlacedTile withOccupant(Occupant occupant) {

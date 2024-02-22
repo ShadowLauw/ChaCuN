@@ -93,5 +93,5 @@ public sealed interface TileSide {
         public boolean isSameKindAs(TileSide that) {
             return that instanceof River;
         }
-    };
+    }
 }
