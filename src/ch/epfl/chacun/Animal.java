@@ -6,8 +6,8 @@ package ch.epfl.chacun;
  * @author Laura Paraboschi (364161)
  * @author Emmanuel Omont (372632)
  *
- * @param id  the unique identifier of the animal
- * @param kind the kind of the animal
+ * @param id (int) the unique identifier of the animal
+ * @param kind (Kind) the kind of the animal
  */
 public record Animal(int id, Kind kind) {
 
@@ -23,7 +23,7 @@ public record Animal(int id, Kind kind) {
 
     /**
      * Returns the tileID the animal is on
-     * @return  the tileID the animal is on
+     * @return (int) the tileID the animal is on
      */
     public int tileId() {
         return id / TILE_ID_DIVIDER;
