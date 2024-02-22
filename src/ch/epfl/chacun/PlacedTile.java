@@ -5,6 +5,10 @@ import java.util.Set;
 
 /**
  * Represents a tile placed on the board
+ *
+ * @author Laura Paraboschi (364161)
+ * @author Emmanuel Omont (372632)
+ *
  * @param tile (Tile) the tile placed
  * @param placer (PlayerColor) the player who placed the tile
  * @param rotation (Rotation) the rotation of the tile
@@ -23,7 +27,7 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
      * @throws IllegalArgumentException if the tile, the rotation or the position are null
      */
     public PlacedTile {
-        Preconditions.checkArgument(tile != null && rotation != null && pos != null );
+        Preconditions.checkArgument(tile != null && rotation != null && pos != null);
     }
     /**
      * Constructs a placed tile without an occupant (with verification of the parameters)
@@ -96,7 +100,7 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
      * Returns, if there is one, the zone with a special power of the Tile
      * @return (Zone) the zone with a special power of the Tile (if there is one)
      */
-    public  Zone specialPowerZone() {
+    public Zone specialPowerZone() {
         for (Zone zone : tile.zones()) {
             if(zone.specialPower() != null){
                 return zone;
@@ -106,7 +110,7 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
     }
 
     /**
-     * Return the forests zone of the tile
+     * Return the forest zones of the tile
      * @return (Set<Zone.Forest>) the forests zone of the tile
      */
     public Set<Zone.Forest> forestZones() {
@@ -119,7 +123,7 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
         return forests;
     }
     /**
-     * Return the meadow zone of the tile
+     * Return the meadow zones of the tile
      * @return (Set<Zone.Meadow>) the meadow zone of the tile
      */
     public Set<Zone.Meadow> meadowZones() {
@@ -153,28 +157,20 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
         if(this.placer == null) {
             return occupants;
         } else {
-            //the player can place a pawn on each sideZone of the tile
-            for (Zone zone : tile.sideZones()) {
-                occupants.add(new Occupant(Occupant.Kind.PAWN, zone.id()));
-            }
             for (Zone zone : tile.zones()) {
-                switch(zone) {
-                    //the player can place a pawn on each river if it is not connected to a lake
-                    case Zone.River river -> {
-                        if(!river.hasLake()) {
-                            occupants.add(new Occupant(Occupant.Kind.PAWN, river.id()));
-
-                        }
-                    }
-                    //the player can place a hut on the lake if there is one
-                    case Zone.Lake lake -> {
-                        occupants.add(new Occupant(Occupant.Kind.HUT, lake.id()));
-                    }
-                    default -> {}
+                //the player can place a hut on the lake if there is one
+                if (zone instanceof Zone.lake lake)
+                    occupants.add(new Occupant(Occupant.Kind.HUT, lake.id()));
+                else {
+                    //the player can place a pawn on each sideZone of the tile
+                    occupants.add(new Occupant(Occupant.Kind.PAWN, zone.id()));
+                    //the player can place a hut on each river if it is not connected to a lake
+                    if (zone instanceof Zone.river river && !river.hasLake())
+                        occupants.add(new Occupant(Occupant.Kind.HUT, river.id()));
                 }
             }
-            return occupants;
         }
+        return occupants;
     }
     /**
      * Returns the same tile but with a given occupant
@@ -198,13 +194,9 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
      * @param occupantKind (Occupant.Kind) the kind of the occupant
      * @return (int) the id of the zone occupied by the given occupant kind (or -1 if there is no such zone)
      */
-    //ici il faut voir si tester la condition de nullité à chaque fois c'est redondant ou si ça passe.
     public int idOfZoneOccupiedBy(Occupant.Kind occupantKind) {
-        for (Zone zone : tile.zones()) {
-            if (this.occupant != null && this.occupant.kind() == occupantKind) {
-                return this.occupant.zoneId();
-            }
-        }
-        return -1;
+        if (this.occupant == null || this.occupant.kind() != occupantKind) 
+            return -1;
+        return this.occupant.zoneId();
     }
 }
