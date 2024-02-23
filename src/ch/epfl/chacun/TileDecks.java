@@ -40,14 +40,15 @@ public record TileDecks(List<Tile> startTiles, List<Tile> normalTiles, List<Tile
     /**
      * Returns the top tile of the deck of the given kind
      * @param kind (Tile.Kind) the kind of deck
-     * @return (Tile) the top tile of the deck of the given kind
+     * @return (Tile) the top tile of the deck of the given kind or null if the deck is empty
      */
     public Tile topTile (Tile.Kind kind) {
-        return switch(kind) {
-            case START -> startTiles.isEmpty() ? startTiles.getFirst() : null;
-            case NORMAL -> normalTiles.isEmpty() ? normalTiles.getFirst() : null;
-            case MENHIR -> menhirTiles.isEmpty() ? menhirTiles.getFirst() : null;
+        List<Tile> tileDeckToSend = switch(kind) {
+            case START -> startTiles;
+            case NORMAL -> normalTiles;
+            case MENHIR -> menhirTiles;
         };
+        return tileDeckToSend.isEmpty() ? null : tileDeckToSend.getFirst();
     }
     /**
      * Returns a new TileDecks with the top tile of the given kind removed
@@ -58,7 +59,7 @@ public record TileDecks(List<Tile> startTiles, List<Tile> normalTiles, List<Tile
     public TileDecks withTopTileDrawn(Tile.Kind kind) {
         Preconditions.checkArgument(deckSize(kind) > 0);
         return switch (kind) {
-            case START -> new TileDecks(removeFirstElementDeck(this.normalTiles), normalTiles, menhirTiles);
+            case START -> new TileDecks(removeFirstElementDeck(this.normalTiles), this.normalTiles, this.menhirTiles);
             case NORMAL -> new TileDecks(this.startTiles, removeFirstElementDeck(this.normalTiles), this.menhirTiles);
             case MENHIR -> new TileDecks(this.startTiles, this.normalTiles, removeFirstElementDeck(this.menhirTiles));
         };

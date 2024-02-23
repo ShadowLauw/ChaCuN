@@ -160,7 +160,7 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
      * Returns the same tile but with a given occupant
      * @param occupant (Occupant) the occupant to add
      * @return (PlacedTile) the tile with the given occupant
-     * 
+     *
      * @throws IllegalArgumentException if the tile already has an occupant
      */
     public PlacedTile withOccupant(Occupant occupant) {
