@@ -1,7 +1,10 @@
 package ch.epfl.chacun;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Represents a tile placed on the board
@@ -24,10 +27,12 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
      * @param pos (Pos) the position of the tile
      * @param occupant (Occupant) the occupant of the tile (null if there is no occupant)
      *
-     * @throws IllegalArgumentException if the tile, the rotation or the position are null
+     * @throws NullPointerException if the tile, the rotation or the position are null
      */
     public PlacedTile {
-        Preconditions.checkArgument(tile != null && rotation != null && pos != null);
+        requireNonNull(tile);
+        requireNonNull(rotation);
+        requireNonNull(pos);
     }
     /**
      * Constructs a placed tile without an occupant (with verification of the parameters)
@@ -36,7 +41,7 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
      * @param rotation (Rotation) the rotation of the tile
      * @param pos (Pos) the position of the tile
      *
-     * @throws IllegalArgumentException if the tile, the rotation or the position are null
+     * @throws NullPointerException if the tile, the rotation or the position are null
      */
     public PlacedTile (Tile tile, PlayerColor placer, Rotation rotation, Pos pos) {
         this(tile, placer, rotation, pos, null);
@@ -86,12 +91,13 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
 
     /**
      * Returns, if there is one, the zone with a special power of the Tile
-     * @return (Zone) the zone with a special power of the Tile (if there is one)
+     * @return (Zone) the zone with a special power of the Tile (if there is one) otherwise null
      */
     public Zone specialPowerZone() {
         for (Zone zone : tile.zones()) {
             if (zone.specialPower() != null)
                 return zone;
+
         }
         return null;
     }
@@ -164,7 +170,7 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
      * @throws IllegalArgumentException if the tile already has an occupant
      */
     public PlacedTile withOccupant(Occupant occupant) {
-        Preconditions.checkArgument(this.occupant != null);
+        Preconditions.checkArgument(this.occupant == null);
         return new PlacedTile(tile, placer, rotation, pos, occupant);
     }
     /**

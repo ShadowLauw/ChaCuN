@@ -7,7 +7,6 @@ import java.util.List;
  * @author Laura Paraboschi (364161)
  * @author Emmanuel Omont (372632)
  *
- * @implSpec This interface is sealed and cannot be implemented outside of this file.
  */
 public sealed interface Zone {
     /**
@@ -106,7 +105,6 @@ public sealed interface Zone {
 
     /**
      * An interface representing a water zone.
-     * @implSpec This interface is sealed and cannot be implemented outside of this file.
      */
     sealed interface Water extends Zone {
         /**

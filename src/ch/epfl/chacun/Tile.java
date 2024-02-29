@@ -51,12 +51,13 @@ public record Tile(int id, Kind kind, TileSide n, TileSide e, TileSide s, TileSi
      */
     public Set<Zone> zones() {
         Set<Zone> zones = sideZones();
+        Set<Zone> result = new HashSet<>(zones);
         for (Zone zone : zones) {
             if (zone instanceof Zone.River river) {
                 if (river.hasLake())
-                    zones.add(river.lake());
+                    result.add(river.lake());
             }
         }
-        return zones;
+        return result;
     }
 }

@@ -59,22 +59,11 @@ public record TileDecks(List<Tile> startTiles, List<Tile> normalTiles, List<Tile
     public TileDecks withTopTileDrawn(Tile.Kind kind) {
         Preconditions.checkArgument(deckSize(kind) > 0);
         return switch (kind) {
-            case START -> new TileDecks(removeFirstElementDeck(this.normalTiles), this.normalTiles, this.menhirTiles);
-            case NORMAL -> new TileDecks(this.startTiles, removeFirstElementDeck(this.normalTiles), this.menhirTiles);
-            case MENHIR -> new TileDecks(this.startTiles, this.normalTiles, removeFirstElementDeck(this.menhirTiles));
+            case START -> new TileDecks(startTiles.subList(1, startTiles.size()), normalTiles, menhirTiles);
+            case NORMAL -> new TileDecks(startTiles, normalTiles.subList(1, normalTiles.size()), menhirTiles);
+            case MENHIR -> new TileDecks(startTiles, normalTiles, menhirTiles.subList(1, menhirTiles.size()));
         };
     }
-    /**
-     * Returns a List of Tile with the first element removed
-     * @param initialDeck (List<Tile>) the initial deck
-     * @return (List<Tile>) a List of Tile with the first element removed
-     */
-    private List<Tile> removeFirstElementDeck(List<Tile> initialDeck) {
-        List<Tile> newDeck = List.copyOf(initialDeck);
-        newDeck.removeFirst();
-        return newDeck;
-    }
-
     /**
      * Returns a new TileDecks with the top tile of the given kind drawn until the given predicate is satisfied
      * @param kind (Tile.Kind) the kind of deck
@@ -84,19 +73,10 @@ public record TileDecks(List<Tile> startTiles, List<Tile> normalTiles, List<Tile
     public TileDecks withTopTileDrawnUntil(Tile.Kind kind, Predicate<Tile> predicate) {
         TileDecks newTileDeck = new TileDecks(this.startTiles, this.normalTiles, this.menhirTiles);
         Tile topTile = newTileDeck.topTile(kind);
-        while (topTile != null && !predicate.test(topTile)){
-            newTileDeck = withTopTileDrawn(kind);
+        while (topTile != null && !predicate.test(topTile)) {
+            newTileDeck = newTileDeck.withTopTileDrawn(kind);
             topTile = newTileDeck.topTile(kind);
         }
         return newTileDeck;
     }
 }
-
-
-//ici c'est la class de test c'est pour ça qu'elle n'a pas son fichier a part
-//public final class TileHasOneZone implements Predicate<Tile> {
-//    @Override
-//    public boolean test(Tile tile) {
-//        return tile.zones().size() == 1;
-//    }
-//}
