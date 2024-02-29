@@ -66,7 +66,7 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
      * @return (TileSide) the TileSide in the given direction
      */
     public TileSide side(Direction direction) {
-        Direction dir = direction.rotated(this.rotation);
+        Direction dir = direction.rotated(this.rotation.negated());
         return switch (dir) {
             case E -> tile.e();
             case S -> tile.s();
