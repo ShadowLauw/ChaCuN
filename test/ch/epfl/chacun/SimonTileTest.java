@@ -1,46 +1,16 @@
 package ch.epfl.chacun;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Predicate;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-class TileDecksTest {
-
-    private final class TileHasRiverZone implements Predicate<Tile> {
-        @Override
-        public boolean test(Tile tile) {
-            boolean hasRiver = false;
-            for (Zone zone: tile.zones()) {
-                if (zone instanceof Zone.River river) {
-                    hasRiver = true;
-                }
-            }
-            return hasRiver;
-        }
-    }
-
-    private final class FakePredicate implements Predicate<Tile> {
-        @Override
-        public boolean test(Tile tile) {
-            return true;
-        }
-    }
-
-    private final class FakeImpossiblePredicate implements Predicate<Tile> {
-        @Override
-        public boolean test(Tile tile) {
-            return false;
-        }
-    }
+public class SimonTileTest {
 
     @Test
-    public void testDrawUntil() {
+    public void testTileZones() {
         Zone.Meadow meadow = new Zone.Meadow(613, List.of(new Animal(6131, Animal.Kind.AUROCHS)), Zone.Meadow.SpecialPower.HUNTING_TRAP);
         Zone.Meadow meadow2 = new Zone.Meadow(614, List.of(new Animal(6141, Animal.Kind.MAMMOTH)), null);
         Zone.Forest forest2 = new Zone.Forest(615, Zone.Forest.Kind.PLAIN);
@@ -69,19 +39,19 @@ class TileDecksTest {
         TileSide jungleSide = new TileSide.Forest(jungleZone);
         Tile tile2 = new Tile(1, Tile.Kind.START, forestSide, riverSide, forestSide2, jungleSide);
 
-        List<Tile> startingTiles = List.of(tile, tile2);
-        List<Tile> normalTiles = List.of(tile, tile2);
-        List<Tile> menhirTiles = List.of(tile, tile2);
+        Set<Zone> expectedSizeZones2 = new HashSet<>();
+        expectedSizeZones2.add(riverZone);
+        expectedSizeZones2.add(meadow);
+        expectedSizeZones2.add(meadow2);
+        expectedSizeZones2.add(forest);
+        expectedSizeZones2.add(forest2);
+        expectedSizeZones2.add(jungleZone);
 
-        TileDecks decks = new TileDecks(startingTiles, normalTiles, menhirTiles);
-        TileDecks newDecks1 = decks.withTopTileDrawnUntil(Tile.Kind.NORMAL, new TileHasRiverZone());
-        assertEquals(1, newDecks1.deckSize(Tile.Kind.NORMAL));
+        assertEquals(expectedSizeZones2, tile2.sideZones());
 
-        TileDecks newDecks2 = decks.withTopTileDrawnUntil(Tile.Kind.MENHIR, new FakePredicate());
-        assertEquals(2, newDecks2.deckSize(Tile.Kind.MENHIR));
+        expectedSizeZones2.add(lakeZone);
 
-        TileDecks newDecks3 = decks.withTopTileDrawnUntil(Tile.Kind.MENHIR, new FakeImpossiblePredicate());
-        assertEquals(0, newDecks3.deckSize(Tile.Kind.MENHIR));
+        assertEquals(expectedSizeZones2, tile2.zones());
     }
 
 }
