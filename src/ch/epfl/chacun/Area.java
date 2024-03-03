@@ -5,22 +5,25 @@ import java.util.*;
 /**
  * Represents the different areas of the board
  *
- * @param <Z> the type of the zones in the area
+ * @param zones (Set<Z>) the zones of the area
+ * @param occupants (List<PlayerColor>) the occupants of the area
+ * @param openConnections (int) the open connections of the area
+ *
  * @author Laura Paraboschi (364161)
  * @author Emmanuel Omont (372632)
  */
-public record Area<Z extends Zone> (Set<Z> zones, List<PlayerColor> occupants, int openConnection) {
+public record Area<Z extends Zone> (Set<Z> zones, List<PlayerColor> occupants, int openConnections) {
     /**
      * Constructs an area with the given zones, occupants and open connections
      *
      * @param zones (Set<Z>) the zones of the area
      * @param occupants (List<PlayerColor>) the occupants of the area
-     * @param openConnection (int) the open connections of the area
+     * @param openConnections (int) the open connections of the area
      *
      * @throws IllegalArgumentException if the number of openConnections is negative
      */
     public Area {
-        Preconditions.checkArgument(openConnection >= 0);
+        Preconditions.checkArgument(openConnections >= 0);
 
         zones = Set.copyOf(zones);
 
@@ -39,7 +42,7 @@ public record Area<Z extends Zone> (Set<Z> zones, List<PlayerColor> occupants, i
      * @param forest (Area<Zone.Forest>) the area to check
      * @return (boolean) true if the area has a menhir
      */
-    static boolean hasMenhir (Area<Zone.Forest> forest) {
+    public static boolean hasMenhir (Area<Zone.Forest> forest) {
         for (Zone.Forest zone : forest.zones) {
             if (zone.kind() == Zone.Forest.Kind.WITH_MENHIR)
                 return true;
@@ -52,7 +55,7 @@ public record Area<Z extends Zone> (Set<Z> zones, List<PlayerColor> occupants, i
      * @param forest (Area<Zone.Forest>) the area to check
      * @return (int) the number of zones with mushrooms in the given area
      */
-    static int mushroomGroup (Area<Zone.Forest> forest) {
+    public static int mushroomGroupCount (Area<Zone.Forest> forest) {
         int number = 0;
         for (Zone.Forest zone : forest.zones) {
             if (zone.kind() == Zone.Forest.Kind.WITH_MUSHROOMS)
@@ -66,9 +69,9 @@ public record Area<Z extends Zone> (Set<Z> zones, List<PlayerColor> occupants, i
      *
      * @param meadow (Area<Zone.Meadow>) the area to check
      * @param cancelledAnimals (Set<Animal>) the animals to exclude from the list
-     * @return the list of animals present in the given area
+     * @return (Set<Animal>) the set of animals present in the given area
      */
-    static Set<Animal> animals (Area<Zone.Meadow> meadow, Set<Animal> cancelledAnimals) {
+    public static Set<Animal> animals (Area<Zone.Meadow> meadow, Set<Animal> cancelledAnimals) {
         Set<Animal> animalsList = new HashSet<>();
         for (Zone.Meadow zone : meadow.zones) {
             for (Animal animal : zone.animals()) {
@@ -86,7 +89,7 @@ public record Area<Z extends Zone> (Set<Z> zones, List<PlayerColor> occupants, i
      * @param river (Area<Zone.River>) the river to check
      * @return (int) the number of fish in the given river
      */
-    static int riverFishCount (Area<Zone.River> river) {
+    public static int riverFishCount (Area<Zone.River> river) {
         int fishCount = 0;
         Set<Zone.Lake> lakes = new HashSet<>();
         for (Zone.River zone : river.zones) {
@@ -103,7 +106,7 @@ public record Area<Z extends Zone> (Set<Z> zones, List<PlayerColor> occupants, i
      * @param riverSystem (Area<Zone.Water>) the river system to check
      * @return (int) the number of fish in the given river system
      */
-    static int riverSystemFishCount (Area<Zone.Water> riverSystem) {
+    public static int riverSystemFishCount (Area<Zone.Water> riverSystem) {
         int fishCount = 0;
         for (Zone.Water zone : riverSystem.zones) {
             fishCount += zone.fishCount();
@@ -116,7 +119,7 @@ public record Area<Z extends Zone> (Set<Z> zones, List<PlayerColor> occupants, i
      * @param riverSystem (Area<Zone.Water>) the river system to check
      * @return (int) the number of lakes in the given river system
      */
-    static int lakeCount (Area<Zone.Water> riverSystem) {
+    public static int lakeCount (Area<Zone.Water> riverSystem) {
         int lakeCount = 0;
         for (Zone.Water zone : riverSystem.zones) {
             if (zone instanceof Zone.Lake)
@@ -130,7 +133,7 @@ public record Area<Z extends Zone> (Set<Z> zones, List<PlayerColor> occupants, i
      * @return (boolean) true if the area is closed
      */
     public boolean isClosed() {
-        return openConnection == 0;
+        return openConnections == 0;
     }
     /**
      * Returns a boolean for if a given area is occupied
@@ -169,7 +172,7 @@ public record Area<Z extends Zone> (Set<Z> zones, List<PlayerColor> occupants, i
      * @return (Area<Z>) the new area
      */
     public Area<Z> connectTo(Area<Z> that) {
-        int newOpenConnections = openConnection;
+        int newOpenConnections = openConnections;
         Set<Z> zones = new HashSet<>(this.zones);
         List<PlayerColor> newOccupants = new ArrayList<>(this.occupants);
 
@@ -178,7 +181,7 @@ public record Area<Z extends Zone> (Set<Z> zones, List<PlayerColor> occupants, i
         } else {
             newOccupants.addAll(that.occupants);
             zones.addAll(that.zones);
-            newOpenConnections =  newOpenConnections + that.openConnection - 2;
+            newOpenConnections =  newOpenConnections + that.openConnections - 2;
         }
         return new Area<>(zones, newOccupants, newOpenConnections);
     }
@@ -191,7 +194,7 @@ public record Area<Z extends Zone> (Set<Z> zones, List<PlayerColor> occupants, i
      */
     public Area<Z> withInitialOccupant (PlayerColor occupant) {
         Preconditions.checkArgument(!isOccupied());
-        return new Area<>(zones, List.of(occupant), openConnection);
+        return new Area<>(zones, List.of(occupant), openConnections);
     }
     /**
      * Return a new area with the given occupant removed
@@ -203,14 +206,14 @@ public record Area<Z extends Zone> (Set<Z> zones, List<PlayerColor> occupants, i
         Preconditions.checkArgument(occupants.contains(occupant));
         List<PlayerColor> newOccupant = new ArrayList<>(occupants);
         newOccupant.remove(occupant);
-        return new Area<>(zones, newOccupant, openConnection);
+        return new Area<>(zones, newOccupant, openConnections);
     }
     /**
      * Return a new area with no occupants
      * @return (Area<Z>) the new area
      */
-    public Area<Z> withoutOccupant () {
-        return new Area<>(zones, List.of(), openConnection);
+    public Area<Z> withoutOccupants () {
+        return new Area<>(zones, List.of(), openConnections);
     }
 
     /**
