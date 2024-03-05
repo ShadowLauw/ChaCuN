@@ -171,11 +171,12 @@ void zonePartitionBuilderBuildForMeadows() {
 void zonePartitionBuilderBuildForRivers() {
     Set<Zone.River> zones1 = new HashSet<>();
     Set<Zone.River> zones2 = new HashSet<>();
-    Zone.River river1 = new Zone.River(0, 2, null);
+    Zone.Lake lake = new Zone.Lake(0, 0, null);
+    Zone.River river1 = new Zone.River(0, 2, lake);
     Zone.River river2 = new Zone.River(1, 3, null);
     Zone.River river3 = new Zone.River(2, 4, null);
     Zone.River river4 = new Zone.River(3, 5, null);
-    Zone.River river5 = new Zone.River(4, 6, null);
+    Zone.River river5 = new Zone.River(4, 6, lake);
     zones1.add(river1);
     zones1.add(river2);
     zones1.add(river3);
@@ -204,9 +205,9 @@ void zonePartitionBuilderBuildForRivers() {
         Set<Zone.Forest> zones2 = new HashSet<>();
         Zone.Forest forest1 = new Zone.Forest(0, Zone.Forest.Kind.PLAIN);
         Zone.Forest forest2 = new Zone.Forest(1, Zone.Forest.Kind.PLAIN);
-        Zone.Forest forest3 = new Zone.Forest(1, Zone.Forest.Kind.PLAIN);
-        Zone.Forest forest4 = new Zone.Forest(1, Zone.Forest.Kind.PLAIN);
-        Zone.Forest forest5 = new Zone.Forest(1, Zone.Forest.Kind.PLAIN);
+        Zone.Forest forest3 = new Zone.Forest(2, Zone.Forest.Kind.WITH_MUSHROOMS);
+        Zone.Forest forest4 = new Zone.Forest(3, Zone.Forest.Kind.PLAIN);
+        Zone.Forest forest5 = new Zone.Forest(4, Zone.Forest.Kind.WITH_MENHIR);
         zones1.add(forest1);
         zones1.add(forest2);
         zones1.add(forest3);
@@ -235,7 +236,8 @@ void zonePartitionBuilderBuildForRivers() {
     @Test
 void ZonePartitionBuilderAddSingletonForRivers() {
     Set<Zone.River> zones1 = new HashSet<>();
-    Zone.River river1 = new Zone.River(0, 2, null);
+    Zone.Lake lake = new Zone.Lake(0, 0, null);
+    Zone.River river1 = new Zone.River(0, 2, lake);
     Zone.River river2 = new Zone.River(1, 3, null);
     zones1.add(river1);
 
@@ -284,9 +286,9 @@ void ZonePartitionBuilderAddSingletonForMeadows() {
         Set<Zone.Forest> zones1 = new HashSet<>();
         Set<Zone.Forest> zones2 = new HashSet<>();
         Zone.Forest forest1 = new Zone.Forest(0, Zone.Forest.Kind.PLAIN);
-        Zone.Forest forest2 = new Zone.Forest(1, Zone.Forest.Kind.PLAIN);
+        Zone.Forest forest2 = new Zone.Forest(1, Zone.Forest.Kind.WITH_MUSHROOMS);
         Zone.Forest forest3 = new Zone.Forest(2, Zone.Forest.Kind.PLAIN);
-        Zone.Forest forest4 = new Zone.Forest(3, Zone.Forest.Kind.PLAIN);
+        Zone.Forest forest4 = new Zone.Forest(3, Zone.Forest.Kind.WITH_MENHIR);
         Zone.Forest forest5 = new Zone.Forest(4, Zone.Forest.Kind.PLAIN);
         zones1.add(forest1);
         zones1.add(forest2);
@@ -316,8 +318,9 @@ void ZonePartitionBuilderAddSingletonForMeadows() {
     @Test
 void zonePartitionAddInitialOccupantTestForRivers() {
     Set<Zone.River> zones1 = new HashSet<>();
+    Zone.Lake lake = new Zone.Lake(0, 0, null);
     Zone.River river1 = new Zone.River(0, 2, null);
-    Zone.River river2 = new Zone.River(1, 3, null);
+    Zone.River river2 = new Zone.River(1, 3, lake);
     Zone.River river3 = new Zone.River(2, 4, null);
     Zone.River river4 = new Zone.River(3, 5, null);
     Zone.River river5 = new Zone.River(4, 6, null);
@@ -383,9 +386,9 @@ void zonePartitionAddInitialOccupantTestForMeadows() {
         Set<Zone.Forest> zones2 = new HashSet<>();
         Zone.Forest forest1 = new Zone.Forest(0, Zone.Forest.Kind.PLAIN);
         Zone.Forest forest2 = new Zone.Forest(1, Zone.Forest.Kind.PLAIN);
-        Zone.Forest forest3 = new Zone.Forest(1, Zone.Forest.Kind.PLAIN);
-        Zone.Forest forest4 = new Zone.Forest(1, Zone.Forest.Kind.PLAIN);
-        Zone.Forest forest5 = new Zone.Forest(1, Zone.Forest.Kind.PLAIN);
+        Zone.Forest forest3 = new Zone.Forest(2, Zone.Forest.Kind.PLAIN);
+        Zone.Forest forest4 = new Zone.Forest(3, Zone.Forest.Kind.WITH_MUSHROOMS);
+        Zone.Forest forest5 = new Zone.Forest(4, Zone.Forest.Kind.PLAIN);
         zones1.add(forest1);
         zones1.add(forest2);
         zones1.add(forest3);
@@ -414,9 +417,10 @@ void zonePartitionAddInitialOccupantTestForMeadows() {
     @Test
 void ZonePartitionBuilderRemoveOccupantTestForRivers() {
     Set<Zone.River> zones1 = new HashSet<>();
+    Zone.Lake lake = new Zone.Lake(80, 10, null);
     Zone.River river1 = new Zone.River(0, 2, null);
     Zone.River river2 = new Zone.River(1, 3, null);
-    Zone.River river3 = new Zone.River(2, 4, null);
+    Zone.River river3 = new Zone.River(2, 4, lake);
     Zone.River river4 = new Zone.River(3, 5, null);
     Zone.River river5 = new Zone.River(4, 6, null);
     zones1.add(river1);
@@ -447,7 +451,7 @@ void ZonePartitionBuilderRemoveOccupantTestForRivers() {
 void ZonePartitionBuilderRemoveOccupantTestForMeadows() {
     Set<Zone.Meadow> zones1 = new HashSet<>();
     List<Animal> animals = List.of(new Animal(2, Animal.Kind.DEER), new Animal(3, Animal.Kind.AUROCHS));
-    Zone.Meadow meadow1 = new Zone.Meadow(0, animals, null);
+    Zone.Meadow meadow1 = new Zone.Meadow(0, animals, Zone.SpecialPower.PIT_TRAP);
     Zone.Meadow meadow2 = new Zone.Meadow(1, animals, null);
     Zone.Meadow meadow3 = new Zone.Meadow(2, animals, null);
     Zone.Meadow meadow4 = new Zone.Meadow(3, animals, null);
@@ -482,9 +486,9 @@ void ZonePartitionBuilderRemoveOccupantTestForMeadows() {
         Set<Zone.Forest> zones2 = new HashSet<>();
         Zone.Forest forest1 = new Zone.Forest(0, Zone.Forest.Kind.PLAIN);
         Zone.Forest forest2 = new Zone.Forest(1, Zone.Forest.Kind.PLAIN);
-        Zone.Forest forest3 = new Zone.Forest(1, Zone.Forest.Kind.PLAIN);
-        Zone.Forest forest4 = new Zone.Forest(1, Zone.Forest.Kind.PLAIN);
-        Zone.Forest forest5 = new Zone.Forest(1, Zone.Forest.Kind.PLAIN);
+        Zone.Forest forest3 = new Zone.Forest(2, Zone.Forest.Kind.PLAIN);
+        Zone.Forest forest4 = new Zone.Forest(3, Zone.Forest.Kind.PLAIN);
+        Zone.Forest forest5 = new Zone.Forest(4, Zone.Forest.Kind.WITH_MUSHROOMS);
         zones1.add(forest1);
         zones1.add(forest2);
         zones1.add(forest3);
@@ -513,8 +517,9 @@ void ZonePartitionBuilderRemoveOccupantTestForMeadows() {
     @Test
 void ZonePartitionRemoveAllOccupantsOfTestForRivers() {
     Set<Zone.River> zones1 = new HashSet<>();
+    Zone.Lake lake = new Zone.Lake(0, 0, null);
     Zone.River river1 = new Zone.River(0, 2, null);
-    Zone.River river2 = new Zone.River(1, 3, null);
+    Zone.River river2 = new Zone.River(1, 3, lake);
     Zone.River river3 = new Zone.River(2, 4, null);
     Zone.River river4 = new Zone.River(3, 5, null);
     Zone.River river5 = new Zone.River(4, 6, null);
@@ -547,10 +552,10 @@ void ZonePartitionRemoveAllOccupantsOfTestForMeadows() {
     Set<Zone.Meadow> zones1 = new HashSet<>();
     List<Animal> animals = List.of(new Animal(2, Animal.Kind.DEER), new Animal(3, Animal.Kind.AUROCHS));
     Zone.Meadow meadow1 = new Zone.Meadow(0, animals, null);
-    Zone.Meadow meadow2 = new Zone.Meadow(1, animals, null);
+    Zone.Meadow meadow2 = new Zone.Meadow(1, animals, Zone.SpecialPower.WILD_FIRE);
     Zone.Meadow meadow3 = new Zone.Meadow(2, animals, null);
     Zone.Meadow meadow4 = new Zone.Meadow(3, animals, null);
-    Zone.Meadow meadow5 = new Zone.Meadow(4, animals, null);
+    Zone.Meadow meadow5 = new Zone.Meadow(4, animals, Zone.SpecialPower.WILD_FIRE);
     zones1.add(meadow1);
     zones1.add(meadow2);
     zones1.add(meadow3);
@@ -627,6 +632,8 @@ void ZonePartitionRemoveAllOccupantsOfTestForMeadows() {
         assertEquals(builder.build(), zonePartitionGood);
 
         assertThrows(IllegalArgumentException.class, () -> builder.union(forest1, forest6));
+        builder.union(forest2, forest5);
+        assertThrows(IllegalArgumentException.class, () -> builder.union(forest2, forest5));
     }
     @Test
 void ZonePartitionUnionTestForRivers() {
@@ -724,5 +731,7 @@ void ZonePartitionUnionTestForMeadows() {
     builder.union(meadow2, meadow5);
     ZonePartition<Zone.Meadow> zonePartitionGood = new ZonePartition<>(areaList);
     assertEquals(builder.build(), zonePartitionGood);
+    builder.union(meadow2, meadow5);
+    assertThrows(IllegalArgumentException.class, () -> builder.union(meadow1, meadow5));
 }
 }
