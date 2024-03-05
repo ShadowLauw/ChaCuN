@@ -65,7 +65,7 @@ public record Area<Z extends Zone> (Set<Z> zones, List<PlayerColor> occupants, i
     }
 
     /**
-     * Return the list of aniumals present in the given area
+     * Return the list of animals present in the given area
      *
      * @param meadow (Area<Zone.Meadow>) the area to check
      * @param cancelledAnimals (Set<Animal>) the animals to exclude from the list
