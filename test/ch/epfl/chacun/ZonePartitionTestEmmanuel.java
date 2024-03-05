@@ -291,8 +291,8 @@ void ZonePartitionBuilderAddSingletonForMeadows() {
         zones1.add(forest1);
         zones1.add(forest2);
         zones1.add(forest3);
-        Area<Zone.Forest> area1 = new Area<>(zones1, List.of(PlayerColor.GREEN, PlayerColor.RED), 2);
-        Area<Zone.Forest> area2 = new Area<>(zones1, List.of(PlayerColor.GREEN, PlayerColor.RED, PlayerColor.BLUE, PlayerColor.GREEN, PlayerColor.BLUE), 2);
+        Area<Zone.Forest> area1 = new Area<>(zones1, List.of(), 2);
+        Area<Zone.Forest> area2 = new Area<>(zones1, List.of(PlayerColor.BLUE), 2);
         Set<Area<Zone.Forest>> areaList = new HashSet<>();
         areaList.add(area1);
 
@@ -302,8 +302,6 @@ void ZonePartitionBuilderAddSingletonForMeadows() {
         ZonePartition.Builder builder = new ZonePartition.Builder(zonePartition);
 
         builder.addInitialOccupant(forest1, PlayerColor.BLUE);
-        builder.addInitialOccupant(forest2, PlayerColor.GREEN);
-        builder.addInitialOccupant(forest3, PlayerColor.BLUE);
 
         Set<Area<Zone.Forest>> areaList2 = new HashSet<>();
         areaList2.add(area2);
@@ -312,6 +310,7 @@ void ZonePartitionBuilderAddSingletonForMeadows() {
         assertEquals(builder.build(), zonePartitionGood);
 
         assertThrows(IllegalArgumentException.class, () -> builder.addInitialOccupant(forest5, PlayerColor.BLUE));
+        assertThrows(IllegalArgumentException.class, () -> builder.addInitialOccupant(forest1, PlayerColor.GREEN));
     }
 
     @Test
@@ -325,8 +324,8 @@ void zonePartitionAddInitialOccupantTestForRivers() {
     zones1.add(river1);
     zones1.add(river2);
     zones1.add(river3);
-    Area<Zone.River> area1 = new Area<>(zones1, List.of(PlayerColor.GREEN, PlayerColor.RED), 2);
-    Area<Zone.River> area2 = new Area<>(zones1, List.of(PlayerColor.GREEN, PlayerColor.RED, PlayerColor.BLUE, PlayerColor.GREEN, PlayerColor.BLUE), 2);
+    Area<Zone.River> area1 = new Area<>(zones1, List.of(), 2);
+    Area<Zone.River> area2 = new Area<>(zones1, List.of(PlayerColor.GREEN), 2);
     Set<Area<Zone.River>> areaList = new HashSet<>();
     areaList.add(area1);
 
@@ -334,9 +333,7 @@ void zonePartitionAddInitialOccupantTestForRivers() {
 
     ZonePartition.Builder builder = new ZonePartition.Builder(zonePartition);
 
-    builder.addInitialOccupant(river1, PlayerColor.BLUE);
     builder.addInitialOccupant(river2, PlayerColor.GREEN);
-    builder.addInitialOccupant(river3, PlayerColor.BLUE);
 
     Set<Area<Zone.River>> areaList2 = new HashSet<>();
     areaList2.add(area2);
@@ -359,8 +356,8 @@ void zonePartitionAddInitialOccupantTestForMeadows() {
     zones1.add(meadow1);
     zones1.add(meadow2);
     zones1.add(meadow3);
-    Area<Zone.Meadow> area1 = new Area<>(zones1, List.of(PlayerColor.GREEN, PlayerColor.RED), 2);
-    Area<Zone.Meadow> area2 = new Area<>(zones1, List.of(PlayerColor.GREEN, PlayerColor.RED, PlayerColor.BLUE, PlayerColor.GREEN, PlayerColor.BLUE), 2);
+    Area<Zone.Meadow> area1 = new Area<>(zones1, List.of(), 2);
+    Area<Zone.Meadow> area2 = new Area<>(zones1, List.of(PlayerColor.GREEN), 2);
     Set<Area<Zone.Meadow>> areaList = new HashSet<>();
     areaList.add(area1);
 
@@ -368,9 +365,8 @@ void zonePartitionAddInitialOccupantTestForMeadows() {
 
     ZonePartition.Builder builder = new ZonePartition.Builder(zonePartition);
 
-    builder.addInitialOccupant(meadow1, PlayerColor.BLUE);
-    builder.addInitialOccupant(meadow2, PlayerColor.GREEN);
-    builder.addInitialOccupant(meadow3, PlayerColor.BLUE);
+    builder.addInitialOccupant(meadow1, PlayerColor.GREEN);
+
 
     Set<Area<Zone.Meadow>> areaList2 = new HashSet<>();
     areaList2.add(area2);
@@ -394,7 +390,6 @@ void zonePartitionAddInitialOccupantTestForMeadows() {
         zones1.add(forest2);
         zones1.add(forest3);
         Area<Zone.Forest> area1 = new Area<>(zones1, List.of(PlayerColor.GREEN, PlayerColor.RED), 2);
-        zones1.add(forest4);
         Area<Zone.Forest> area2 = new Area<>(zones1, List.of(PlayerColor.RED), 2);
 
         Set<Area<Zone.Forest>> areaList = new HashSet<>();
@@ -428,7 +423,6 @@ void ZonePartitionBuilderRemoveOccupantTestForRivers() {
     zones1.add(river2);
     zones1.add(river3);
     Area<Zone.River> area1 = new Area<>(zones1, List.of(PlayerColor.GREEN, PlayerColor.RED), 2);
-    zones1.add(river4);
     Area<Zone.River> area2 = new Area<>(zones1, List.of(PlayerColor.RED), 2);
 
     Set<Area<Zone.River>> areaList = new HashSet<>();
@@ -462,7 +456,6 @@ void ZonePartitionBuilderRemoveOccupantTestForMeadows() {
     zones1.add(meadow2);
     zones1.add(meadow3);
     Area<Zone.Meadow> area1 = new Area<>(zones1, List.of(PlayerColor.GREEN, PlayerColor.RED), 2);
-    zones1.add(meadow4);
     Area<Zone.Meadow> area2 = new Area<>(zones1, List.of(PlayerColor.RED), 2);
 
     Set<Area<Zone.Meadow>> areaList = new HashSet<>();
@@ -496,7 +489,6 @@ void ZonePartitionBuilderRemoveOccupantTestForMeadows() {
         zones1.add(forest2);
         zones1.add(forest3);
         Area<Zone.Forest> area1 = new Area<>(zones1, List.of(PlayerColor.GREEN, PlayerColor.RED), 2);
-        zones1.add(forest4);
         Area<Zone.Forest> area2 = new Area<>(zones1, List.of(), 2);
 
         Set<Area<Zone.Forest>> areaList = new HashSet<>();
@@ -530,7 +522,6 @@ void ZonePartitionRemoveAllOccupantsOfTestForRivers() {
     zones1.add(river2);
     zones1.add(river3);
     Area<Zone.River> area1 = new Area<>(zones1, List.of(PlayerColor.GREEN, PlayerColor.RED), 2);
-    zones1.add(river4);
     Area<Zone.River> area2 = new Area<>(zones1, List.of(), 2);
 
     Set<Area<Zone.River>> areaList = new HashSet<>();
@@ -564,7 +555,6 @@ void ZonePartitionRemoveAllOccupantsOfTestForMeadows() {
     zones1.add(meadow2);
     zones1.add(meadow3);
     Area<Zone.Meadow> area1 = new Area<>(zones1, List.of(PlayerColor.GREEN, PlayerColor.RED), 2);
-    zones1.add(meadow4);
     Area<Zone.Meadow> area2 = new Area<>(zones1, List.of(), 2);
 
     Set<Area<Zone.Meadow>> areaList = new HashSet<>();
@@ -592,9 +582,10 @@ void ZonePartitionRemoveAllOccupantsOfTestForMeadows() {
         Set<Zone.Forest> zones3 = new HashSet<>();
         Zone.Forest forest1 = new Zone.Forest(0, Zone.Forest.Kind.PLAIN);
         Zone.Forest forest2 = new Zone.Forest(1, Zone.Forest.Kind.PLAIN);
-        Zone.Forest forest3 = new Zone.Forest(1, Zone.Forest.Kind.PLAIN);
-        Zone.Forest forest4 = new Zone.Forest(1, Zone.Forest.Kind.PLAIN);
-        Zone.Forest forest5 = new Zone.Forest(1, Zone.Forest.Kind.PLAIN);
+        Zone.Forest forest3 = new Zone.Forest(2, Zone.Forest.Kind.PLAIN);
+        Zone.Forest forest4 = new Zone.Forest(3, Zone.Forest.Kind.PLAIN);
+        Zone.Forest forest5 = new Zone.Forest(4, Zone.Forest.Kind.PLAIN);
+        Zone.Forest forest6 = new Zone.Forest(5, Zone.Forest.Kind.PLAIN);
         zones1.add(forest1);
         zones1.add(forest2);
         zones1.add(forest3);
@@ -607,9 +598,10 @@ void ZonePartitionRemoveAllOccupantsOfTestForMeadows() {
         zones3.add(forest4);
         zones3.add(forest5);
 
-        Area<Zone.Forest> area1 = new Area<>(zones1, List.of(PlayerColor.GREEN, PlayerColor.RED), 2);
-        Area<Zone.Forest> area2 = new Area<>(zones2, List.of(PlayerColor.BLUE), 0);
-        Area<Zone.Forest> area3 = new Area<>(zones3, List.of(PlayerColor.GREEN, PlayerColor.BLUE), 2);
+        Area<Zone.Forest> area1 = new Area<>(zones1, List.of(PlayerColor.GREEN, PlayerColor.RED), 4);
+        Area<Zone.Forest> area1bis = new Area<>(zones1, List.of(PlayerColor.GREEN, PlayerColor.RED), 2);
+        Area<Zone.Forest> area2 = new Area<>(zones2, List.of(PlayerColor.BLUE), 2);
+        Area<Zone.Forest> area3 = new Area<>(zones3, List.of(PlayerColor.GREEN, PlayerColor.RED, PlayerColor.BLUE), 2);
 
         Set<Area<Zone.Forest>> areaList = new HashSet<>();
         areaList.add(area1);
@@ -619,6 +611,10 @@ void ZonePartitionRemoveAllOccupantsOfTestForMeadows() {
         ZonePartition<Zone.Forest> zonePartition = new ZonePartition<>(areaList);
 
         ZonePartition.Builder builder = new ZonePartition.Builder(zonePartition);
+        areaList.clear();
+
+        areaList.add(area1bis);
+        areaList.add(area2);
 
         builder.union(forest2, forest2);
 
@@ -629,8 +625,9 @@ void ZonePartitionRemoveAllOccupantsOfTestForMeadows() {
         builder.union(forest2, forest5);
         ZonePartition<Zone.Forest> zonePartitionGood = new ZonePartition<>(areaList);
         assertEquals(builder.build(), zonePartitionGood);
-    }
 
+        assertThrows(IllegalArgumentException.class, () -> builder.union(forest1, forest6));
+    }
     @Test
 void ZonePartitionUnionTestForRivers() {
     Set<Zone.River> zones1 = new HashSet<>();
@@ -653,18 +650,22 @@ void ZonePartitionUnionTestForRivers() {
     zones3.add(river4);
     zones3.add(river5);
 
-    Area<Zone.River> area1 = new Area<>(zones1, List.of(PlayerColor.GREEN, PlayerColor.RED), 2);
-    Area<Zone.River> area2 = new Area<>(zones2, List.of(PlayerColor.BLUE), 0);
-    Area<Zone.River> area3 = new Area<>(zones3, List.of(PlayerColor.GREEN, PlayerColor.BLUE), 2);
+    Area<Zone.River> area1 = new Area<>(zones1, List.of(PlayerColor.GREEN, PlayerColor.RED), 4);
+    Area<Zone.River> area1bis = new Area<>(zones1, List.of(PlayerColor.GREEN, PlayerColor.RED), 2);
+    Area<Zone.River> area2 = new Area<>(zones2, List.of(PlayerColor.BLUE), 2);
+    Area<Zone.River> area3 = new Area<>(zones3, List.of(PlayerColor.GREEN, PlayerColor.RED, PlayerColor.BLUE), 2);
 
     Set<Area<Zone.River>> areaList = new HashSet<>();
     areaList.add(area1);
     areaList.add(area2);
 
+
     ZonePartition<Zone.River> zonePartition = new ZonePartition<>(areaList);
 
     ZonePartition.Builder builder = new ZonePartition.Builder(zonePartition);
-
+    areaList.clear();
+    areaList.add(area1bis);
+    areaList.add(area2);
     builder.union(river2, river2);
 
     assertEquals(builder.build(), new ZonePartition<>(areaList));
@@ -699,9 +700,10 @@ void ZonePartitionUnionTestForMeadows() {
     zones3.add(meadow4);
     zones3.add(meadow5);
 
-    Area<Zone.Meadow> area1 = new Area<>(zones1, List.of(PlayerColor.GREEN, PlayerColor.RED), 2);
-    Area<Zone.Meadow> area2 = new Area<>(zones2, List.of(PlayerColor.BLUE), 0);
-    Area<Zone.Meadow> area3 = new Area<>(zones3, List.of(PlayerColor.GREEN, PlayerColor.BLUE), 2);
+    Area<Zone.Meadow> area1 = new Area<>(zones1, List.of(PlayerColor.GREEN, PlayerColor.RED), 4);
+    Area<Zone.Meadow> area1bis = new Area<>(zones1, List.of(PlayerColor.GREEN, PlayerColor.RED), 2);
+    Area<Zone.Meadow> area2 = new Area<>(zones2, List.of(PlayerColor.BLUE), 2);
+    Area<Zone.Meadow> area3 = new Area<>(zones3, List.of(PlayerColor.GREEN, PlayerColor.RED, PlayerColor.BLUE), 2);
 
     Set<Area<Zone.Meadow>> areaList = new HashSet<>();
     areaList.add(area1);
@@ -712,7 +714,9 @@ void ZonePartitionUnionTestForMeadows() {
     ZonePartition.Builder builder = new ZonePartition.Builder(zonePartition);
 
     builder.union(meadow2, meadow2);
-
+    areaList.clear();
+    areaList.add(area1bis);
+    areaList.add(area2);
     assertEquals(builder.build(), new ZonePartition<>(areaList));
 
     areaList.clear();
