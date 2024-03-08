@@ -43,7 +43,7 @@ public record Area<Z extends Zone> (Set<Z> zones, List<PlayerColor> occupants, i
      * @return (boolean) true if the area has a menhir
      */
     public static boolean hasMenhir (Area<Zone.Forest> forest) {
-        for (Zone.Forest zone : forest.zones) {
+        for (Zone.Forest zone : forest.zones()) {
             if (zone.kind() == Zone.Forest.Kind.WITH_MENHIR)
                 return true;
         }
@@ -57,7 +57,7 @@ public record Area<Z extends Zone> (Set<Z> zones, List<PlayerColor> occupants, i
      */
     public static int mushroomGroupCount (Area<Zone.Forest> forest) {
         int number = 0;
-        for (Zone.Forest zone : forest.zones) {
+        for (Zone.Forest zone : forest.zones()) {
             if (zone.kind() == Zone.Forest.Kind.WITH_MUSHROOMS)
                 number++;
         }
@@ -73,7 +73,7 @@ public record Area<Z extends Zone> (Set<Z> zones, List<PlayerColor> occupants, i
      */
     public static Set<Animal> animals (Area<Zone.Meadow> meadow, Set<Animal> cancelledAnimals) {
         Set<Animal> animalsList = new HashSet<>();
-        for (Zone.Meadow zone : meadow.zones) {
+        for (Zone.Meadow zone : meadow.zones()) {
             for (Animal animal : zone.animals()) {
                 if (!cancelledAnimals.contains(animal)) {
                     animalsList.add(animal);
@@ -92,7 +92,7 @@ public record Area<Z extends Zone> (Set<Z> zones, List<PlayerColor> occupants, i
     public static int riverFishCount (Area<Zone.River> river) {
         int fishCount = 0;
         Set<Zone.Lake> lakes = new HashSet<>();
-        for (Zone.River zone : river.zones) {
+        for (Zone.River zone : river.zones()) {
             fishCount += zone.fishCount();
             if (zone.hasLake() && lakes.add(zone.lake())){
                 fishCount += zone.lake().fishCount();
@@ -108,7 +108,7 @@ public record Area<Z extends Zone> (Set<Z> zones, List<PlayerColor> occupants, i
      */
     public static int riverSystemFishCount (Area<Zone.Water> riverSystem) {
         int fishCount = 0;
-        for (Zone.Water zone : riverSystem.zones) {
+        for (Zone.Water zone : riverSystem.zones()) {
             fishCount += zone.fishCount();
         }
         return fishCount;
@@ -121,7 +121,7 @@ public record Area<Z extends Zone> (Set<Z> zones, List<PlayerColor> occupants, i
      */
     public static int lakeCount (Area<Zone.Water> riverSystem) {
         int lakeCount = 0;
-        for (Zone.Water zone : riverSystem.zones) {
+        for (Zone.Water zone : riverSystem.zones()) {
             if (zone instanceof Zone.Lake)
                 lakeCount++;
         }
@@ -179,9 +179,9 @@ public record Area<Z extends Zone> (Set<Z> zones, List<PlayerColor> occupants, i
         if (that.equals(this)) {
             newOpenConnections -= 2;
         } else {
-            newOccupants.addAll(that.occupants);
-            zones.addAll(that.zones);
-            newOpenConnections =  newOpenConnections + that.openConnections - 2;
+            newOccupants.addAll(that.occupants());
+            zones.addAll(that.zones());
+            newOpenConnections =  newOpenConnections + that.openConnections() - 2;
         }
         return new Area<>(zones, newOccupants, newOpenConnections);
     }
