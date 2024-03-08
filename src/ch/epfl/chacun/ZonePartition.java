@@ -94,9 +94,9 @@ public record ZonePartition<Z extends Zone> (Set<Area<Z>> areas) {
          */
         public void addInitialOccupant(Z zone, PlayerColor color) {
             Area<Z> areaContainingZone = staticAreaContaining(zone, areas);
-            Preconditions.checkArgument(!areaContainingZone.isOccupied());
 
             areas.remove(areaContainingZone);
+            //throws IllegalArgumentException if the area is already occupied
             areas.add(areaContainingZone.withInitialOccupant(color));
         }
 
@@ -110,9 +110,9 @@ public record ZonePartition<Z extends Zone> (Set<Area<Z>> areas) {
          */
         public void removeOccupant(Z zone, PlayerColor color) {
             Area<Z> areaContainingZone = staticAreaContaining(zone, areas);
-            Preconditions.checkArgument(areaContainingZone.occupants().contains(color));
 
             areas.remove(areaContainingZone);
+            //throws IllegalArgumentException if the area doesn't contain an occupant of the color given
             areas.add(areaContainingZone.withoutOccupant(color));
         }
 
@@ -139,6 +139,7 @@ public record ZonePartition<Z extends Zone> (Set<Area<Z>> areas) {
         public void union(Z zone1, Z zone2) {
             Area<Z> areaContainingZone1 = staticAreaContaining(zone1, areas);
             Area<Z> areaContainingZone2 = staticAreaContaining(zone2, areas);
+
             if (areaContainingZone1.equals(areaContainingZone2))
                 areas.remove(areaContainingZone1);
             else {

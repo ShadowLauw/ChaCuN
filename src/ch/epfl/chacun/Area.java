@@ -147,7 +147,7 @@ public record Area<Z extends Zone> (Set<Z> zones, List<PlayerColor> occupants, i
      * @return (Set<PlayerColor>) the majority occupants of the area
      */
     public Set<PlayerColor> majorityOccupants() {
-        int[] count = new int[PlayerColor.ALL.size() - 1];
+        int[] count = new int[PlayerColor.ALL.size()];
         int max = 0;
         for (PlayerColor occupant : occupants) {
             count[occupant.ordinal()]++;
@@ -200,7 +200,7 @@ public record Area<Z extends Zone> (Set<Z> zones, List<PlayerColor> occupants, i
      * Return a new area with the given occupant removed
      * @param occupant (PlayerColor) the occupant to remove
      * @return (Area<Z>) the new area
-     * @throws IllegalArgumentException if the area doesn't contain the an occupant of the color given
+     * @throws IllegalArgumentException if the area doesn't contain an occupant of the given color
      */
     public Area<Z> withoutOccupant (PlayerColor occupant) {
         Preconditions.checkArgument(occupants.contains(occupant));
