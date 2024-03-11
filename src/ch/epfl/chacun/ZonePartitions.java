@@ -2,13 +2,13 @@ package ch.epfl.chacun;
 
 import java.util.Set;
 
-public record ZonePartitions (ZonePartition<Zone.Forest> forests, ZonePartition<Zone.Meadow> meadow, ZonePartition<Zone.River> rivers, ZonePartition<Zone.Water> riverSystems){
+public record ZonePartitions (ZonePartition<Zone.Forest> forests, ZonePartition<Zone.Meadow> meadows, ZonePartition<Zone.River> rivers, ZonePartition<Zone.Water> riverSystems){
 
     public final static ZonePartitions EMPTY = new ZonePartitions(new ZonePartition<>(Set.of()), new ZonePartition<>(Set.of()), new ZonePartition<>(Set.of()), new ZonePartition<>(Set.of()));
 
     public final class Builder {
         private ZonePartition.Builder<Zone.Forest> forests;
-        private ZonePartition.Builder<Zone.Meadow> meadow;
+        private ZonePartition.Builder<Zone.Meadow> meadows;
         private ZonePartition.Builder<Zone.River> rivers;
         private ZonePartition.Builder<Zone.Water> riverSystems;
 
