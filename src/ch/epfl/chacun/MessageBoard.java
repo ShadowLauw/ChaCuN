@@ -65,7 +65,6 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
      */
     public MessageBoard withClosedForestWithMenhir(PlayerColor player, Area<Zone.Forest> forest) {
         List<Message> newMessages = new ArrayList<>(messages);
-        int mushroomGroups = Area.mushroomGroupCount(forest);
         newMessages.add(new Message(textMaker.playerClosedForestWithMenhir(player),
                 0, Set.of(), forest.tileIds()
         ));
@@ -97,24 +96,7 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
      * @return (MessageBoard) the message board with possibly the message when the player scored a hunting trap
      */
     public MessageBoard withScoredHuntingTrap(PlayerColor scorer, Area<Zone.Meadow> adjacentMeadow) {
-        List<Message> newMessages = new ArrayList<>(messages);
-        Set<Animal> animals = Area.animals(adjacentMeadow, Set.of());
-        Map<Animal.Kind, Integer> animalsCount = new HashMap<>();
-        for (Animal animal : animals) {
-            animalsCount.merge(animal.kind(), 1, Integer::sum);
-        }
-        int points = Points.forMeadow(
-                animalsCount.get(Animal.Kind.MAMMOTH),
-                animalsCount.get(Animal.Kind.AUROCHS),
-                animalsCount.get(Animal.Kind.DEER)
-        );
-        if (points > 0) {
-            newMessages.add(new Message(
-                    textMaker.playerScoredHuntingTrap(scorer, points, animalsCount),
-                    points, Set.of(scorer), adjacentMeadow.tileIds()
-            ));
-        }
-        return new MessageBoard(textMaker, newMessages);
+        return getMessageBoardMeadow(adjacentMeadow, Set.of(), "huntingTrap", scorer);
     }
     /**
      * Return the message board with the message when the player scored a logboat
@@ -139,23 +121,7 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
      * @return (MessageBoard) the message board with possibly the message when a player closed a meadow
      */
     public MessageBoard withScoredMeadow(Area<Zone.Meadow> meadow, Set<Animal> cancelledAnimals) {
-        List<Message> newMessages = new ArrayList<>(messages);
-        Set<Animal> animals = Area.animals(meadow, cancelledAnimals);
-        Map<Animal.Kind, Integer> animalsCount = new HashMap<>();
-        for (Animal animal : animals) {
-            animalsCount.merge(animal.kind(), 1, Integer::sum);
-        }
-        int points = Points.forMeadow(
-                animalsCount.get(Animal.Kind.MAMMOTH),
-                animalsCount.get(Animal.Kind.AUROCHS),
-                animalsCount.get(Animal.Kind.DEER));
-        if (meadow.isOccupied() && points > 0) {
-            newMessages.add(new Message(
-                    textMaker.playersScoredMeadow(meadow.majorityOccupants(), points, animalsCount),
-                    points, meadow.majorityOccupants(), meadow.tileIds()
-            ));
-        }
-        return new MessageBoard(textMaker, newMessages);
+        return getMessageBoardMeadow(meadow, cancelledAnimals, "meadow", null);
     }
 
     /**
@@ -186,6 +152,13 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
      * @return (MessageBoard) the message board with possibly the message when a player scored a pit trap
      */
     public MessageBoard withScoredPitTrap(Area<Zone.Meadow> adjacentMeadow, Set<Animal> cancelledAnimals) {
+        return getMessageBoardMeadow(adjacentMeadow, cancelledAnimals, "pitTrap", null);
+    }
+
+    private MessageBoard getMessageBoardMeadow(Area<Zone.Meadow> adjacentMeadow,
+                                               Set<Animal> cancelledAnimals,
+                                               String messageType,
+                                               PlayerColor scorer) {
         List<Message> newMessages = new ArrayList<>(messages);
         Set<Animal> animals = Area.animals(adjacentMeadow, cancelledAnimals);
         Map<Animal.Kind, Integer> animalsCount = new HashMap<>();
@@ -196,11 +169,20 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
                 animalsCount.get(Animal.Kind.MAMMOTH),
                 animalsCount.get(Animal.Kind.AUROCHS),
                 animalsCount.get(Animal.Kind.DEER));
-        if (adjacentMeadow.isOccupied() && points > 0) {
-            newMessages.add(new Message(
-                    textMaker.playersScoredPitTrap(adjacentMeadow.majorityOccupants(), points, animalsCount),
-                    points, adjacentMeadow.majorityOccupants(), adjacentMeadow.tileIds()
-            ));
+        if ((scorer != null || adjacentMeadow.isOccupied()) && points > 0) {
+            switch (messageType) {
+                case "meadow" -> newMessages.add(new Message(
+                        textMaker.playersScoredMeadow(adjacentMeadow.majorityOccupants(), points, animalsCount),
+                        points, adjacentMeadow.majorityOccupants(), adjacentMeadow.tileIds()
+                ));
+                case "pitTrap" -> newMessages.add(new Message(
+                        textMaker.playersScoredPitTrap(adjacentMeadow.majorityOccupants(), points, animalsCount),
+                        points, adjacentMeadow.majorityOccupants(), adjacentMeadow.tileIds()
+                ));
+                case "huntingTrap" -> newMessages.add(new Message(
+                        textMaker.playerScoredHuntingTrap(scorer, points, animalsCount),
+                        points, Set.of(scorer), adjacentMeadow.tileIds()
+                ));}
         }
         return new MessageBoard(textMaker, newMessages);
     }
