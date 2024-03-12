@@ -15,7 +15,7 @@ public final class Points {
 
     /**
      * Returns the number of points for a closed Forest.
-     * @param tileCount (int) the number a tiles that constitute the forest
+     * @param tileCount (int) the number of tiles that constitute the forest
      * @param mushroomGroupCount (int) the number of mushroomGroups present in the forest
      * @return (int) the number of points for the given number of tiles and mushroom groups in a closed forest
      *

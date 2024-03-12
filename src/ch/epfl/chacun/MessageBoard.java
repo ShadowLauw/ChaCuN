@@ -19,9 +19,8 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
      * @param textMaker (TextMaker) the text maker of the game
      * @param messages (List<Message>) the messages of the game
      */
-    public MessageBoard(TextMaker textMaker, List<Message> messages) {
-        this.textMaker = textMaker;
-        this.messages = List.copyOf(messages);
+    public MessageBoard {
+        messages = List.copyOf(messages);
     }
 
     /**
@@ -32,179 +31,195 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
         Map<PlayerColor, Integer> points = new HashMap<>();
         for (Message message : messages) {
             for (PlayerColor player : message.scorers) {
-                //je pense que c'est ce que faut faire, mais pas sûr de moi sur le lambda
-                points.merge(player, message.points, (Integer value1, Integer value2)-> {return value1 + value2;});
+                points.merge(player, message.points(), Integer::sum);
             }
         }
         return points;
     }
 
     /**
-     * Return a message board with the given closed forest
+     * Return the message board with possibly a new message for the closed forest
      * @param forest (Area<Zone.Forest>) the placed tile
-     * @return (MessageBoard) the message board with the given placed tile
+     * @return (MessageBoard) the message board with possibly a new message for the closed forest
      */
     public MessageBoard withScoredForest(Area<Zone.Forest> forest) {
-        if(forest.isOccupied()){
-            List<Message> newmessages = new ArrayList<>(messages);
+        List<Message> newMessages = new ArrayList<>(messages);
+        if (forest.isOccupied()) {
             int mushroomGroups = Area.mushroomGroupCount(forest);
-            int points = Points.forClosedForest(forest.zones().size(), mushroomGroups);
-            Message message  = new Message(textMaker.playersScoredForest(forest.majorityOccupants(), points, mushroomGroups, forest.zones().size()), points, forest.majorityOccupants(), forest.tileIds());
-            newmessages.add(message);
-            return new MessageBoard(this.textMaker, newmessages);
-        } else {
-            return new MessageBoard(this.textMaker, this.messages);
+            int points = Points.forClosedForest(forest.tileIds().size(), mushroomGroups);
+            newMessages.add(new Message(
+                    textMaker.playersScoredForest(
+                            forest.majorityOccupants(), points, mushroomGroups, forest.zones().size()
+                    ),
+                    points, forest.majorityOccupants(), forest.tileIds()
+            ));
         }
+        return new MessageBoard(textMaker, newMessages);
     }
 
     /**
-     * Return a message board with the given closed forest with menhir
+     * Return the message board with a new message for the closed forest with menhir
      * @param player (PlayerColor) the player who closed the forest with menhir
      * @param forest (Area<Zone.Forest>) the closed forest with menhir
-     * @return (MessageBoard) the message board with the given closed forest with menhir
+     * @return (MessageBoard) the message board with a new message for the given closed forest with menhir
      */
-    public MessageBoard withClosedMenhir(PlayerColor player, Area<Zone.Forest> forest) {
-        List<Message> newmessages = new ArrayList<>(messages);
+    public MessageBoard withClosedForestWithMenhir(PlayerColor player, Area<Zone.Forest> forest) {
+        List<Message> newMessages = new ArrayList<>(messages);
         int mushroomGroups = Area.mushroomGroupCount(forest);
-        int points = Points.forClosedForest(forest.zones().size(), mushroomGroups);
-        Message message  = new Message(textMaker.playerClosedForestWithMenhir(player), points, Set.of(player), forest.tileIds());
-        newmessages.add(message);
-        return new MessageBoard(this.textMaker, newmessages);
+        newMessages.add(new Message(textMaker.playerClosedForestWithMenhir(player),
+                0, Set.of(), forest.tileIds()
+        ));
+        return new MessageBoard(this.textMaker, newMessages);
     }
 
     /**
-     * Return a message board with the given closed river
+     * Return the message board with possibly the message when the player scored a closed river
      * @param river (Area<Zone.River>) the closed river
-     * @return (MessageBoard) the message board with the given closed river
+     * @return (MessageBoard) the message board with possibly the message when the player scored a closed river
      */
     public MessageBoard withScoredRiver(Area<Zone.River> river) {
-        if(river.isOccupied()){
-            List<Message> newmessages = new ArrayList<>(messages);
+        List<Message> newMessages = new ArrayList<>(messages);
+        if (river.isOccupied()) {
             int fishCount = Area.riverFishCount(river);
-            int points = Points.forClosedRiver(river.zones().size(), fishCount);
-            Message message  = new Message(textMaker.playersScoredRiver(river.majorityOccupants(), points, fishCount, river.zones().size()), points, river.majorityOccupants(), river.tileIds());
-            newmessages.add(message);
-            return new MessageBoard(this.textMaker, newmessages);
-        } else {
-            return new MessageBoard(this.textMaker, this.messages);
+            int points = Points.forClosedRiver(river.tileIds().size(), fishCount);
+            newMessages.add(new Message(
+                    textMaker.playersScoredRiver(river.majorityOccupants(), points, fishCount, river.tileIds().size()),
+                    points, river.majorityOccupants(), river.tileIds()
+            ));
         }
+        return new MessageBoard(textMaker, newMessages);
     }
 
     /**
-     * Return a message board with the message when the player scored a hunting trap
+     * Return the message board with possibly the message when the player scored a hunting trap
      * @param scorer (PlayerColor) the player who scored the hunting trap
      * @param adjacentMeadow (Area<Zone.Meadow>) the meadow where the hunting trap is placed
-     * @return (MessageBoard) the message board with the message when the player scored a hunting trap
+     * @return (MessageBoard) the message board with possibly the message when the player scored a hunting trap
      */
     public MessageBoard withScoredHuntingTrap(PlayerColor scorer, Area<Zone.Meadow> adjacentMeadow) {
+        List<Message> newMessages = new ArrayList<>(messages);
         Set<Animal> animals = Area.animals(adjacentMeadow, Set.of());
         Map<Animal.Kind, Integer> animalsCount = new HashMap<>();
         for (Animal animal : animals) {
-            animalsCount.merge(animal.kind(), 1, (Integer value1, Integer value2)-> {return value1 + value2;});
+            animalsCount.merge(animal.kind(), 1, Integer::sum);
         }
-        int points = Points.forMeadow(animalsCount.get(Animal.Kind.MAMMOTH), animalsCount.get(Animal.Kind.AUROCHS), animalsCount.get(Animal.Kind.DEER));
-        if(points > 0){
-            List<Message> newmessages = new ArrayList<>(messages);
-            Message message  = new Message(textMaker.playerScoredHuntingTrap(scorer, points, animalsCount), points, Set.of(scorer), adjacentMeadow.tileIds());
-            newmessages.add(message);
-            return new MessageBoard(this.textMaker, newmessages);
-        } else {
-            return new MessageBoard(this.textMaker, this.messages);
+        int points = Points.forMeadow(
+                animalsCount.get(Animal.Kind.MAMMOTH),
+                animalsCount.get(Animal.Kind.AUROCHS),
+                animalsCount.get(Animal.Kind.DEER)
+        );
+        if (points > 0) {
+            newMessages.add(new Message(
+                    textMaker.playerScoredHuntingTrap(scorer, points, animalsCount),
+                    points, Set.of(scorer), adjacentMeadow.tileIds()
+            ));
         }
+        return new MessageBoard(textMaker, newMessages);
     }
     /**
-     * Return a message board with the message when the player scored a logboat
+     * Return the message board with the message when the player scored a logboat
      * @param scorer (PlayerColor) the player who scored the logboat
      * @param riverSystem (Area<Zone.Water>) the river system where the logboat is placed
      * @return (MessageBoard) the message board with the message when the player scored a logboat
      */
     public MessageBoard withScoredLogboat(PlayerColor scorer, Area<Zone.Water> riverSystem) {
-        List<Message> newmessages = new ArrayList<>(messages);
+        List<Message> newMessages = new ArrayList<>(messages);
         int points = Points.forLogboat(Area.lakeCount(riverSystem));
-        Message message  = new Message(textMaker.playerClosedForestWithMenhir(scorer), points, Set.of(scorer), riverSystem.tileIds());
-        newmessages.add(message);
-        return new MessageBoard(this.textMaker, newmessages);
+        newMessages.add(new Message(
+                textMaker.playerScoredLogboat(scorer, points, Area.lakeCount(riverSystem)),
+                points, Set.of(scorer), riverSystem.tileIds()
+        ));
+        return new MessageBoard(textMaker, newMessages);
     }
 
     /**
-     * Return a message board with the message when a player closed a meadow
+     * Return a message board with possibly the message when a player closed a meadow
      * @param meadow (Area<Zone.Meadow>) the closed meadow
      * @param cancelledAnimals (Set<Animal>) the animals that are not counted in the meadow
-     * @return (MessageBoard) the message board with the message when a player closed a meadow
+     * @return (MessageBoard) the message board with possibly the message when a player closed a meadow
      */
     public MessageBoard withScoredMeadow(Area<Zone.Meadow> meadow, Set<Animal> cancelledAnimals) {
+        List<Message> newMessages = new ArrayList<>(messages);
         Set<Animal> animals = Area.animals(meadow, cancelledAnimals);
         Map<Animal.Kind, Integer> animalsCount = new HashMap<>();
         for (Animal animal : animals) {
-            animalsCount.merge(animal.kind(), 1, (Integer value1, Integer value2)-> {return value1 + value2;});
+            animalsCount.merge(animal.kind(), 1, Integer::sum);
         }
-        int points = Points.forMeadow(animalsCount.get(Animal.Kind.MAMMOTH), animalsCount.get(Animal.Kind.AUROCHS), animalsCount.get(Animal.Kind.DEER));
-        if(meadow.isOccupied() && points > 0){
-            List<Message> newmessages = new ArrayList<>(messages);
-            Message message  = new Message(textMaker.playersScoredMeadow(meadow.majorityOccupants(), points, animalsCount), points, meadow.majorityOccupants(), meadow.tileIds());
-            newmessages.add(message);
-            return new MessageBoard(this.textMaker, newmessages);
-        } else {
-            return new MessageBoard(this.textMaker, this.messages);
+        int points = Points.forMeadow(
+                animalsCount.get(Animal.Kind.MAMMOTH),
+                animalsCount.get(Animal.Kind.AUROCHS),
+                animalsCount.get(Animal.Kind.DEER));
+        if (meadow.isOccupied() && points > 0) {
+            newMessages.add(new Message(
+                    textMaker.playersScoredMeadow(meadow.majorityOccupants(), points, animalsCount),
+                    points, meadow.majorityOccupants(), meadow.tileIds()
+            ));
         }
+        return new MessageBoard(textMaker, newMessages);
     }
 
     /**
-     * Return a message board with the message when a player closed a river system
+     * Return a message board with possibly the message when a player closed a river system
      * @param riverSystem (Area<Zone.Water>) the closed river system
-     * @return (MessageBoard) the message board with the message when a player closed a river system
+     * @return (MessageBoard) the message board with possibly the message when a player closed a river system
      */
     public MessageBoard withScoredRiverSystem(Area<Zone.Water> riverSystem) {
-        //alors c'est sûr que ça marche, mais la méthode est un peu bancale vu que j'utilise les fonctions fléchées avec des trucs qu'on a pas trop vu en cours...
         int points = Points.forRiverSystem(Area.riverSystemFishCount(riverSystem));
-        if(riverSystem.isOccupied() && points > 0){
-            List<Message> newmessages = new ArrayList<>(messages);
-            Message message  = new Message(textMaker.playersScoredRiverSystem(riverSystem.majorityOccupants(), points, Area.riverSystemFishCount(riverSystem)), points, riverSystem.majorityOccupants(), riverSystem.tileIds());
-            newmessages.add(message);
-            return new MessageBoard(this.textMaker, newmessages);
-        } else {
-            return new MessageBoard(this.textMaker, this.messages);
+        List<Message> newMessages = new ArrayList<>(messages);
+        if (riverSystem.isOccupied() && points > 0) {
+            newMessages.add(new Message(
+                    textMaker.playersScoredRiverSystem(
+                            riverSystem.majorityOccupants(),
+                            points,
+                            Area.riverSystemFishCount(riverSystem)
+                    ),
+                    points, riverSystem.majorityOccupants(), riverSystem.tileIds()
+            ));
         }
+        return new MessageBoard(textMaker, newMessages);
     }
 
     /**
-     * Return a message board with the message when a player scored a pit trap
+     * Return a message board with possibly the message when a player scored a pit trap
      * @param adjacentMeadow (Area<Zone.Meadow>) the meadow where the pit trap is placed
      * @param cancelledAnimals (Set<Animal>) the animals that are not counted in the meadow
-     * @return (MessageBoard) the message board with the message when a player scored a pit trap
+     * @return (MessageBoard) the message board with possibly the message when a player scored a pit trap
      */
     public MessageBoard withScoredPitTrap(Area<Zone.Meadow> adjacentMeadow, Set<Animal> cancelledAnimals) {
+        List<Message> newMessages = new ArrayList<>(messages);
         Set<Animal> animals = Area.animals(adjacentMeadow, cancelledAnimals);
         Map<Animal.Kind, Integer> animalsCount = new HashMap<>();
         for (Animal animal : animals) {
-            animalsCount.merge(animal.kind(), 1, (Integer value1, Integer value2)-> {return value1 + value2;});
+            animalsCount.merge(animal.kind(), 1, Integer::sum);
         }
-        int points = Points.forMeadow(animalsCount.get(Animal.Kind.MAMMOTH), animalsCount.get(Animal.Kind.AUROCHS), animalsCount.get(Animal.Kind.DEER));
-        if(adjacentMeadow.isOccupied() && points > 0){
-            List<Message> newmessages = new ArrayList<>(messages);
-            Message message  = new Message(textMaker.playersScoredPitTrap(adjacentMeadow.majorityOccupants(), points, animalsCount), points, adjacentMeadow.majorityOccupants(), adjacentMeadow.tileIds());
-            newmessages.add(message);
-            return new MessageBoard(this.textMaker, newmessages);
-        } else {
-            return new MessageBoard(this.textMaker, this.messages);
+        int points = Points.forMeadow(
+                animalsCount.get(Animal.Kind.MAMMOTH),
+                animalsCount.get(Animal.Kind.AUROCHS),
+                animalsCount.get(Animal.Kind.DEER));
+        if (adjacentMeadow.isOccupied() && points > 0) {
+            newMessages.add(new Message(
+                    textMaker.playersScoredPitTrap(adjacentMeadow.majorityOccupants(), points, animalsCount),
+                    points, adjacentMeadow.majorityOccupants(), adjacentMeadow.tileIds()
+            ));
         }
+        return new MessageBoard(textMaker, newMessages);
     }
 
     /**
-     * Return a message board with the message when a player scored a raft
+     * Return a message board with possibly the message when a player scored a raft
      * @param riverSystem (Area<Zone.Water>) the river system where the raft is placed
-     * @return (MessageBoard) the message board with the message when a player scored a raft
+     * @return (MessageBoard) the message board with possibly the message when a player scored a raft
      */
     public MessageBoard withScoredRaft(Area<Zone.Water> riverSystem) {
+        List<Message> newMessages = new ArrayList<>(messages);
         int points = Points.forRaft(Area.lakeCount(riverSystem));
-        if(riverSystem.isOccupied() && points > 0){
-            List<Message> newmessages = new ArrayList<>(messages);
-            Message message  = new Message(textMaker.playersScoredRaft(riverSystem.majorityOccupants(), points, Area.lakeCount(riverSystem)), points, riverSystem.majorityOccupants(), riverSystem.tileIds());
-            newmessages.add(message);
-            return new MessageBoard(this.textMaker, newmessages);
-        } else {
-            return new MessageBoard(this.textMaker, this.messages);
+        if (riverSystem.isOccupied() && points > 0) {
+            newMessages.add(new Message(
+                    textMaker.playersScoredRaft(riverSystem.majorityOccupants(), points, Area.lakeCount(riverSystem)),
+                    points, riverSystem.majorityOccupants(), riverSystem.tileIds()
+            ));
         }
+        return new MessageBoard(textMaker, newMessages);
     }
 
     /**
@@ -214,10 +229,9 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
      * @return (MessageBoard) the message board with the message when it is the end of the game
      */
     public MessageBoard withWinners(Set<PlayerColor> winners, int points) {
-        List<Message> newmessages = new ArrayList<>(messages);
-        Message message  = new Message(textMaker.playersWon(winners, points), points, winners, Set.of());
-        newmessages.add(message);
-        return new MessageBoard(this.textMaker, newmessages);
+        List<Message> newMessages = new ArrayList<>(messages);
+        newMessages.add(new Message(textMaker.playersWon(winners, points), 0, Set.of(), Set.of()));
+        return new MessageBoard(textMaker, newMessages);
     }
 
     /**
@@ -237,13 +251,11 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
          * @param scorers (Set<PlayerColor>) the scorers of the message
          * @param tileIds (Set<Integer>) the tile ids of the message
          */
-        public Message(String text, int points, Set<PlayerColor> scorers, Set<Integer> tileIds) {
-            Preconditions.checkArgument(text!=null);
-            Preconditions.checkArgument(points>=0);
-            this.text = text;
-            this.points = points;
-            this.scorers = Set.copyOf(scorers);
-            this.tileIds = Set.copyOf(tileIds);
+        public Message {
+            Objects.requireNonNull(text);
+            Preconditions.checkArgument(points >= 0);
+            scorers = Set.copyOf(scorers);
+            tileIds = Set.copyOf(tileIds);
         }
     }
 }

@@ -34,8 +34,8 @@ public record Tile(int id, Kind kind, TileSide n, TileSide e, TileSide s, TileSi
         return List.of(n, e, s, w);
     }
     /**
-     * Returns the zones of the current tile
-     * @return (Set<Zone>) a set of Zone representing the zones of the current tile
+     * Returns the side zones of the current tile
+     * @return (Set<Zone>) a set of Zone representing the side zones of the current tile
      */
     public Set<Zone> sideZones() {
         Set<Zone> sideZones = new HashSet<>();
