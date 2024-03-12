@@ -49,7 +49,7 @@ public class Board {
      * @param zonePartitions (ZonePartitions) the zone partitions
      * @param cancelledAnimals (Set<Animal>) the cancelled animals
      */
-    private Board (PlacedTile[] placedTiles, int[] tileIndex, ZonePartitions zonePartitions, Set<Animal> cancelledAnimals) {
+    public Board (PlacedTile[] placedTiles, int[] tileIndex, ZonePartitions zonePartitions, Set<Animal> cancelledAnimals) {
         this.placedTiles = placedTiles;
         this.tileIndex = tileIndex;
         this.zonePartitions = zonePartitions;
@@ -250,7 +250,7 @@ public class Board {
         return null;
     }
 
-    public Board withoutGatherersOrFisherIn(Set<Area<Zone.Forest>> forests, Set<Area<Zone.River>> rivers) {
+    public Board withoutGatherersOrFishersIn(Set<Area<Zone.Forest>> forests, Set<Area<Zone.River>> rivers) {
         return null;
     }
 
