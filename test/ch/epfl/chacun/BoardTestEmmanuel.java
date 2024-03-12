@@ -158,7 +158,7 @@ public class BoardTestEmmanuel {
 
     @Test
     void withoutOccupantTestEmmanuel() {
-        //voir plus haut
+        //voir plus h
     }
 
     @Test
