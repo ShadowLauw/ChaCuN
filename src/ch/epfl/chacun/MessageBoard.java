@@ -174,9 +174,9 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
             animalsCount.merge(animal.kind(), 1, Integer::sum);
         }
         int points = Points.forMeadow(
-                animalsCount.get(Animal.Kind.MAMMOTH),
-                animalsCount.get(Animal.Kind.AUROCHS),
-                animalsCount.get(Animal.Kind.DEER));
+                animalsCount.getOrDefault(Animal.Kind.MAMMOTH, 0),
+                animalsCount.getOrDefault(Animal.Kind.AUROCHS, 0),
+                animalsCount.getOrDefault(Animal.Kind.DEER,1));
         if ((scorer != null || adjacentMeadow.isOccupied()) && points > 0) {
             switch (messageType) {
                 case "meadow" -> newMessages.add(new Message(
@@ -187,10 +187,14 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
                         textMaker.playersScoredPitTrap(adjacentMeadow.majorityOccupants(), points, animalsCount),
                         points, adjacentMeadow.majorityOccupants(), adjacentMeadow.tileIds()
                 ));
-                case "huntingTrap" -> newMessages.add(new Message(
-                        textMaker.playerScoredHuntingTrap(scorer, points, animalsCount),
-                        points, Set.of(scorer), adjacentMeadow.tileIds()
-                ));}
+                case "huntingTrap" -> {
+                    assert scorer != null;
+                    newMessages.add(new Message(
+                            textMaker.playerScoredHuntingTrap(scorer, points, animalsCount),
+                            points, Set.of(scorer), adjacentMeadow.tileIds()
+                    ));
+                }
+            }
         }
         return new MessageBoard(textMaker, newMessages);
     }

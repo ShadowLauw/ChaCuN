@@ -118,11 +118,22 @@ public class LauraZonePartitionsTest {
     }
 
     @Test
-    void addInitialOccupantWorks() throws IOException {
+    void addInitialOccupantWorksOnPawn() throws IOException {
         ZonePartitions.Builder builder = new ZonePartitions.Builder(ZonePartitions.EMPTY);
         Tile tile56 = TileReader.readTileFromCSV(56);
         builder.addTile(tile56);
-        builder.addInitialOccupant((Zone.River)tile56.n().zones().get(1), PlayerColor.RED);
+        builder.addInitialOccupant(PlayerColor.RED, Occupant.Kind.PAWN, tile56.s().zones().getFirst());
+        Area<Zone.Forest> forestArea = new Area<>(Set.of((Zone.Forest)tile56.s().zones().getFirst()), List.of(PlayerColor.RED), 2);
+        assertEquals(builder.build().forests(), new ZonePartition<>(Set.of(forestArea)));
+    }
+    @Test
+    void addInitialOccupantWorksOnHut() throws IOException {
+        ZonePartitions.Builder builder = new ZonePartitions.Builder(ZonePartitions.EMPTY);
+        Tile tile56 = TileReader.readTileFromCSV(56);
+        builder.addTile(tile56);
+        builder.addInitialOccupant(PlayerColor.RED, Occupant.Kind.TOTORO, tile56.s().zones().getFirst());
+        Area<Zone.Forest> forestArea = new Area<>(Set.of((Zone.Forest)tile56.s().zones().getFirst()), List.of(PlayerColor.RED), 2);
+        assertEquals(builder.build().forests(), new ZonePartition<>(Set.of(forestArea)));
     }
 }
 
