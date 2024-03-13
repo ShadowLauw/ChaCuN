@@ -106,9 +106,7 @@ public class ZonePartitionsTestEmmanuel {
     void builderAddTileWorksTest() {
 
         Tile startTile = TileReader.readTileFromCSV(56);
-        Tile tile1 = TileReader.readTileFromCSV(1);
-        Tile tile2 = TileReader.readTileFromCSV(2);
-        Tile tile3 = TileReader.readTileFromCSV(3);
+        Tile tile17 = TileReader.readTileFromCSV(17);
 
         ZonePartitions.Builder builder = new ZonePartitions.Builder(ZonePartitions.EMPTY);
         builder.addTile(startTile);
@@ -123,12 +121,20 @@ public class ZonePartitionsTestEmmanuel {
                 new ZonePartition<>(watersArea)
         );
         assertEquals(zonePartitionsValid, builder.build());
-        builder.addTile(tile1);
-        builder.addTile(tile2);
-        builder.addTile(tile3);
-        ZonePartitions zonePartitions = builder.build();
 
-//        assertEquals(zonePartitions.forests().areas().size(), 3);
+        builder.addTile(tile17);
+        Set<Area<Zone.Meadow>> meadowsArea2 = Set.of(
+                new Area<>(Set.of((Zone.Meadow)tile17.e().zones().getFirst()), List.of(), 1),
+                new Area<>(Set.of((Zone.Meadow)tile17.e().zones().getLast()), List.of(), 2),
+                new Area<>(Set.of((Zone.Meadow)tile17.w().zones().getFirst()), List.of(), 3),
+                new Area<>(Set.of((Zone.Meadow)tile17.w().zones().getLast()), List.of(), 4)
+        );
+        Set<Area<Zone.River>> riversArea2 = Set.of(new Area<>(Set.of((Zone.River)tile17.w().zones().get(1)), List.of(), 0));
+        Set<Area<Zone.Water>> watersArea2 = Set.of(new Area<>(tile17.zones().stream().filter(zone -> zone instanceof Zone.Water).map(zone -> (Zone.Water) zone).collect(Collectors.toSet()), List.of(), 0));
+        riversArea2.add(new Area<>(Set.of((Zone.River)tile17.w().zones().get(1)), List.of(), 0));
+        watersArea2.add(new Area<>(tile17.zones().stream().filter(zone -> zone instanceof Zone.Water).map(zone -> (Zone.Water) zone).collect(Collectors.toSet()), List.of(), 0));
+
+
     }
 
     @Test
