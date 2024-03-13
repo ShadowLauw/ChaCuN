@@ -13,18 +13,25 @@ public class TileReader {
 
     private static final String CSV_FILE_PATH = "test/ch/epfl/chacun/tuiles.csv"; // Chemin vers le fichier CSV contenant les tuiles
 
-    public static Tile readTileFromCSV(int tileId) throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader(CSV_FILE_PATH));
-        reader.readLine();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            String[] parts = line.split(",");
-            int id = Integer.parseInt(parts[0]);
-            if (id == tileId) {
-                return parseTile(parts);
+    public static Tile readTileFromCSV(int tileId) {
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(CSV_FILE_PATH));
+            reader.readLine();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                int id = Integer.parseInt(parts[0]);
+                if (id == tileId) {
+                    return parseTile(parts);
+                }
             }
+            return null; // Retourne null si aucune tuile correspondante n'est trouvée
+
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            throw new IllegalArgumentException("Error while reading the file");
         }
-        return null; // Retourne null si aucune tuile correspondante n'est trouvée
+
     }
 
     private static Tile parseTile(String[] data) {
