@@ -18,14 +18,13 @@ public record ZonePartitions (ZonePartition<Zone.Forest> forests, ZonePartition<
     // Empty zone partitions
     public final static ZonePartitions EMPTY = new ZonePartitions(new ZonePartition<>(Set.of()), new ZonePartition<>(Set.of()), new ZonePartition<>(Set.of()), new ZonePartition<>(Set.of()));
 
-    /**
-     * Builder for ZonePartitions
-     */
-    public final static class Builder {
-        private final ZonePartition.Builder<Zone.Forest> forests;
-        private final ZonePartition.Builder<Zone.Meadow> meadows;
-        private final ZonePartition.Builder<Zone.River> rivers;
-        private final ZonePartition.Builder<Zone.Water> riverSystems;
+    public final class Builder {
+        private ZonePartition.Builder<Zone.Forest> forests;
+        private ZonePartition.Builder<Zone.Meadow> meadows;
+        private ZonePartition.Builder<Zone.River> rivers;
+        private ZonePartition.Builder<Zone.Water> riverSystems;
+
+        Builder (ZonePartitions initial) {
 
         /**
          * Constructs a ZonePartitions builder with the given initial zone partitions
