@@ -2,6 +2,7 @@ package ch.epfl.chacun;
 
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ public class TileReader {
             case "NORMALE" -> Tile.Kind.NORMAL;
             case "MENHIR" -> Tile.Kind.MENHIR;
             case "DÉPART" -> Tile.Kind.START;
-            default -> throw new IllegalArgumentException("Invalid tile kind: " + type);
+            default -> null;
         };
 
         TileSide n = parseTileSide(data, 1 , id);
@@ -56,7 +57,7 @@ public class TileReader {
                     parseMeadow(Data[localId + 5], localId, tileId),
                     parseRiver(Data[Character.getNumericValue(Data[side].charAt(2)) + 5], Data[13], Data[14], Character.getNumericValue(Data[side].charAt(2)) ,tileId),
                     parseMeadow(Data[Character.getNumericValue(Data[side].charAt(3)) + 5], Character.getNumericValue(Data[side].charAt(3)),tileId));
-            default -> throw new IllegalArgumentException("Invalid side type: " + type);
+            default -> (null);
         };
     }
 
@@ -91,8 +92,6 @@ public class TileReader {
                 case 'W':
                     specialPower = Zone.SpecialPower.WILD_FIRE;
                     break;
-                default:
-                    throw new IllegalArgumentException("Invalid animal type: " + animalChar);
             }
         }
         return new Zone.Meadow(id, animals, specialPower);
@@ -168,8 +167,8 @@ public class TileReader {
         return new Zone.River(id, fishCount, lake);
     }
 
-    public static void main(String[] args) {
-        try {
+    public static void main(String[] args) throws IOException {
+
             int tileId = 0; // Prenez l'ID de la tuile à partir des arguments de la ligne de commande
             Tile tile = readTileFromCSV(tileId);
             if (tile != null) {
@@ -177,8 +176,5 @@ public class TileReader {
             } else {
                 System.out.println("Tile with ID " + tileId + " not found.");
             }
-        } catch (IOException | ArrayIndexOutOfBoundsException | NumberFormatException e) {
-            e.printStackTrace();
-        }
     }
 }

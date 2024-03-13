@@ -16,15 +16,22 @@ import java.util.Set;
 public record ZonePartitions (ZonePartition<Zone.Forest> forests, ZonePartition<Zone.Meadow> meadows, ZonePartition<Zone.River> rivers, ZonePartition<Zone.Water> riverSystems){
 
     // Empty zone partitions
-    public final static ZonePartitions EMPTY = new ZonePartitions(new ZonePartition<>(Set.of()), new ZonePartition<>(Set.of()), new ZonePartition<>(Set.of()), new ZonePartition<>(Set.of()));
+    public static final ZonePartitions EMPTY = new ZonePartitions(
+            new ZonePartition<>(),
+            new ZonePartition<>(),
+            new ZonePartition<>(),
+            new ZonePartition<>()
+    );
 
-    public final class Builder {
-        private ZonePartition.Builder<Zone.Forest> forests;
-        private ZonePartition.Builder<Zone.Meadow> meadows;
-        private ZonePartition.Builder<Zone.River> rivers;
-        private ZonePartition.Builder<Zone.Water> riverSystems;
+    /**
+     * Builder  for the ZonePartitions
+     */
 
-        Builder (ZonePartitions initial) {
+    public static final class Builder {
+        private final ZonePartition.Builder<Zone.Forest> forests;
+        private final ZonePartition.Builder<Zone.Meadow> meadows;
+        private final ZonePartition.Builder<Zone.River> rivers;
+        private final ZonePartition.Builder<Zone.Water> riverSystems;
 
         /**
          * Constructs a ZonePartitions builder with the given initial zone partitions
@@ -50,6 +57,7 @@ public record ZonePartitions (ZonePartition<Zone.Forest> forests, ZonePartition<
                     if (zone instanceof Zone.River river) {
                         if (river.hasLake()) {
                             openConnections[river.lake().localId()]++;
+                            openConnections[river.localId()]++;
                         }
                     }
                 }
