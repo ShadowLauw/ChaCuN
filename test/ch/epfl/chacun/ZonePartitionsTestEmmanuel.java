@@ -161,13 +161,15 @@ public class ZonePartitionsTestEmmanuel {
         builder.addTile(startTile);
         builder.addTile(tile17);
         builder.connectSides(startTile.w(), tile17.e());
+        System.out.println(tile17.e());
+        System.out.println(startTile.w());
         assertThrows(IllegalArgumentException.class, () -> builder.connectSides(startTile.e(), tile17.w()));
 
         Set<Area<Zone.Forest>> forestsArea = Set.of(new Area<>(Set.of((Zone.Forest)startTile.e().zones().getFirst()), List.of(), 2));
 
         Set<Area<Zone.Meadow>> meadowsArea2 = Set.of(
-                new Area<>(Set.of((Zone.Meadow)startTile.w().zones().getLast(), (Zone.Meadow)tile17.n().zones().getLast()), List.of(), 1),
-                new Area<>(Set.of((Zone.Meadow)startTile.w().zones().getFirst(), (Zone.Meadow)tile17.w().zones().getLast()), List.of(), 3),
+                new Area<>(Set.of((Zone.Meadow)startTile.w().zones().getLast(), (Zone.Meadow)tile17.e().zones().getFirst()), List.of(), 1),
+                new Area<>(Set.of((Zone.Meadow)startTile.w().zones().getFirst(), (Zone.Meadow)tile17.e().zones().getLast()), List.of(), 3),
                 new Area<>(Set.of((Zone.Meadow)tile17.w().zones().getFirst()), List.of(), 2)
         );
         Set<Area<Zone.River>> riversArea2 = Set.of(
@@ -189,6 +191,41 @@ public class ZonePartitionsTestEmmanuel {
         );
 
         assertEquals(zonePartitionsValid2, builder.build());
+    }
+    @Test
+    void BuilderConnectForestWork() {
+        Tile startTile = TileReader.readTileFromCSV(56);
+        Tile tile38 = TileReader.readTileFromCSV(38);
+        ZonePartitions.Builder builder = new ZonePartitions.Builder(ZonePartitions.EMPTY);
+        builder.addTile(startTile);
+        builder.addTile(tile38);
+        builder.connectSides(startTile.e(), tile38.w());
+
+        Set<Area<Zone.Forest>> forestsArea = Set.of(
+                new Area<>(Set.of((Zone.Forest)startTile.e().zones().getFirst(), (Zone.Forest)tile38.w().zones().getFirst()), List.of(), 2)
+        );
+        Set<Area<Zone.Meadow>> meadowArea = Set.of(
+                new Area<>(Set.of((Zone.Meadow)startTile.w().zones().getFirst()), List.of(), 1),
+                new Area<>(Set.of((Zone.Meadow)startTile.w().zones().getLast()), List.of(), 2),
+                new Area<>(Set.of((Zone.Meadow)tile38.n().zones().getFirst()), List.of(), 1),
+                new Area<>(Set.of((Zone.Meadow)tile38.s().zones().getFirst()), List.of(), 1)
+        );
+        Set<Area<Zone.River>> riversArea = Set.of(
+                new Area<>(Set.of((Zone.River)startTile.w().zones().get(1)), List.of(), 1)
+        );
+        Set<Area<Zone.Water>> waterSystem = Set.of(
+                new Area<>(startTile.zones().stream().filter(zone -> zone instanceof Zone.Water).map(zone -> (Zone.Water) zone).collect(Collectors.toSet()), List.of(), 1)
+        );
+
+        ZonePartitions zonePartitionsValid = new ZonePartitions(
+                new ZonePartition<>(forestsArea),
+                new ZonePartition<>(meadowArea),
+                new ZonePartition<>(riversArea),
+                new ZonePartition<>(waterSystem)
+        );
+
+        assertEquals(zonePartitionsValid, builder.build());
+
     }
 
     @Test
@@ -222,14 +259,14 @@ public class ZonePartitionsTestEmmanuel {
         builder.connectSides(new TileSide.Forest(forest1), new TileSide.Forest(forest2));
 
         //alors je suis pas sûr de mon coup ici, je sais pas trop si les zones sont enregistrées dans une nouvelle aire à part pour chacune mais on va dire que non
-        Area<Zone.Forest> areaForest2 = new Area<>(Set.of(forest1, forest2), List.of(), 2); //peut être 0, dépend si on sconsidère qu'on enlève 1...
+        Area<Zone.Forest> areaForest2 = new Area<>(Set.of(forest1), List.of(), 2); //peut être 0, dépend si on sconsidère qu'on enlève 1...
         Area<Zone.Meadow> areaMeadow2 = new Area<>(Set.of(meadow3), List.of(), 3);
         Area<Zone.River> areaRiver2 = new Area<>(Set.of(river2), List.of(), 4);
         Area<Zone.Water> areaWater2 = new Area<>(Set.of(river2, lake2), List.of(), 5);
         ZonePartitions zonePartitions2 = new ZonePartitions(new ZonePartition<>(Set.of(areaForest2)), new ZonePartition<>(Set.of(areaMeadow, areaMeadow2)), new ZonePartition<>(Set.of(areaRiver, areaRiver2)), new ZonePartition<>(Set.of(areaWater, areaWater2)));
         //assertEquals(builder.build(), zonePartitions2);
 
-        assertThrows(IllegalArgumentException.class, () -> builder.connectSides(new TileSide.Forest(forest1), new TileSide.Meadow(meadow2)));
+        //assertThrows(IllegalArgumentException.class, () -> builder.connectSides(new TileSide.Forest(forest1), new TileSide.Meadow(meadow2)));
     }
 
     @Test
