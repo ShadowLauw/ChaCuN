@@ -183,11 +183,5 @@ public class TileReader {
             } else {
                 System.out.println("Tile with ID " + tileId + " not found.");
             }
-<<<<<<< Updated upstream
-=======
-        } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
-        }
->>>>>>> Stashed changes
     }
 }
