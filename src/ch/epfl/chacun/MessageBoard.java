@@ -155,6 +155,14 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
         return getMessageBoardMeadow(adjacentMeadow, cancelledAnimals, "pitTrap", null);
     }
 
+    /**
+     * Return a message board that depend on meadows (pit trap, hunting trap, meadow)
+     * @param adjacentMeadow (Area<Zone.Meadow>) the meadow
+     * @param cancelledAnimals (Set<Animal>) the animals that are not counted in the meadow
+     * @param messageType (String) the type of the message (can be "pitTrap", "huntingTrap" or "meadow")
+     * @param scorer (PlayerColor) the player who scored the hunting trap
+     * @return (MessageBoard) the message board that depends on meadows (pit trap, hunting trap, meadow)
+     */
     private MessageBoard getMessageBoardMeadow(Area<Zone.Meadow> adjacentMeadow,
                                                Set<Animal> cancelledAnimals,
                                                String messageType,
