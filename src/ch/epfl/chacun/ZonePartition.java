@@ -77,7 +77,7 @@ public record ZonePartition<Z extends Zone> (Set<Area<Z>> areas) {
         }
 
         /**
-         * Add a singleton area  to the partition with the given zone and open connections
+         * Add a new area to the partition with the single given zone and open connections
          * @param zone (Z) the zone of the area
          */
         public void addSingleton(Z zone, int openConnections) {
