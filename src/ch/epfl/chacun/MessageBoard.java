@@ -5,8 +5,8 @@ import java.util.*;
 /**
  * Represents the message board of the game
  *
- * @param textMaker (TextMaker) the text maker of the game
- * @param messages  (List<Message>) the messages of the game
+ * @param textMaker the text maker of the game
+ * @param messages  the messages of the game
  * @author Laura Paraboschi (364161)
  * @author Emmanuel Omont (372632)
  */
@@ -15,8 +15,8 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
     /**
      * Constructs a message board with the given text maker and messages
      *
-     * @param textMaker (TextMaker) the text maker of the game
-     * @param messages  (List<Message>) the messages of the game
+     * @param textMaker the text maker of the game
+     * @param messages  the messages of the game
      */
     public MessageBoard {
         messages = List.copyOf(messages);
@@ -25,7 +25,7 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
     /**
      * Return a table with all the scorers and their points
      *
-     * @return (Map < PlayerColor, Integer >) the table with all the scorers and their points
+     * @return the table with all the scorers and their points
      */
     public Map<PlayerColor, Integer> points() {
         Map<PlayerColor, Integer> points = new HashMap<>();
@@ -40,8 +40,8 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
     /**
      * Return the message board with possibly a new message for the closed forest
      *
-     * @param forest (Area<Zone.Forest>) the placed tile
-     * @return (MessageBoard) the message board with possibly a new message for the closed forest
+     * @param forest the placed tile
+     * @return the message board with possibly a new message for the closed forest
      */
     public MessageBoard withScoredForest(Area<Zone.Forest> forest) {
         List<Message> newMessages = new ArrayList<>(messages);
@@ -61,13 +61,14 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
     /**
      * Return the message board with a new message for the closed forest with menhir
      *
-     * @param player (PlayerColor) the player who closed the forest with menhir
-     * @param forest (Area<Zone.Forest>) the closed forest with menhir
-     * @return (MessageBoard) the message board with a new message for the given closed forest with menhir
+     * @param player the player who closed the forest with menhir
+     * @param forest the closed forest with menhir
+     * @return the message board with a new message for the given closed forest with menhir
      */
     public MessageBoard withClosedForestWithMenhir(PlayerColor player, Area<Zone.Forest> forest) {
         List<Message> newMessages = new ArrayList<>(messages);
-        newMessages.add(new Message(textMaker.playerClosedForestWithMenhir(player),
+        newMessages.add(new Message(
+                textMaker.playerClosedForestWithMenhir(player),
                 0, Set.of(), forest.tileIds()
         ));
         return new MessageBoard(this.textMaker, newMessages);
@@ -76,8 +77,8 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
     /**
      * Return the message board with possibly the message when the player scored a closed river
      *
-     * @param river (Area<Zone.River>) the closed river
-     * @return (MessageBoard) the message board with possibly the message when the player scored a closed river
+     * @param river the closed river
+     * @return the message board with possibly the message when the player scored a closed river
      */
     public MessageBoard withScoredRiver(Area<Zone.River> river) {
         List<Message> newMessages = new ArrayList<>(messages);
@@ -95,9 +96,9 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
     /**
      * Return the message board with possibly the message when the player scored a hunting trap
      *
-     * @param scorer         (PlayerColor) the player who scored the hunting trap
-     * @param adjacentMeadow (Area<Zone.Meadow>) the meadow where the hunting trap is placed
-     * @return (MessageBoard) the message board with possibly the message when the player scored a hunting trap
+     * @param scorer         the player who scored the hunting trap
+     * @param adjacentMeadow the meadow where the hunting trap is placed
+     * @return the message board with possibly the message when the player scored a hunting trap
      */
     public MessageBoard withScoredHuntingTrap(PlayerColor scorer, Area<Zone.Meadow> adjacentMeadow) {
         return getMessageBoardMeadow(adjacentMeadow, Set.of(), "huntingTrap", scorer);
@@ -106,9 +107,9 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
     /**
      * Return the message board with the message when the player scored a logboat
      *
-     * @param scorer      (PlayerColor) the player who scored the logboat
-     * @param riverSystem (Area<Zone.Water>) the river system where the logboat is placed
-     * @return (MessageBoard) the message board with the message when the player scored a logboat
+     * @param scorer      the player who scored the logboat
+     * @param riverSystem the river system where the logboat is placed
+     * @return the message board with the message when the player scored a logboat
      */
     public MessageBoard withScoredLogboat(PlayerColor scorer, Area<Zone.Water> riverSystem) {
         List<Message> newMessages = new ArrayList<>(messages);
@@ -123,9 +124,9 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
     /**
      * Return a message board with possibly the message when a player closed a meadow
      *
-     * @param meadow           (Area<Zone.Meadow>) the closed meadow
-     * @param cancelledAnimals (Set<Animal>) the animals that are not counted in the meadow
-     * @return (MessageBoard) the message board with possibly the message when a player closed a meadow
+     * @param meadow           the closed meadow
+     * @param cancelledAnimals the animals that are not counted in the meadow
+     * @return the message board with possibly the message when a player closed a meadow
      */
     public MessageBoard withScoredMeadow(Area<Zone.Meadow> meadow, Set<Animal> cancelledAnimals) {
         return getMessageBoardMeadow(meadow, cancelledAnimals, "meadow", null);
@@ -134,8 +135,8 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
     /**
      * Return a message board with possibly the message when a player closed a river system
      *
-     * @param riverSystem (Area<Zone.Water>) the closed river system
-     * @return (MessageBoard) the message board with possibly the message when a player closed a river system
+     * @param riverSystem the closed river system
+     * @return the message board with possibly the message when a player closed a river system
      */
     public MessageBoard withScoredRiverSystem(Area<Zone.Water> riverSystem) {
         int points = Points.forRiverSystem(Area.riverSystemFishCount(riverSystem));
@@ -156,9 +157,9 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
     /**
      * Return a message board with possibly the message when a player scored a pit trap
      *
-     * @param adjacentMeadow   (Area<Zone.Meadow>) the meadow where the pit trap is placed
-     * @param cancelledAnimals (Set<Animal>) the animals that are not counted in the meadow
-     * @return (MessageBoard) the message board with possibly the message when a player scored a pit trap
+     * @param adjacentMeadow   the meadow where the pit trap is placed
+     * @param cancelledAnimals the animals that are not counted in the meadow
+     * @return the message board with possibly the message when a player scored a pit trap
      */
     public MessageBoard withScoredPitTrap(Area<Zone.Meadow> adjacentMeadow, Set<Animal> cancelledAnimals) {
         return getMessageBoardMeadow(adjacentMeadow, cancelledAnimals, "pitTrap", null);
@@ -167,11 +168,11 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
     /**
      * Return a message board that depend on meadows (pit trap, hunting trap, meadow)
      *
-     * @param adjacentMeadow   (Area<Zone.Meadow>) the meadow
-     * @param cancelledAnimals (Set<Animal>) the animals that are not counted in the meadow
-     * @param messageType      (String) the type of the message (can be "pitTrap", "huntingTrap" or "meadow")
-     * @param scorer           (PlayerColor) the player who scored the hunting trap
-     * @return (MessageBoard) the message board that depends on meadows (pit trap, hunting trap, meadow)
+     * @param adjacentMeadow   the meadow
+     * @param cancelledAnimals the animals that are not counted in the meadow
+     * @param messageType      the type of the message (can be "pitTrap", "huntingTrap" or "meadow")
+     * @param scorer           the player who scored the hunting trap
+     * @return the message board that depends on meadows (pit trap, hunting trap, meadow)
      */
     private MessageBoard getMessageBoardMeadow(
             Area<Zone.Meadow> adjacentMeadow,
@@ -214,8 +215,8 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
     /**
      * Return a message board with possibly the message when a player scored a raft
      *
-     * @param riverSystem (Area<Zone.Water>) the river system where the raft is placed
-     * @return (MessageBoard) the message board with possibly the message when a player scored a raft
+     * @param riverSystem the river system where the raft is placed
+     * @return the message board with possibly the message when a player scored a raft
      */
     public MessageBoard withScoredRaft(Area<Zone.Water> riverSystem) {
         List<Message> newMessages = new ArrayList<>(messages);
@@ -232,9 +233,9 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
     /**
      * Return a message board with the message when it is the end of the game
      *
-     * @param winners (Set<PlayerColor>) the winners of the game
-     * @param points  (int) the points of the winners
-     * @return (MessageBoard) the message board with the message when it is the end of the game
+     * @param winners the winners of the game
+     * @param points  the points of the winners
+     * @return the message board with the message when it is the end of the game
      */
     public MessageBoard withWinners(Set<PlayerColor> winners, int points) {
         List<Message> newMessages = new ArrayList<>(messages);
@@ -245,19 +246,19 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
     /**
      * Represents a message of the message board
      *
-     * @param text    (String) the text of the message
-     * @param points  (int) the points of the message
-     * @param scorers (Set<PlayerColor>) the scorers of the message
-     * @param tileIds (Set<Integer>) the tile ids of the message
+     * @param text    the text of the message
+     * @param points  the points of the message
+     * @param scorers the scorers of the message
+     * @param tileIds the tile ids of the message
      */
     public record Message(String text, int points, Set<PlayerColor> scorers, Set<Integer> tileIds) {
         /**
          * Constructs a message with the given text, points, scorers and tile ids
          *
-         * @param text    (String) the text of the message
-         * @param points  (int) the points of the message
-         * @param scorers (Set<PlayerColor>) the scorers of the message
-         * @param tileIds (Set<Integer>) the tile ids of the message
+         * @param text    the text of the message
+         * @param points  the points of the message
+         * @param scorers the scorers of the message
+         * @param tileIds the tile ids of the message
          */
         public Message {
             Objects.requireNonNull(text);

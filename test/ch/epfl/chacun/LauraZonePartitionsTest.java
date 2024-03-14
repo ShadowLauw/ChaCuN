@@ -113,8 +113,13 @@ public class LauraZonePartitionsTest {
         builder.connectSides(tile20.n(), tile56.w());
         Area<Zone.River> riverArea = new Area<>(Set.of((Zone.River)tile20.n().zones().get(1), (Zone.River)tile56.w().zones().get(1)), List.of(), 1);
         Area<Zone.Water> waterArea = new Area<>(Set.of((Zone.Water)tile20.n().zones().get(1), (Zone.Water)tile56.w().zones().get(1), ((Zone.River) tile56.w().zones().get(1)).lake()), List.of(), 1);
+        Area<Zone.Meadow> meadowArea1 = new Area<>(Set.of((Zone.Meadow)tile56.w().zones().get(2), (Zone.Meadow)tile20.n().zones().get(0)), List.of(), 2);
+        Area<Zone.Meadow> meadowArea2 = new Area<>(Set.of((Zone.Meadow)tile56.w().zones().get(0), (Zone.Meadow)tile20.n().zones().get(2)), List.of(), 1);
+        Area<Zone.Meadow> meadowArea3 = new Area<>(Set.of((Zone.Meadow)tile20.e().zones().get(2)), List.of(), 1);
         assertEquals(builder.build().rivers(), new ZonePartition<>(Set.of(riverArea)));
         assertEquals(builder.build().riverSystems(), new ZonePartition<>(Set.of(waterArea)));
+        ZonePartition<Zone.Meadow> meadowZonePartition = new ZonePartition<>(Set.of(meadowArea2, meadowArea1, meadowArea3));
+        assertEquals(meadowZonePartition, builder.build().meadows());
     }
 
     @Test
@@ -131,9 +136,109 @@ public class LauraZonePartitionsTest {
         ZonePartitions.Builder builder = new ZonePartitions.Builder(ZonePartitions.EMPTY);
         Tile tile56 = TileReader.readTileFromCSV(56);
         builder.addTile(tile56);
-//        builder.addInitialOccupant(PlayerColor.RED, Occupant.Kind.TOTORO, tile56.s().zones().getFirst());
-        Area<Zone.Forest> forestArea = new Area<>(Set.of((Zone.Forest)tile56.s().zones().getFirst()), List.of(PlayerColor.RED), 2);
+        builder.addInitialOccupant(PlayerColor.RED, Occupant.Kind.HUT, tile56.w().zones().get(1));
+        Area<Zone.Water> waterArea = new Area<>(Set.of((Zone.Water)tile56.w().zones().get(1), ((Zone.River) tile56.w().zones().get(1)).lake()), List.of(PlayerColor.RED), 1);
+        Area<Zone.River> riverArea = new Area<>(Set.of((Zone.River)tile56.w().zones().get(1)), List.of(), 1);
+
+        assertEquals(builder.build().riverSystems(), new ZonePartition<>(Set.of(waterArea)));
+        assertEquals(builder.build().rivers(), new ZonePartition<>(Set.of(riverArea)));
+    }
+    @Test
+    void addInitialOccupantThrows() {
+        ZonePartitions.Builder builder = new ZonePartitions.Builder(ZonePartitions.EMPTY);
+        Tile tile56 = TileReader.readTileFromCSV(56);
+        builder.addTile(tile56);
+        builder.addInitialOccupant(PlayerColor.RED, Occupant.Kind.HUT, tile56.w().zones().get(1));
+        Area<Zone.Water> waterArea = new Area<>(Set.of((Zone.Water)tile56.w().zones().get(1), ((Zone.River) tile56.w().zones().get(1)).lake()), List.of(PlayerColor.RED), 1);
+        Area<Zone.River> riverArea = new Area<>(Set.of((Zone.River)tile56.w().zones().get(1)), List.of(), 1);
+        assertThrows(IllegalArgumentException.class, () -> builder.addInitialOccupant(PlayerColor.RED, Occupant.Kind.HUT, ((Zone.River) tile56.w().zones().get(1)).lake()));
+    }
+
+    @Test
+    void removePawnWorks() {
+        ZonePartitions.Builder builder = new ZonePartitions.Builder(ZonePartitions.EMPTY);
+        Tile tile56 = TileReader.readTileFromCSV(56);
+        builder.addTile(tile56);
+        builder.addInitialOccupant(PlayerColor.RED, Occupant.Kind.PAWN, tile56.s().zones().getFirst());
+        builder.removePawn(PlayerColor.RED,tile56.s().zones().getFirst());
+        Area<Zone.Forest> forestArea = new Area<>(Set.of((Zone.Forest)tile56.s().zones().getFirst()), List.of(), 2);
         assertEquals(builder.build().forests(), new ZonePartition<>(Set.of(forestArea)));
     }
+    @Test
+    void removePawnWorks2() {
+        ZonePartitions.Builder builder = new ZonePartitions.Builder(ZonePartitions.EMPTY);
+        Tile tile56 = TileReader.readTileFromCSV(56);
+        builder.addTile(tile56);
+        builder.addInitialOccupant(PlayerColor.BLUE, Occupant.Kind.PAWN, tile56.s().zones().getFirst());
+        assertThrows(IllegalArgumentException.class, () -> builder.removePawn(PlayerColor.RED,tile56.s().zones().getFirst()));
+    }
+    @Test
+    void removePawnThrows() {
+        ZonePartitions.Builder builder = new ZonePartitions.Builder(ZonePartitions.EMPTY);
+        Tile tile56 = TileReader.readTileFromCSV(56);
+        builder.addTile(tile56);
+        builder.addInitialOccupant(PlayerColor.RED, Occupant.Kind.PAWN, tile56.s().zones().getFirst());
+        assertThrows(IllegalArgumentException.class, () -> builder.addInitialOccupant(PlayerColor.RED, Occupant.Kind.PAWN, tile56.s().zones().getFirst()));
+    }
+
+    @Test
+    void clearGatherersWorks() {
+        ZonePartitions.Builder builder = new ZonePartitions.Builder(ZonePartitions.EMPTY);
+        Tile tile56 = TileReader.readTileFromCSV(56);
+        Tile tile20 = TileReader.readTileFromCSV(20);
+        builder.addTile(tile20);
+        builder.addTile(tile56);
+        builder.addInitialOccupant(PlayerColor.RED, Occupant.Kind.PAWN, tile56.s().zones().getFirst());
+        builder.addInitialOccupant(PlayerColor.BLUE, Occupant.Kind.PAWN, tile20.s().zones().getFirst());
+        builder.connectSides(tile20.s(), tile56.e());
+        Area<Zone.Forest> forestArea = new Area<>(Set.of((Zone.Forest)tile20.s().zones().getFirst(), (Zone.Forest)tile56.e().zones().getFirst()), List.of(PlayerColor.RED, PlayerColor.BLUE), 1);
+        builder.clearGatherers(forestArea);
+        Area<Zone.Forest> forestAreaWithoutOcc = new Area<>(Set.of((Zone.Forest)tile20.s().zones().getFirst(), (Zone.Forest)tile56.e().zones().getFirst()), List.of(), 1);
+        assertEquals(builder.build().forests(), new ZonePartition<>(Set.of(forestAreaWithoutOcc)));
+    }
+    @Test
+    void clearFishersWorks() {
+        ZonePartitions.Builder builder = new ZonePartitions.Builder(ZonePartitions.EMPTY);
+        Tile tile56 = TileReader.readTileFromCSV(56);
+        Tile tile20 = TileReader.readTileFromCSV(20);
+        builder.addTile(tile20);
+        builder.addTile(tile56);
+        builder.addInitialOccupant(PlayerColor.RED, Occupant.Kind.PAWN, tile56.w().zones().get(1));
+        builder.addInitialOccupant(PlayerColor.BLUE, Occupant.Kind.PAWN, tile20.e().zones().get(1));
+        builder.connectSides(tile20.n(), tile56.w());
+        Area<Zone.River> riverArea = new Area<>(Set.of((Zone.River)tile20.n().zones().get(1), (Zone.River)tile56.w().zones().get(1)), List.of(PlayerColor.RED, PlayerColor.BLUE), 1);
+        builder.clearFishers(riverArea);
+        Area<Zone.River> riverAreaWithoutOcc = new Area<>(Set.of((Zone.River)tile20.n().zones().get(1), (Zone.River)tile56.w().zones().get(1)), List.of(), 1);
+        assertEquals(builder.build().rivers(), new ZonePartition<>(Set.of(riverAreaWithoutOcc)));
+    }
+
+    @Test
+    void buildWorks() {
+        ZonePartitions.Builder builder = new ZonePartitions.Builder(ZonePartitions.EMPTY);
+        Tile tile56 = TileReader.readTileFromCSV(56);
+        Tile tile20 = TileReader.readTileFromCSV(20);
+        builder.addTile(tile20);
+        builder.addTile(tile56);
+        builder.addInitialOccupant(PlayerColor.RED, Occupant.Kind.PAWN, tile56.s().zones().getFirst());
+        builder.addInitialOccupant(PlayerColor.BLUE, Occupant.Kind.PAWN, tile20.s().zones().getFirst());
+        builder.connectSides(tile20.s(), tile56.e());
+
+        Area<Zone.Forest> forestArea = new Area<>(Set.of((Zone.Forest)tile20.s().zones().getFirst(), (Zone.Forest)tile56.e().zones().getFirst()), List.of(PlayerColor.RED, PlayerColor.BLUE), 1);
+        ZonePartition<Zone.Forest> zonePartitionForest = new ZonePartition<>(Set.of(forestArea));
+        Area<Zone.Meadow> meadowArea1 = new Area<>(Set.of((Zone.Meadow)tile56.w().zones().get(2)), List.of(), 2);
+        Area<Zone.Meadow> meadowArea2 = new Area<>(Set.of((Zone.Meadow)tile56.w().zones().get(0)), List.of(), 1);
+        Area<Zone.Meadow> meadowArea3 = new Area<>(Set.of((Zone.Meadow)tile20.n().zones().get(2)), List.of(), 2);
+        Area<Zone.Meadow> meadowArea4 = new Area<>(Set.of((Zone.Meadow)tile20.n().zones().get(0)), List.of(), 2);
+        Area<Zone.Meadow> meadowArea5 = new Area<>(Set.of((Zone.Meadow)tile20.e().zones().get(2)), List.of(), 1);
+        ZonePartition<Zone.Meadow> zonePartitionMeadow = new ZonePartition<>(Set.of(meadowArea1, meadowArea2, meadowArea3, meadowArea4, meadowArea5));
+        Area<Zone.River> riverArea = new Area<>(Set.of((Zone.River)tile20.n().zones().get(1)), List.of(), 2);
+        Area<Zone.River> riverArea2 = new Area<>(Set.of((Zone.River)tile56.w().zones().get(1)), List.of(), 1);
+        ZonePartition<Zone.River> zonePartitionRiver = new ZonePartition<>(Set.of(riverArea, riverArea2));
+        Area<Zone.Water> waterArea = new Area<>(Set.of((Zone.Water)tile56.w().zones().get(1), ((Zone.River) tile56.w().zones().get(1)).lake()), List.of(), 1);
+        Area<Zone.Water> waterArea2 = new Area<>(Set.of((Zone.River) tile20.n().zones().get(1)), List.of(), 2);
+        ZonePartition<Zone.Water> zonePartitionWater = new ZonePartition<>(Set.of(waterArea, waterArea2));
+        assertEquals(builder.build(), new ZonePartitions(zonePartitionForest, zonePartitionMeadow, zonePartitionRiver, zonePartitionWater));
+    }
+
 }
 

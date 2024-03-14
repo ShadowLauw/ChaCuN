@@ -10,14 +10,16 @@ public final class Preconditions {
     /**
      * Private constructor to prevent instantiation.
      */
-    private Preconditions() {}
+    private Preconditions() {
+    }
+
     /**
      * Check if the given condition is true, otherwise throws an IllegalArgumentException.
      *
-     * @param shouldBeTrue (boolean) the boolean to check
+     * @param shouldBeTrue the boolean to check
      * @throws IllegalArgumentException if the given condition is false
      */
-    public static void checkArgument(boolean shouldBeTrue){
+    public static void checkArgument(boolean shouldBeTrue) {
         if (!shouldBeTrue)
             throw new IllegalArgumentException();
     }

@@ -3,11 +3,10 @@ package ch.epfl.chacun;
 /**
  * Represents an animal in the game.
  *
+ * @param id   the unique identifier of the animal
+ * @param kind the kind of the animal
  * @author Laura Paraboschi (364161)
  * @author Emmanuel Omont (372632)
- *
- * @param id (int) the unique identifier of the animal
- * @param kind (Kind) the kind of the animal
  */
 public record Animal(int id, Kind kind) {
 
@@ -23,6 +22,7 @@ public record Animal(int id, Kind kind) {
 
     /**
      * Returns the tileID the animal is on
+     *
      * @return (int) the tileID the animal is on
      */
     public int tileId() {

@@ -6,54 +6,60 @@ import java.util.function.Predicate;
 /**
  * Represents the different decks of tiles
  *
+ * @param startTiles  the start tiles deck (composed of only the start tile)
+ * @param normalTiles the normal tiles deck
+ * @param menhirTiles the menhir tiles deck
  * @author Laura Paraboschi (364161)
  * @author Emmanuel Omont (372632)
- *
- * @param startTiles (List<Tile>) the start tiles deck (composed of only the start tile)
- * @param normalTiles (List<Tile>) the normal tiles deck
- * @param menhirTiles (List<Tile>) the menhir tiles deck
  */
 public record TileDecks(List<Tile> startTiles, List<Tile> normalTiles, List<Tile> menhirTiles) {
     /**
      * Default Constructor for TileDeck, make copies of all the decks so that it cannot be modified otherwise
-     * @param startTiles (List<Tile>) the start tiles deck (composed of only the start tile)
-     * @param normalTiles (List<Tile>) the normal tiles deck
-     * @param menhirTiles (List<Tile>) the menhir tiles deck
+     *
+     * @param startTiles  the start tiles deck (composed of only the start tile)
+     * @param normalTiles the normal tiles deck
+     * @param menhirTiles the menhir tiles deck
      */
     public TileDecks {
         startTiles = List.copyOf(startTiles);
         normalTiles = List.copyOf(normalTiles);
         menhirTiles = List.copyOf(menhirTiles);
     }
+
     /**
      * Returns the size of the deck of the given kind
-     * @param kind (Tile.Kind) the kind of deck
-     * @return (int) the size of the deck of the given kind
+     *
+     * @param kind the kind of deck
+     * @return the size of the deck of the given kind
      */
     public int deckSize(Tile.Kind kind) {
-        return switch(kind) {
+        return switch (kind) {
             case START -> startTiles.size();
             case NORMAL -> normalTiles.size();
             case MENHIR -> menhirTiles.size();
         };
     }
+
     /**
      * Returns the top tile of the deck of the given kind
-     * @param kind (Tile.Kind) the kind of deck
-     * @return (Tile) the top tile of the deck of the given kind or null if the deck is empty
+     *
+     * @param kind the kind of deck
+     * @return the top tile of the deck of the given kind or null if the deck is empty
      */
-    public Tile topTile (Tile.Kind kind) {
-        List<Tile> tileDeckToSend = switch(kind) {
+    public Tile topTile(Tile.Kind kind) {
+        List<Tile> tileDeckToSend = switch (kind) {
             case START -> startTiles;
             case NORMAL -> normalTiles;
             case MENHIR -> menhirTiles;
         };
         return tileDeckToSend.isEmpty() ? null : tileDeckToSend.getFirst();
     }
+
     /**
      * Returns a new TileDecks with the top tile of the given kind removed
-     * @param kind (Tile.Kind) the kind of deck
-     * @return (TileDecks) a new TileDecks with the top tile of the given kind removed
+     *
+     * @param kind the kind of deck
+     * @return a new TileDecks with the top tile of the given kind removed
      * @throws IllegalArgumentException if the deck of the given kind is empty
      */
     public TileDecks withTopTileDrawn(Tile.Kind kind) {
@@ -64,11 +70,13 @@ public record TileDecks(List<Tile> startTiles, List<Tile> normalTiles, List<Tile
             case MENHIR -> new TileDecks(startTiles, normalTiles, menhirTiles.subList(1, menhirTiles.size()));
         };
     }
+
     /**
      * Returns a new TileDecks with the top tile of the given kind drawn until the given predicate is satisfied
-     * @param kind (Tile.Kind) the kind of deck
-     * @param predicate (Predicate<Tile>) the predicate to satisfy
-     * @return (TileDecks) a new TileDecks with the top tile of the given kind drawn until the given predicate is satisfied
+     *
+     * @param kind      the kind of deck
+     * @param predicate the predicate to satisfy
+     * @return a new TileDecks with the top tile of the given kind drawn until the given predicate is satisfied
      */
     public TileDecks withTopTileDrawnUntil(Tile.Kind kind, Predicate<Tile> predicate) {
         TileDecks newTileDeck = new TileDecks(this.startTiles, this.normalTiles, this.menhirTiles);

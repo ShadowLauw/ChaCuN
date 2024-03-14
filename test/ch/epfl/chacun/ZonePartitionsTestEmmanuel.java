@@ -161,14 +161,12 @@ public class ZonePartitionsTestEmmanuel {
         builder.addTile(startTile);
         builder.addTile(tile17);
         builder.connectSides(startTile.w(), tile17.e());
-        System.out.println(tile17.e());
-        System.out.println(startTile.w());
         assertThrows(IllegalArgumentException.class, () -> builder.connectSides(startTile.e(), tile17.w()));
 
         Set<Area<Zone.Forest>> forestsArea = Set.of(new Area<>(Set.of((Zone.Forest)startTile.e().zones().getFirst()), List.of(), 2));
 
         Set<Area<Zone.Meadow>> meadowsArea2 = Set.of(
-                new Area<>(Set.of((Zone.Meadow)startTile.w().zones().getLast(), (Zone.Meadow)tile17.e().zones().getFirst()), List.of(), 1),
+                new Area<>(Set.of((Zone.Meadow)startTile.w().zones().getLast(), (Zone.Meadow)tile17.e().zones().getFirst()), List.of(), 2),
                 new Area<>(Set.of((Zone.Meadow)startTile.w().zones().getFirst(), (Zone.Meadow)tile17.e().zones().getLast()), List.of(), 3),
                 new Area<>(Set.of((Zone.Meadow)tile17.w().zones().getFirst()), List.of(), 2)
         );
@@ -176,11 +174,9 @@ public class ZonePartitionsTestEmmanuel {
                 new Area<>(Set.of((Zone.River)startTile.w().zones().get(1), (Zone.River)tile17.e().zones().get(1)), List.of(), 1),
                 new Area<>(Set.of((Zone.River)tile17.s().zones().get(1)), List.of(), 2)
         );
-        Area<Zone.Water> AreaWater = new Area<>(startTile.zones().stream().filter(zone -> zone instanceof Zone.Water).map(zone -> (Zone.Water) zone).collect(Collectors.toSet()), List.of(), 1);
-        AreaWater.connectTo(new Area<>(Set.of((Zone.Water)tile17.n().zones().get(1)), List.of(), 2));
         Set<Area<Zone.Water>> watersArea2 = Set.of(
-                AreaWater,
-                new Area<>(Set.of((Zone.Water)tile17.s().zones().get(1)), List.of(), 0)
+                new Area<>(Set.of((Zone.Water)tile17.s().zones().get(1)), List.of(), 2),
+                new Area<Zone.Water>(Set.of((Zone.Water)startTile.w().zones().get(1), ((Zone.River) startTile.w().zones().get(1)).lake(), (Zone.Water)tile17.e().zones().get(1)), List.of(), 1)
         );
 
         ZonePartitions zonePartitionsValid2 = new ZonePartitions(
@@ -189,7 +185,6 @@ public class ZonePartitionsTestEmmanuel {
                 new ZonePartition<>(riversArea2),
                 new ZonePartition<>(watersArea2)
         );
-
         assertEquals(zonePartitionsValid2, builder.build());
     }
     @Test
@@ -319,14 +314,14 @@ public class ZonePartitionsTestEmmanuel {
         ZonePartitions zonePartitionstest = builder.build();
 
         builder.addInitialOccupant(PlayerColor.RED, Occupant.Kind.PAWN, startTile.e().zones().getFirst());
-        //je pense ça doit throws une erreur si la tuile est déjà occupée.
-        assertThrows(IllegalArgumentException.class, () -> builder.addInitialOccupant(PlayerColor.RED, Occupant.Kind.PAWN, startTile.w().zones().getFirst()));
+        //ok
+        assertThrows(IllegalArgumentException.class, () -> builder.addInitialOccupant(PlayerColor.RED, Occupant.Kind.PAWN, startTile.s().zones().getFirst()));
 
 
         Set<Area<Zone.Forest>> forestsArea = Set.of(new Area<>(Set.of((Zone.Forest)startTile.e().zones().getFirst()), List.of(PlayerColor.RED), 2));
 
         Set<Area<Zone.Meadow>> meadowsArea2 = Set.of(
-                new Area<>(Set.of((Zone.Meadow)startTile.w().zones().getLast(), (Zone.Meadow)tile17.n().zones().getLast()), List.of(), 1),
+                new Area<>(Set.of((Zone.Meadow)startTile.w().zones().getLast(), (Zone.Meadow)tile17.n().zones().getLast()), List.of(), 2),
                 new Area<>(Set.of((Zone.Meadow)startTile.w().zones().getFirst(), (Zone.Meadow)tile17.w().zones().getLast()), List.of(), 3),
                 new Area<>(Set.of((Zone.Meadow)tile17.w().zones().getFirst()), List.of(), 2)
         );
@@ -334,11 +329,9 @@ public class ZonePartitionsTestEmmanuel {
                 new Area<>(Set.of((Zone.River)startTile.w().zones().get(1), (Zone.River)tile17.e().zones().get(1)), List.of(), 1),
                 new Area<>(Set.of((Zone.River)tile17.s().zones().get(1)), List.of(), 2)
         );
-        Area<Zone.Water> AreaWater = new Area<>(startTile.zones().stream().filter(zone -> zone instanceof Zone.Water).map(zone -> (Zone.Water) zone).collect(Collectors.toSet()), List.of(), 1);
-        AreaWater.connectTo(new Area<>(Set.of((Zone.Water)tile17.n().zones().get(1)), List.of(), 2));
         Set<Area<Zone.Water>> watersArea2 = Set.of(
-                AreaWater,
-                new Area<>(Set.of((Zone.Water)tile17.s().zones().get(1)), List.of(), 0)
+                new Area<>(Set.of((Zone.Water)tile17.s().zones().get(1)), List.of(), 2),
+                new Area<Zone.Water>(Set.of((Zone.Water)startTile.w().zones().get(1), ((Zone.River) startTile.w().zones().get(1)).lake(), (Zone.Water)tile17.e().zones().get(1)), List.of(), 1)
         );
 
         ZonePartitions zonePartitionsValid2 = new ZonePartitions(

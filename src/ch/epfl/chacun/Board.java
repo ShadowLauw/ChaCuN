@@ -7,7 +7,6 @@ import java.util.*;
  *
  * @author Laura Paraboschi (364161)
  * @author Emmanuel Omont (372632)
- *
  */
 
 public class Board {
@@ -44,12 +43,12 @@ public class Board {
     /**
      * Constructs a board with the given placed tiles, tile index, zone partitions and cancelled animals
      *
-     * @param placedTiles (PlacedTile[]) the placed tiles
-     * @param tileIndex (int[]) the index of the tiles
-     * @param zonePartitions (ZonePartitions) the zone partitions
-     * @param cancelledAnimals (Set<Animal>) the cancelled animals
+     * @param placedTiles      the placed tiles
+     * @param tileIndex        the index of the tiles
+     * @param zonePartitions   the zone partitions
+     * @param cancelledAnimals the cancelled animals
      */
-    public Board (PlacedTile[] placedTiles, int[] tileIndex, ZonePartitions zonePartitions, Set<Animal> cancelledAnimals) {
+    public Board(PlacedTile[] placedTiles, int[] tileIndex, ZonePartitions zonePartitions, Set<Animal> cancelledAnimals) {
         this.placedTiles = placedTiles;
         this.tileIndex = tileIndex;
         this.zonePartitions = zonePartitions;
@@ -59,20 +58,19 @@ public class Board {
     /**
      * Gives the PlacedTile at the position pos on the board
      *
-     * @param pos (Pos) the position of the tile
-     * @return (PlacedTile) the tile at the position pos
+     * @param pos the position of the tile
+     * @return the tile at the position pos
      */
     public PlacedTile tileAt(Pos pos) {
         //index of the tile at 0,0, and then we compute the index of the tile at pos by adding the x and y coordinates
-        return placedTiles[312+pos.y()*WIDTH+pos.x()];
+        return placedTiles[312 + pos.y() * WIDTH + pos.x()];
     }
 
     /**
-     * Give the PlacedTile with the given id
+     * Gives the PlacedTile with the given id
      *
-     * @param id (int) the id of the tile
-     * @return (PlacedTile) the tile with the given id
-     *
+     * @param id the id of the tile
+     * @return the tile with the given id
      * @throws IllegalArgumentException if there is no tile with the given id
      */
     public PlacedTile tileWithId(int id) {
@@ -86,16 +84,18 @@ public class Board {
 
     /**
      * Gives the set of cancelled Animals (make a defensive copy)
-     * @return (Set<Animal>) the set of cancelled animals
+     *
+     * @return the set of cancelled animals
      */
-    //copie défensive de cancelledAnimals
     public Set<Animal> cancelledAnimals() {
+        //Defensive copy of cancelledAnimals
         return Set.copyOf(cancelledAnimals);
     }
 
     /**
      * Gives the set of occupants on the board
-     * @return (Set<Occupant>) the set of occupants
+     *
+     * @return the set of occupants
      */
     public Set<Occupant> occupants() {
         List<Occupant> occupants = new ArrayList<>();
@@ -111,8 +111,9 @@ public class Board {
 
     /**
      * Gives the Area where the given forest is
-     * @param forest (Zone.Forest) the forest
-     * @return (Area<Zone.Forest>) the area where the forest is
+     *
+     * @param forest the forest
+     * @return the area where the forest is
      */
     public Area<Zone.Forest> forestArea(Zone.Forest forest) {
         return (zonePartitions.forests().areaContaining(forest));
@@ -120,8 +121,9 @@ public class Board {
 
     /**
      * Gives the Area where the given meadow is
-     * @param meadow (Zone.Meadow) the meadow
-     * @return (Area<Zone.Meadow>) the area where the meadow is
+     *
+     * @param meadow the meadow
+     * @return the area where the meadow is
      */
     public Area<Zone.Meadow> meadowArea(Zone.Meadow meadow) {
         return (zonePartitions.meadows().areaContaining(meadow));
@@ -129,17 +131,19 @@ public class Board {
 
     /**
      * Gives the Area where the given river is
-     * @param river (Zone.River) the river
-     * @return (Area<Zone.River>) the area where the river is
+     *
+     * @param river the river
+     * @return the area where the river is
      */
     public Area<Zone.River> riverAreas(Zone.River river) {
         return (zonePartitions.rivers().areaContaining(river));
     }
 
     /**
-     * Gives the Area where the given water is
-     * @param water (Zone.Water) the water
-     * @return (Area<Zone.Water>) the area where the water is
+     * Gives the Area where the given water zone is
+     *
+     * @param water the water
+     * @return the area where the water zone is
      */
     public Area<Zone.Water> riverSystemAreas(Zone.Water water) {
         return (zonePartitions.riverSystems().areaContaining(water));
@@ -147,9 +151,10 @@ public class Board {
 
     /**
      * Gives the number of the given occupant on the board
-     * @param player (PlayerColor) the color of the player
-     * @param occupantKind (Occupant.Kind) the kind of the occupant
-     * @return (int) the number of the given occupant
+     *
+     * @param player       the color of the player
+     * @param occupantKind the kind of the occupant
+     * @return the number of the given occupant kind on the board
      */
     public int occupantCount(PlayerColor player, Occupant.Kind occupantKind) {
         int count = 0;
@@ -168,7 +173,8 @@ public class Board {
 
     /**
      * Gives the set of the positions where a tile can be placed
-     * @return (Set<Pos>) the set of the positions where a tile can be placed
+     *
+     * @return the set of the positions where a tile can be placed
      */
     public Set<Pos> insertionPositions() {
         Set<Pos> positions = new HashSet<>();
@@ -177,17 +183,17 @@ public class Board {
             int y = placedTiles[index].pos().y();
 
             //we check if one of the tiles that are around is empty, and if yes, we add it to the set
-            if(tileAt(new Pos(x+1, y)) == null) {
-                positions.add(new Pos(x+1, y));
+            if (tileAt(new Pos(x + 1, y)) == null) {
+                positions.add(new Pos(x + 1, y));
             }
-            if(tileAt(new Pos(x-1, y)) == null) {
-                positions.add(new Pos(x-1, y));
+            if (tileAt(new Pos(x - 1, y)) == null) {
+                positions.add(new Pos(x - 1, y));
             }
-            if(tileAt(new Pos(x, y+1)) == null) {
-                positions.add(new Pos(x, y+1));
+            if (tileAt(new Pos(x, y + 1)) == null) {
+                positions.add(new Pos(x, y + 1));
             }
-            if(tileAt(new Pos(x, y-1)) == null) {
-                positions.add(new Pos(x, y-1));
+            if (tileAt(new Pos(x, y - 1)) == null) {
+                positions.add(new Pos(x, y - 1));
             }
         }
         return positions;
@@ -195,15 +201,17 @@ public class Board {
 
     /**
      * Gives the last placed Tile
-     * @return (PlacedTile) the last placed tile
+     *
+     * @return the last placed tile
      */
     public PlacedTile lastPlacedTile() {
-        return placedTiles[tileIndex[tileIndex.length-1]];
+        return placedTiles[tileIndex[tileIndex.length - 1]];
     }
 
     /**
      * Gives the set of the forests that are closed by the last placed tile
-     * @return (Set<Area<Zone.Forest>>) the set of the forests that are closed by the last placed tile
+     *
+     * @return the set of the forests that are closed by the last placed tile
      */
     public Set<Area<Zone.Forest>> forestsClosedByLastTile() {
         Set<Area<Zone.Forest>> forests = new HashSet<>();
@@ -217,7 +225,8 @@ public class Board {
 
     /**
      * Gives the set of the rivers that are closed by the last placed tile
-     * @return (Set<Area<Zone.River>>) the set of the rivers that are closed by the last placed tile
+     *
+     * @return the set of the rivers that are closed by the last placed tile
      */
     public Set<Area<Zone.River>> riversClosedByLastTile() {
         Set<Area<Zone.River>> rivers = new HashSet<>();
@@ -259,15 +268,14 @@ public class Board {
     }
 
     @Override
-    public boolean equals (Object that) {
+    public boolean equals(Object that) {
         return false;
     }
 
     @Override
-    public int hashCode () {
-      return 0;
+    public int hashCode() {
+        return 0;
     }
-
 
 
 }
