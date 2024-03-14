@@ -44,8 +44,8 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
      * @return the message board with possibly a new message for the closed forest
      */
     public MessageBoard withScoredForest(Area<Zone.Forest> forest) {
-        List<Message> newMessages = new ArrayList<>(messages);
         if (forest.isOccupied()) {
+            List<Message> newMessages = new ArrayList<>(messages);
             int mushroomGroups = Area.mushroomGroupCount(forest);
             int points = Points.forClosedForest(forest.tileIds().size(), mushroomGroups);
             newMessages.add(new Message(
@@ -54,8 +54,9 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
                     ),
                     points, forest.majorityOccupants(), forest.tileIds()
             ));
+            return new MessageBoard(textMaker, newMessages);
         }
-        return new MessageBoard(textMaker, newMessages);
+        return this;
     }
 
     /**
@@ -81,16 +82,17 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
      * @return the message board with possibly the message when the player scored a closed river
      */
     public MessageBoard withScoredRiver(Area<Zone.River> river) {
-        List<Message> newMessages = new ArrayList<>(messages);
         if (river.isOccupied()) {
+            List<Message> newMessages = new ArrayList<>(messages);
             int fishCount = Area.riverFishCount(river);
             int points = Points.forClosedRiver(river.tileIds().size(), fishCount);
             newMessages.add(new Message(
                     textMaker.playersScoredRiver(river.majorityOccupants(), points, fishCount, river.tileIds().size()),
                     points, river.majorityOccupants(), river.tileIds()
             ));
+            return new MessageBoard(textMaker, newMessages);
         }
-        return new MessageBoard(textMaker, newMessages);
+        return this;
     }
 
     /**
@@ -140,8 +142,8 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
      */
     public MessageBoard withScoredRiverSystem(Area<Zone.Water> riverSystem) {
         int points = Points.forRiverSystem(Area.riverSystemFishCount(riverSystem));
-        List<Message> newMessages = new ArrayList<>(messages);
         if (riverSystem.isOccupied() && points > 0) {
+            List<Message> newMessages = new ArrayList<>(messages);
             newMessages.add(new Message(
                     textMaker.playersScoredRiverSystem(
                             riverSystem.majorityOccupants(),
@@ -150,8 +152,9 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
                     ),
                     points, riverSystem.majorityOccupants(), riverSystem.tileIds()
             ));
+            return new MessageBoard(textMaker, newMessages);
         }
-        return new MessageBoard(textMaker, newMessages);
+        return this;
     }
 
     /**
@@ -180,7 +183,6 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
             String messageType,
             PlayerColor scorer
     ) {
-        List<Message> newMessages = new ArrayList<>(messages);
         Set<Animal> animals = Area.animals(adjacentMeadow, cancelledAnimals);
         Map<Animal.Kind, Integer> animalsCount = new HashMap<>();
         for (Animal animal : animals) {
@@ -191,6 +193,7 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
                 animalsCount.getOrDefault(Animal.Kind.AUROCHS, 0),
                 animalsCount.getOrDefault(Animal.Kind.DEER, 0));
         if ((scorer != null || adjacentMeadow.isOccupied()) && points > 0) {
+            List<Message> newMessages = new ArrayList<>(messages);
             switch (messageType) {
                 case "meadow" -> newMessages.add(new Message(
                         textMaker.playersScoredMeadow(adjacentMeadow.majorityOccupants(), points, animalsCount),
@@ -208,8 +211,9 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
                     ));
                 }
             }
+            return new MessageBoard(textMaker, newMessages);
         }
-        return new MessageBoard(textMaker, newMessages);
+        return this;
     }
 
     /**
@@ -219,15 +223,16 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
      * @return the message board with possibly the message when a player scored a raft
      */
     public MessageBoard withScoredRaft(Area<Zone.Water> riverSystem) {
-        List<Message> newMessages = new ArrayList<>(messages);
         int points = Points.forRaft(Area.lakeCount(riverSystem));
         if (riverSystem.isOccupied() && points > 0) {
+            List<Message> newMessages = new ArrayList<>(messages);
             newMessages.add(new Message(
                     textMaker.playersScoredRaft(riverSystem.majorityOccupants(), points, Area.lakeCount(riverSystem)),
                     points, riverSystem.majorityOccupants(), riverSystem.tileIds()
             ));
+            return new MessageBoard(textMaker, newMessages);
         }
-        return new MessageBoard(textMaker, newMessages);
+        return this;
     }
 
     /**
