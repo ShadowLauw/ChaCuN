@@ -179,16 +179,14 @@ public record Area<Z extends Zone>(Set<Z> zones, List<PlayerColor> occupants, in
      * @return the new area
      */
     public Area<Z> connectTo(Area<Z> that) {
-        int newOpenConnections = openConnections;
+        int newOpenConnections = openConnections - 2;
         Set<Z> zones = new HashSet<>(this.zones);
         List<PlayerColor> newOccupants = new ArrayList<>(this.occupants);
 
-        if (that.equals(this)) {
-            newOpenConnections -= 2;
-        } else {
+        if (!that.equals(this)) {
             newOccupants.addAll(that.occupants());
             zones.addAll(that.zones());
-            newOpenConnections = newOpenConnections + that.openConnections() - 2;
+            newOpenConnections += that.openConnections();
         }
         return new Area<>(zones, newOccupants, newOpenConnections);
     }

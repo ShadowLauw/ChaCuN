@@ -56,7 +56,7 @@ Id,N,E,S,W,Z0,Z1,Z2,Z3,Z4,Z5,Z6,Z7,Z8,Z9,Type
 54,F0,R123,R324,F0,Fm,M,R,Md,M,,,,,,Normale
 55,F0,F0,F1,R234,Fm,F,M,R,M,,,,,,Normale
 56,M0,F1,F1,R230,Ma,Fm,M,R1,,,,,Lf,,Départ
-57,R012,F3,F3,F3,M,R1,Fm,,,,,,Lff,,Normale
+57,R012,F3,F4,F4,M,R1,F,Fm,,,,,Lff,,Normale
 58,F0 ,F0,R123,F0,Fm,M,R1,M,,,,,Lf,,Normale
 59,R012,M2,F3,M0,M,R1,Mt,F,,,,,Lf,,Normale
 60,M0,F1,M2,F1,M,Fm,Md,,,,,,,,Normale
@@ -75,7 +75,7 @@ Id,N,E,S,W,Z0,Z1,Z2,Z3,Z4,Z5,Z6,Z7,Z8,Z9,Type
 73,R012,F3,R210,F4,M,R,Md,F,F,,,,,,Normale
 74,R012,F3,R210,F4,M,Rf,M,F,F,,,,,,Normale
 75,M0,F1,F1,M0,M,Fm,,,,,,,,,Normale
-76,M0,M0,F1,F1,Ma,Fm,,,,,,,,,Menhir
+76,M0,M0,F1,F1,Ma,Fm,,,,,,,,,Normale
 77,M0,F1,F1,M0,M,Fm,,,,,,,,,Normale
 78,F0,F0,M1,M1,Fm,Md,,,,,,,,,Normale
 79,M0,F1,R234,F1,M,Ff,M,R,M,,,,,,Menhir
