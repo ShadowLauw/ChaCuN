@@ -231,7 +231,7 @@ public final class Board {
     public int occupantCount(PlayerColor player, Occupant.Kind occupantKind) {
         int count = 0;
         for (Occupant occupant : occupants()) {
-            if (tileWithId(Zone.tileId(occupant.zoneId())).placer() == player && occupant.kind().equals(occupantKind)) {
+            if (tileWithId(Zone.tileId(occupant.zoneId())).placer().equals(player) && occupant.kind().equals(occupantKind)) {
                 count++;
             }
         }
