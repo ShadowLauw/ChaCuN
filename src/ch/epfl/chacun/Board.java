@@ -238,7 +238,7 @@ public final class Board {
      */
     private int getIndexOfTile(int tileId) {
         for (int i = 0; i < placedTiles.length; i++) {
-            if (placedTiles[i].id() == tileId) {
+            if (placedTiles[i] != null && placedTiles[i].id() == tileId) {
                 return i;
             }
         }
@@ -252,7 +252,7 @@ public final class Board {
     public Set<Pos> insertionPositions() {
         Set<Pos> positions = new HashSet<>();
         for (int index : tileIndex) {
-            Pos pos = placedTiles[getIndexOfTile(index)].pos();
+            Pos pos = placedTiles[index].pos();
             for (Direction direction : Direction.values()) {
                 Pos posToTest = pos.neighbor(direction);
                 if (isPosInBoard(posToTest) && tileAt(posToTest) == null) {
@@ -316,6 +316,9 @@ public final class Board {
      * @return true if the tile can be added to the board, false otherwise
      */
     public boolean canAddTile(PlacedTile tile) {
+        if (tileIndex.length == 0) {
+            return (tile.pos().equals(new Pos(0, 0)) && tile.id() == 56);
+        }
         if (insertionPositions().contains(tile.pos())) {
             for (Direction direction : Direction.values()) {
                 PlacedTile neighborTile = tileAt(tile.pos().neighbor(direction));
@@ -336,6 +339,9 @@ public final class Board {
      * @return true if the tile could be placed on the board, false otherwise
      */
     public boolean couldPlaceTile(Tile tile) {
+        if (tileIndex.length == 0) {
+            return (tile.id() == 56);
+        }
         for (Pos pos : insertionPositions()) {
             for (Rotation rotation : Rotation.values()) {
                 if (canAddTile(new PlacedTile(tile, null, rotation, pos))) {
@@ -353,13 +359,13 @@ public final class Board {
      * @throws IllegalArgumentException if the tile cannot be added to the board
      */
     public Board withNewTile(PlacedTile tile) {
-        Preconditions.checkArgument(tileIndex.length == 0 || canAddTile(tile));
+        Preconditions.checkArgument(canAddTile(tile));
 
         PlacedTile[] newPlacedTiles = placedTiles.clone();
-        newPlacedTiles[getIndexOfTile(tile.id())] = tile;
-
+        int index = INDEX_ORIGIN_TILE + tile.pos().x() + tile.pos().y() * WIDTH;
+        newPlacedTiles[index] = tile;
         int[] newTileIndex = Arrays.copyOf(tileIndex, tileIndex.length + 1);
-        newTileIndex[newTileIndex.length - 1] = tile.id();
+        newTileIndex[newTileIndex.length - 1] = index;
 
         ZonePartitions.Builder newZonePartitionsBuilder = new ZonePartitions.Builder(zonePartitions);
         newZonePartitionsBuilder.addTile(tile.tile());
