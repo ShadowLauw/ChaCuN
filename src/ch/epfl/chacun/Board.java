@@ -339,9 +339,6 @@ public final class Board {
      * @return true if the tile could be placed on the board, false otherwise
      */
     public boolean couldPlaceTile(Tile tile) {
-        if (tileIndex.length == 0) {
-            return (tile.id() == 56);
-        }
         for (Pos pos : insertionPositions()) {
             for (Rotation rotation : Rotation.values()) {
                 if (canAddTile(new PlacedTile(tile, null, rotation, pos))) {
@@ -359,7 +356,9 @@ public final class Board {
      * @throws IllegalArgumentException if the tile cannot be added to the board
      */
     public Board withNewTile(PlacedTile tile) {
-        Preconditions.checkArgument(canAddTile(tile));
+        if(tileIndex.length != 0) {
+            Preconditions.checkArgument(canAddTile(tile));
+        }
 
         PlacedTile[] newPlacedTiles = placedTiles.clone();
         int index = INDEX_ORIGIN_TILE + tile.pos().x() + tile.pos().y() * WIDTH;
