@@ -44,7 +44,7 @@ public final class Board {
     /**
      * The Array of the index of the tiles (in the order there were placed)
      */
-    private int[] tileIndex;
+    private final int[] tileIndex;
     /**
      * The zone partitions of the board
      */
@@ -76,7 +76,7 @@ public final class Board {
      * @return the tile at the position pos
      */
     public PlacedTile tileAt(Pos pos) {
-        return isPosInBoard(pos) ? placedTiles[INDEX_ORIGIN_TILE + pos.x() + pos.y() * WIDTH] : null;
+        return isPosInBoard(pos) ? placedTiles[getIndexOfTile(pos)] : null;
     }
     /**
      * Verify if the given position is in the board perimeter
@@ -85,6 +85,14 @@ public final class Board {
      */
     private boolean isPosInBoard(Pos pos) {
         return pos.x() <= REACH && pos.x() >= -REACH && pos.y() <= REACH && pos.y() >= -REACH;
+    }
+    /**
+     * Gives the index of the tile in placedTiles at the given position
+     * @param pos the position of the tile
+     * @return the index of the tile in placedTiles at the given position
+     */
+    private int getIndexOfTile(Pos pos) {
+        return INDEX_ORIGIN_TILE + pos.x() + pos.y() * WIDTH;
     }
 
     /**
@@ -95,8 +103,9 @@ public final class Board {
      * @throws IllegalArgumentException if there is no tile with the given id
      */
     public PlacedTile tileWithId(int tileId) {
-        for (PlacedTile tile : placedTiles) {
-            if (tile != null && tile.id() == tileId) {
+        for (int index : tileIndex) {
+            PlacedTile tile = placedTiles[index];
+            if (tile.id() == tileId) {
                 return tile;
             }
         }
@@ -115,12 +124,13 @@ public final class Board {
     /**
      * Gives the set of occupants on the board
      *
-     * @return the set of occupants
+     * @return the set of occupants on the board
      */
     public Set<Occupant> occupants() {
-        List<Occupant> occupants = new ArrayList<>();
-        for (PlacedTile tile : placedTiles) {
-            Occupant occupant = tile == null ? null : tile.occupant();
+        Set<Occupant> occupants = new HashSet<>();
+        for (int index : tileIndex) {
+            PlacedTile tile = placedTiles[index];
+            Occupant occupant = tile.occupant();
             if (occupant != null) {
                 occupants.add(tile.occupant());
             }
@@ -220,30 +230,14 @@ public final class Board {
      */
     public int occupantCount(PlayerColor player, Occupant.Kind occupantKind) {
         int count = 0;
-        for (int i : tileIndex) {
-            Occupant occupant = placedTiles[getIndexOfTile(i)].occupant();
-            if (occupant != null
-                    && occupant.kind() == occupantKind
-                    && tileWithId(Zone.tileId(occupant.zoneId())).placer() == player
-            ) {
+        for (Occupant occupant : occupants()) {
+            if (tileWithId(Zone.tileId(occupant.zoneId())).placer() == player && occupant.kind().equals(occupantKind)) {
                 count++;
             }
         }
         return count;
     }
-    /**
-     * Gives the index of the tile in placedTiles with the given id
-     * @param tileId the id of the tile
-     * @return the index of the tile in placedTiles with the given id
-     */
-    private int getIndexOfTile(int tileId) {
-        for (int i = 0; i < placedTiles.length; i++) {
-            if (placedTiles[i] != null && placedTiles[i].id() == tileId) {
-                return i;
-            }
-        }
-        throw new IllegalArgumentException();
-    }
+
     /**
      * Gives the set of the positions where a tile can be placed
      *
@@ -316,9 +310,6 @@ public final class Board {
      * @return true if the tile can be added to the board, false otherwise
      */
     public boolean canAddTile(PlacedTile tile) {
-        if (tileIndex.length == 0) {
-            return true;
-        }
         if (insertionPositions().contains(tile.pos())) {
             for (Direction direction : Direction.values()) {
                 PlacedTile neighborTile = tileAt(tile.pos().neighbor(direction));
@@ -356,12 +347,10 @@ public final class Board {
      * @throws IllegalArgumentException if the tile cannot be added to the board
      */
     public Board withNewTile(PlacedTile tile) {
-        if(tileIndex.length != 0) {
-            Preconditions.checkArgument(canAddTile(tile));
-        }
+        Preconditions.checkArgument(tileIndex.length == 0 || canAddTile(tile));
 
         PlacedTile[] newPlacedTiles = placedTiles.clone();
-        int index = INDEX_ORIGIN_TILE + tile.pos().x() + tile.pos().y() * WIDTH;
+        int index = getIndexOfTile(tile.pos());
         newPlacedTiles[index] = tile;
         int[] newTileIndex = Arrays.copyOf(tileIndex, tileIndex.length + 1);
         newTileIndex[newTileIndex.length - 1] = index;
@@ -388,7 +377,7 @@ public final class Board {
     public Board withOccupant(Occupant occupant) {
         PlacedTile tile = tileWithId(Zone.tileId(occupant.zoneId()));
         PlacedTile[] newPlacedTiles = placedTiles.clone();
-        newPlacedTiles[getIndexOfTile(tile.id())] = tile.withOccupant(occupant);
+        newPlacedTiles[getIndexOfTile(tile.pos())] = tile.withOccupant(occupant);
 
         ZonePartitions.Builder newZonePartitionsBuilder = new ZonePartitions.Builder(zonePartitions);
         newZonePartitionsBuilder.addInitialOccupant(tile.placer(), occupant.kind(), tile.zoneWithId(occupant.zoneId()));
@@ -404,7 +393,7 @@ public final class Board {
     public Board withoutOccupant(Occupant occupant) {
         PlacedTile tile = tileWithId(Zone.tileId(occupant.zoneId()));
         PlacedTile[] newPlacedTiles = placedTiles.clone();
-        newPlacedTiles[getIndexOfTile(tile.id())] = tile.withNoOccupant();
+        newPlacedTiles[getIndexOfTile(tile.pos())] = tile.withNoOccupant();
 
         ZonePartitions.Builder newZonePartitionsBuilder = new ZonePartitions.Builder(zonePartitions);
         newZonePartitionsBuilder.removePawn(tile.placer(), tile.zoneWithId(occupant.zoneId()));
@@ -426,14 +415,14 @@ public final class Board {
             newZonePartitionsBuilder.clearGatherers(forest);
             for (int id : forest.tileIds()) {
                 PlacedTile tile = tileWithId(id);
-                newPlacedTiles[getIndexOfTile(tile.id())] = tile.withNoOccupant();
+                newPlacedTiles[getIndexOfTile(tile.pos())] = tile.withNoOccupant();
             }
         }
         for (Area<Zone.River> river : rivers) {
             newZonePartitionsBuilder.clearFishers(river);
             for (int id : river.tileIds()) {
                 PlacedTile tile = tileWithId(id);
-                newPlacedTiles[getIndexOfTile(tile.id())] = tile.withNoOccupant();
+                newPlacedTiles[getIndexOfTile(tile.pos())] = tile.withNoOccupant();
             }
         }
 
