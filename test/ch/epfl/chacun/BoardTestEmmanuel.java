@@ -14,7 +14,7 @@ public class BoardTestEmmanuel {
 
         Tile startTile = TileReader.readTileFromCSV(56);
         assertFalse(board.couldPlaceTile(startTile));
-        assertTrue(board.canAddTile(new PlacedTile(startTile, PlayerColor.RED, Rotation.NONE, new Pos(0, 0))));
+        assertFalse(board.canAddTile(new PlacedTile(startTile, PlayerColor.RED, Rotation.NONE, new Pos(0, 0))));
 
         board = board.withNewTile(new PlacedTile(startTile, PlayerColor.RED, Rotation.NONE, new Pos(0, 0)));
 
