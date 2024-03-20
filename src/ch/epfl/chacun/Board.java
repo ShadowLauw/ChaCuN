@@ -317,7 +317,7 @@ public final class Board {
      */
     public boolean canAddTile(PlacedTile tile) {
         if (tileIndex.length == 0) {
-            return (tile.pos().equals(new Pos(0, 0)) && tile.id() == 56);
+            return true;
         }
         if (insertionPositions().contains(tile.pos())) {
             for (Direction direction : Direction.values()) {
