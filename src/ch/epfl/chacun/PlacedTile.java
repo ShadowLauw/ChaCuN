@@ -106,7 +106,6 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
         for (Zone zone : tile.zones()) {
             if (zone.specialPower() != null)
                 return zone;
-
         }
         return null;
     }
