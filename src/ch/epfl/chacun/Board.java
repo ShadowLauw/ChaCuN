@@ -463,9 +463,7 @@ public final class Board {
 
     @Override
     public int hashCode() {
-        int hashTiles = Arrays.hashCode(placedTiles);
-        int hashTileIndex = Arrays.hashCode(tileIndex);
-        return Objects.hash(hashTiles, hashTileIndex, zonePartitions, cancelledAnimals);
+        return Objects.hash(Arrays.hashCode(placedTiles), Arrays.hashCode(tileIndex), zonePartitions, cancelledAnimals);
     }
 
 
