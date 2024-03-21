@@ -448,13 +448,13 @@ public final class Board {
     
     @Override
     public boolean equals(Object that) {
-        if (that instanceof Board thatBoard) {
+        if (that == null) {
+            return false;
+        } else if (that.getClass() == getClass()) {
+            Board thatBoard = (Board)that;
             return Arrays.equals(placedTiles, thatBoard.placedTiles)
                     && Arrays.equals(tileIndex, thatBoard.tileIndex)
-                    && zonePartitions.meadows().areas().equals(thatBoard.zonePartitions.meadows().areas())
-                    && zonePartitions.rivers().areas().equals(thatBoard.zonePartitions.rivers().areas())
-                    && zonePartitions.riverSystems().areas().equals(thatBoard.zonePartitions.riverSystems().areas())
-                    && zonePartitions.forests().areas().equals(thatBoard.zonePartitions.forests().areas())
+                    && zonePartitions.equals(thatBoard.zonePartitions)
                     && cancelledAnimals.equals(thatBoard.cancelledAnimals);
         } else {
             return false;
