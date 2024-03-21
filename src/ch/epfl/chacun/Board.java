@@ -135,7 +135,7 @@ public final class Board {
                 occupants.add(tile.occupant());
             }
         }
-        return Set.copyOf(occupants);
+        return occupants;
     }
 
     /**
@@ -231,7 +231,9 @@ public final class Board {
     public int occupantCount(PlayerColor player, Occupant.Kind occupantKind) {
         int count = 0;
         for (Occupant occupant : occupants()) {
-            if (tileWithId(Zone.tileId(occupant.zoneId())).placer().equals(player) && occupant.kind().equals(occupantKind)) {
+            if (tileWithId(Zone.tileId(occupant.zoneId())).placer().equals(player)
+                    && occupant.kind().equals(occupantKind))
+            {
                 count++;
             }
         }
@@ -372,7 +374,8 @@ public final class Board {
      * Gives a new board with the given occupant added
      * @param occupant the occupant to add
      * @return a new board with the given occupant added
-     * @throws IllegalArgumentException if the tile where the occupant is supposed to be is already occupied
+     * @throws IllegalArgumentException if the tile where the occupant is supposed to be is already occupied or the area
+     *                                 of the zone is already occupied
      */
     public Board withOccupant(Occupant occupant) {
         PlacedTile tile = tileWithId(Zone.tileId(occupant.zoneId()));
