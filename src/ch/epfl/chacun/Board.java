@@ -418,14 +418,16 @@ public final class Board {
             newZonePartitionsBuilder.clearGatherers(forest);
             for (int id : forest.tileIds()) {
                 PlacedTile tile = tileWithId(id);
-                newPlacedTiles[getIndexOfTile(tile.pos())] = tile.withNoOccupant();
+                if (tile.occupant() != null)
+                    newPlacedTiles[getIndexOfTile(tile.pos())] = tile.withNoOccupant();
             }
         }
         for (Area<Zone.River> river : rivers) {
             newZonePartitionsBuilder.clearFishers(river);
             for (int id : river.tileIds()) {
                 PlacedTile tile = tileWithId(id);
-                newPlacedTiles[getIndexOfTile(tile.pos())] = tile.withNoOccupant();
+                if (tile.occupant() != null)
+                    newPlacedTiles[getIndexOfTile(tile.pos())] = tile.withNoOccupant();
             }
         }
 
