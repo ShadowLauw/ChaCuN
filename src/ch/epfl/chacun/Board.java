@@ -375,7 +375,7 @@ public final class Board {
      * @param occupant the occupant to add
      * @return a new board with the given occupant added
      * @throws IllegalArgumentException if the tile where the occupant is supposed to be is already occupied or the area
-     *                                 of the zone is already occupied
+     *                                 of the zone is already occupied or if the tile is not in the board
      */
     public Board withOccupant(Occupant occupant) {
         PlacedTile tile = tileWithId(Zone.tileId(occupant.zoneId()));
@@ -392,6 +392,7 @@ public final class Board {
      * Gives a new board with the given occupant removed
      * @param occupant the occupant to remove
      * @return a new board with the given occupant removed
+     * @throws IllegalArgumentException if the tile where the occupant is supposed to be is not in the board
      */
     public Board withoutOccupant(Occupant occupant) {
         PlacedTile tile = tileWithId(Zone.tileId(occupant.zoneId()));
@@ -414,20 +415,29 @@ public final class Board {
         PlacedTile[] newPlacedTiles = placedTiles.clone();
         ZonePartitions.Builder newZonePartitionsBuilder = new ZonePartitions.Builder(zonePartitions);
 
+        Set<Integer> tileIds = new HashSet<>();
+        Set<Integer> zoneIds = new HashSet<>();
+
         for (Area<Zone.Forest> forest : forests) {
             newZonePartitionsBuilder.clearGatherers(forest);
-            for (int id : forest.tileIds()) {
-                PlacedTile tile = tileWithId(id);
-                if (tile.occupant() != null && tile.occupant().kind() == Occupant.Kind.PAWN)
-                    newPlacedTiles[getIndexOfTile(tile.pos())] = tile.withNoOccupant();
+            tileIds.addAll(forest.tileIds());
+            for (Zone.Forest zone : forest.zones()) {
+                zoneIds.add(zone.id());
             }
         }
         for (Area<Zone.River> river : rivers) {
             newZonePartitionsBuilder.clearFishers(river);
-            for (int id : river.tileIds()) {
-                PlacedTile tile = tileWithId(id);
-                if (tile.occupant() != null && tile.occupant().kind() == Occupant.Kind.PAWN)
-                    newPlacedTiles[getIndexOfTile(tile.pos())] = tile.withNoOccupant();
+            tileIds.addAll(river.tileIds());
+            for (Zone.River zone : river.zones()) {
+                zoneIds.add(zone.id());
+            }
+        }
+
+        for (int id : tileIds) {
+            PlacedTile tile = tileWithId(id);
+            Occupant occupant = tile.occupant();
+            if (occupant != null && zoneIds.contains(occupant.zoneId())) {
+                newPlacedTiles[getIndexOfTile(tile.pos())] = tile.withNoOccupant();
             }
         }
 
