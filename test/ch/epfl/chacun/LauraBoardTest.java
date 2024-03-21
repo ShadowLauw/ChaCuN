@@ -1462,5 +1462,96 @@ public class LauraBoardTest {
 
         assertFalse(board.equals(board2));
     }
+    
+    @Test
+    void clearFishersAndGatherersClearsTheGoodPawns() {
+        PlacedTile startTile = new PlacedTile(TileReader.readTileFromCSV(56), null, Rotation.NONE, new Pos(0, 0));
+        Board board = Board.EMPTY.withNewTile(startTile);
+        PlacedTile tile38 = new PlacedTile(TileReader.readTileFromCSV(38), PlayerColor.BLUE, Rotation.NONE, new Pos(1, 0));
+        board = board.withNewTile(tile38);
+        board = board.withOccupant( new Occupant(Occupant.Kind.PAWN, 381));
+        PlacedTile tile41 = new PlacedTile(TileReader.readTileFromCSV(41), PlayerColor.GREEN, Rotation.NONE, new Pos(2, 0));
+        board = board.withNewTile(tile41);
+        board = board.withOccupant( new Occupant(Occupant.Kind.PAWN, 410));
+        PlacedTile tile35 = new PlacedTile(TileReader.readTileFromCSV(35), PlayerColor.YELLOW, Rotation.HALF_TURN, new Pos(3, 0));
+        board = board.withNewTile(tile35);
+        board = board.withOccupant( new Occupant(Occupant.Kind.PAWN, 351));
+        PlacedTile tile67 = new PlacedTile(TileReader.readTileFromCSV(67), PlayerColor.PURPLE, Rotation.NONE, new Pos(0, 1));
+        board = board.withNewTile(tile67);
+        board = board.withOccupant( new Occupant(Occupant.Kind.PAWN, 672));
+        PlacedTile tile51 = new PlacedTile(TileReader.readTileFromCSV(51), PlayerColor.RED, Rotation.NONE, new Pos(-1, 0));
+        board = board.withNewTile(tile51);
+        board = board.withOccupant( new Occupant(Occupant.Kind.PAWN, 511));
+        PlacedTile tile1 = new PlacedTile(TileReader.readTileFromCSV(1), PlayerColor.BLUE, Rotation.NONE, new Pos(-2, 0));
+        board = board.withNewTile(tile1);
+        board = board.withOccupant( new Occupant(Occupant.Kind.PAWN, 14));
+        PlacedTile tile17 = new PlacedTile(TileReader.readTileFromCSV(17), PlayerColor.GREEN, Rotation.NONE, new Pos(-3, 0));
+        board = board.withNewTile(tile17);
+        board = board.withOccupant(new Occupant(Occupant.Kind.PAWN, 173));
+        PlacedTile tile21 = new PlacedTile(TileReader.readTileFromCSV(21), PlayerColor.YELLOW, Rotation.NONE, new Pos(-3, -1));
+        board = board.withNewTile(tile21);
+        PlacedTile tile37 = new PlacedTile(TileReader.readTileFromCSV(37), PlayerColor.PURPLE, Rotation.NONE, new Pos(0, -1));
+        board = board.withNewTile(tile37);
+        board = board.withOccupant( new Occupant(Occupant.Kind.PAWN, 371));
+        PlacedTile tile25 = new PlacedTile(TileReader.readTileFromCSV(25), PlayerColor.RED, Rotation.NONE, new Pos(0, -2));
+        board = board.withNewTile(tile25);
+        board = board.withOccupant( new Occupant(Occupant.Kind.HUT, 251));
+        PlacedTile tile22 = new PlacedTile(TileReader.readTileFromCSV(22), PlayerColor.BLUE, Rotation.HALF_TURN, new Pos(-2, 1));
+        board = board.withNewTile(tile22);
+        board = board.withOccupant( new Occupant(Occupant.Kind.HUT, 221));
+
+        Zone.Forest forest56 = (Zone.Forest) startTile.zoneWithId(561);
+        Zone.Forest forest38 = (Zone.Forest) tile38.zoneWithId(381);
+        Zone.Forest forest412 = (Zone.Forest) tile41.zoneWithId(412);
+        Zone.Forest forest670 = (Zone.Forest) tile67.zoneWithId(670);
+
+        Zone.Forest forest41 = (Zone.Forest) tile41.zoneWithId(411);
+        Zone.Forest forest35 = (Zone.Forest) tile35.zoneWithId(351);
+
+        Zone.Forest forest25 = (Zone.Forest) tile25.zoneWithId(253);
+        Zone.Forest forest37 = (Zone.Forest) tile37.zoneWithId(370);
+
+        Zone.River river56 = (Zone.River) startTile.zoneWithId(563);
+        Zone.River river51 = (Zone.River) tile51.zoneWithId(511);
+        Zone.River river11 = (Zone.River) tile1.zoneWithId(11);
+
+        Zone.River river15 = (Zone.River) tile1.zoneWithId(15);
+        Zone.River river17 = (Zone.River) tile17.zoneWithId(171);
+        Zone.River river211 = (Zone.River) tile21.zoneWithId(211);
+
+        Zone.River river251 = (Zone.River) tile25.zoneWithId(251);
+        Zone.River river221 = (Zone.River) tile22.zoneWithId(221);
+        Zone.River river173 = (Zone.River) tile17.zoneWithId(173);
+
+        Area<Zone.Forest> forestArea1 = new Area<>(Set.of(forest56, forest38, forest412, forest670), List.of(PlayerColor.BLUE), 0);
+        Area<Zone.Forest> forestArea2 = new Area<>(Set.of(forest41, forest35), List.of(PlayerColor.YELLOW), 0);
+        Area<Zone.Forest> forestArea3 = new Area<>(Set.of(forest25, forest37), List.of(), 0);
+
+        Area<Zone.River> riverArea1 = new Area<>(Set.of(river56, river51, river11), List.of(PlayerColor.RED), 0);
+        Area<Zone.River> riverArea6 = new Area<>(Set.of(river15, river17, river211), List.of(), 1);
+        Area<Zone.River> riverArea2 = new Area<>(Set.of(river251), List.of(), 2);
+        Area<Zone.River> riverArea3 = new Area<>(Set.of(river221), List.of(), 2);
+        Area<Zone.River> riverArea4 = new Area<>(Set.of(river173), List.of(PlayerColor.GREEN), 2);
+
+        Set<Area<Zone.Forest>> expectedForests = new HashSet<>();
+        expectedForests.add(forestArea1);
+        expectedForests.add(forestArea2);
+        expectedForests.add(forestArea3);
+        Set<Area<Zone.River>> expectedRivers = new HashSet<>();
+        expectedRivers.add(riverArea1);
+        expectedRivers.add(riverArea2);
+        expectedRivers.add(riverArea3);
+        expectedRivers.add(riverArea4);
+        expectedRivers.add(riverArea6);
+        board = board.withoutGatherersOrFishersIn(expectedForests, expectedRivers);
+        Set<Occupant> occupantExpected = new HashSet<>();
+        occupantExpected.add(new Occupant(Occupant.Kind.PAWN, 410));
+        occupantExpected.add(new Occupant(Occupant.Kind.PAWN, 14));
+        occupantExpected.add(new Occupant(Occupant.Kind.PAWN, 371));
+        occupantExpected.add(new Occupant(Occupant.Kind.HUT, 251));
+        occupantExpected.add(new Occupant(Occupant.Kind.HUT, 221));
+        occupantExpected.add(new Occupant(Occupant.Kind.PAWN, 672));
+        assertEquals(occupantExpected, board.occupants());
+    }
 
 }
