@@ -232,8 +232,8 @@ public final class Board {
         int count = 0;
         for (Occupant occupant : occupants()) {
             if (tileWithId(Zone.tileId(occupant.zoneId())).placer().equals(player)
-                    && occupant.kind().equals(occupantKind))
-            {
+                    && occupant.kind().equals(occupantKind)
+            ) {
                 count++;
             }
         }
@@ -415,28 +415,31 @@ public final class Board {
         PlacedTile[] newPlacedTiles = placedTiles.clone();
         ZonePartitions.Builder newZonePartitionsBuilder = new ZonePartitions.Builder(zonePartitions);
 
-        Set<Integer> tileIds = new HashSet<>();
-        Set<Integer> zoneIds = new HashSet<>();
+        Set<Integer> tileIdsToClear = new HashSet<>();
+        Set<Integer> zoneIdsToClear = new HashSet<>();
 
         for (Area<Zone.Forest> forest : forests) {
             newZonePartitionsBuilder.clearGatherers(forest);
-            tileIds.addAll(forest.tileIds());
+            tileIdsToClear.addAll(forest.tileIds());
             for (Zone.Forest zone : forest.zones()) {
-                zoneIds.add(zone.id());
+                zoneIdsToClear.add(zone.id());
             }
         }
         for (Area<Zone.River> river : rivers) {
             newZonePartitionsBuilder.clearFishers(river);
-            tileIds.addAll(river.tileIds());
+            tileIdsToClear.addAll(river.tileIds());
             for (Zone.River zone : river.zones()) {
-                zoneIds.add(zone.id());
+                zoneIdsToClear.add(zone.id());
             }
         }
 
-        for (int id : tileIds) {
+        for (int id : tileIdsToClear) {
             PlacedTile tile = tileWithId(id);
             Occupant occupant = tile.occupant();
-            if (occupant != null && zoneIds.contains(occupant.zoneId())) {
+            if (occupant != null
+                    && zoneIdsToClear.contains(occupant.zoneId())
+                    && occupant.kind().equals(Occupant.Kind.PAWN)
+            ) {
                 newPlacedTiles[getIndexOfTile(tile.pos())] = tile.withNoOccupant();
             }
         }
