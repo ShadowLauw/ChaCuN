@@ -418,7 +418,7 @@ public final class Board {
             newZonePartitionsBuilder.clearGatherers(forest);
             for (int id : forest.tileIds()) {
                 PlacedTile tile = tileWithId(id);
-                if (tile.occupant() != null)
+                if (tile.occupant() != null && tile.occupant().kind() == Occupant.Kind.PAWN)
                     newPlacedTiles[getIndexOfTile(tile.pos())] = tile.withNoOccupant();
             }
         }
@@ -426,7 +426,7 @@ public final class Board {
             newZonePartitionsBuilder.clearFishers(river);
             for (int id : river.tileIds()) {
                 PlacedTile tile = tileWithId(id);
-                if (tile.occupant() != null)
+                if (tile.occupant() != null && tile.occupant().kind() == Occupant.Kind.PAWN)
                     newPlacedTiles[getIndexOfTile(tile.pos())] = tile.withNoOccupant();
             }
         }
@@ -465,6 +465,4 @@ public final class Board {
     public int hashCode() {
         return Objects.hash(Arrays.hashCode(placedTiles), Arrays.hashCode(tileIndex), zonePartitions, cancelledAnimals);
     }
-
-
 }
