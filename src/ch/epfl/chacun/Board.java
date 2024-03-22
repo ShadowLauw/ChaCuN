@@ -284,7 +284,7 @@ public final class Board {
                 }
             }
         }
-        return Set.copyOf(forests);
+        return forests;
     }
 
     /**
@@ -303,7 +303,7 @@ public final class Board {
                 }
             }
         }
-        return Set.copyOf(rivers);
+        return rivers;
     }
 
     /**
