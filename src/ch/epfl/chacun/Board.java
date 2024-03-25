@@ -151,7 +151,7 @@ public final class Board {
 
     /**
      * Gives the Area where the given meadow is
-     *
+     *Area<> area = board
      * @param meadow the meadow
      * @return the area where the meadow is
      * @throws IllegalArgumentException if the meadow is not in any area of the partition

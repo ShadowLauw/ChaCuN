@@ -204,7 +204,7 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
                         points, adjacentMeadow.majorityOccupants(), adjacentMeadow.tileIds()
                 ));
                 case "huntingTrap" -> {
-                    assert scorer != null;
+                    //Even though intellij says that the scorer could be null, in the case of hunting trap, it can't
                     newMessages.add(new Message(
                             textMaker.playerScoredHuntingTrap(scorer, points, animalsCount),
                             points, Set.of(scorer), adjacentMeadow.tileIds()
