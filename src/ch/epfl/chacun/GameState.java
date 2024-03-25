@@ -170,7 +170,7 @@ public record GameState(
             return new GameState(
                     players,
                     tileDecks,
-                    tileToPlace,
+                    null,
                     newBoard,
                     Action.RETAKE_PAWN,
                     messageBoard
@@ -189,7 +189,7 @@ public record GameState(
         return new GameState(
                 players,
                 tileDecks,
-                tileToPlace,
+                null,
                 newBoard,
                 Action.OCCUPY_TILE,
                 newMessageBoard
@@ -210,9 +210,9 @@ public record GameState(
         return new GameState(
                 players,
                 tileDecks,
-                tileToPlace,
+                null,
                 occupant == null ? board : board.withoutOccupant(occupant),
-                Action.OCCUPY_TILE,
+                nextAction,
                 messageBoard
         ).withTurnFinishedIfOccupationImpossible();
     }
@@ -229,9 +229,9 @@ public record GameState(
         return new GameState(
                 players,
                 tileDecks,
-                tileToPlace,
+                null,
                 occupant == null ? board : board.withOccupant(occupant),
-                Action.OCCUPY_TILE,
+                nextAction,
                 messageBoard
         ).withTurnFinished();
     }
@@ -265,20 +265,23 @@ public record GameState(
         for (Area<Zone.River> river : board.riversClosedByLastTile()) {
             newMessageBoard = newMessageBoard.withScoredRiver(river);
         }
-        Set<Zone.Forest> zonesForestsClosed = new HashSet<>();
+        List<Zone.Forest> zonesForestsClosed = new ArrayList<>();
         for (Area<Zone.Forest> forest : board.forestsClosedByLastTile()) {
             newMessageBoard = newMessageBoard.withScoredForest(forest);
             zonesForestsClosed.addAll(forest.zones());
         }
-        Set<Zone.Forest> forestWithMenhir = zonesForestsClosed.stream()
-                .filter(forest -> forest.kind() == Zone.Forest.Kind.WITH_MENHIR)
-                .collect(Collectors.toSet());
-        for (Zone.Forest forest : forestWithMenhir) {
-            newMessageBoard = newMessageBoard.withClosedForestWithMenhir(currentPlayer(), board.forestArea(forest));
-        }
 
-        boolean playerCanPlaySecondTurn = !forestWithMenhir.isEmpty()
-                && board.lastPlacedTile().tile().kind() == Tile.Kind.NORMAL;
+        boolean playerHasClosedAForestWithMenhir = zonesForestsClosed.stream().anyMatch(
+                forest -> forest.kind() == Zone.Forest.Kind.WITH_MENHIR
+        );
+
+        boolean playerCanPlaySecondTurn = false;
+        if (playerHasClosedAForestWithMenhir && board.lastPlacedTile().tile().kind() == Tile.Kind.NORMAL) {
+            newMessageBoard = newMessageBoard.withClosedForestWithMenhir(
+                    currentPlayer(),
+                    board.forestArea(zonesForestsClosed.getFirst()));
+            playerCanPlaySecondTurn = true;
+        }
 
         TileDecks newTileDecks = tileDecks.withTopTileDrawnUntil(
                 playerCanPlaySecondTurn ? Tile.Kind.MENHIR : Tile.Kind.NORMAL,
@@ -300,7 +303,7 @@ public record GameState(
                 return new GameState(
                         newPlayers,
                         newTileDecks,
-                        tileToPlay,
+                        null,
                         board,
                         Action.END_GAME,
                         newMessageBoard
@@ -358,9 +361,9 @@ public record GameState(
         return new GameState(
                 players,
                 tileDecks,
-                tileToPlace,
+                null,
                 newBoard,
-                Action.END_GAME,
+                nextAction,
                 newMessageBoard
         );
     }
