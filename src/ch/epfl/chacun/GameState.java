@@ -54,7 +54,7 @@ public record GameState(
     public GameState {
         Preconditions.checkArgument(players.size() >= 2);
         players = List.copyOf(players);
-        Preconditions.checkArgument(tileToPlace == null || nextAction == Action.PLACE_TILE);
+        Preconditions.checkArgument(tileToPlace == null ^ nextAction == Action.PLACE_TILE);
         requireNonNull(tileDecks);
         requireNonNull(board);
         requireNonNull(nextAction);
@@ -386,7 +386,7 @@ public record GameState(
                 animal -> animal.kind() == Animal.Kind.TIGER).count();
 
         return areaNotCancelledAnimals.stream().filter(
-                animal -> animal.kind() == Animal.Kind.DEER).limit(numberOfSmilodons).collect(Collectors.toSet());
+                animal -> animal.kind() == Animal.Kind.DEER).skip(numberOfSmilodons).collect(Collectors.toSet());
     }
 
     /**
@@ -415,13 +415,13 @@ public record GameState(
                 animal -> animal.kind() == Animal.Kind.DEER).collect(Collectors.toSet());
 
         if (numberOfSmilodons > 0) {
-            if (numberOfSmilodons <= deersOutsideAdjacentArea.size()) {
+            if (numberOfSmilodons < deersOutsideAdjacentArea.size()) {
                 furthestCancelledDeers.addAll(deersOutsideAdjacentArea.stream()
-                        .limit(numberOfSmilodons).collect(Collectors.toSet()));
+                        .skip(numberOfSmilodons).collect(Collectors.toSet()));
             } else {
                 furthestCancelledDeers.addAll(deersOutsideAdjacentArea);
                 furthestCancelledDeers.addAll(deersInAdjacentArea.stream()
-                        .limit(numberOfSmilodons - deersOutsideAdjacentArea.size()).collect(Collectors.toSet()));
+                        .skip(numberOfSmilodons - deersOutsideAdjacentArea.size()).collect(Collectors.toSet()));
             }
         }
 
