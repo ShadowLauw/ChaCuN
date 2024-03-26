@@ -52,8 +52,8 @@ public record GameState(
      *                                  and the tile to place is null
      */
     public GameState {
-        players = List.copyOf(players);
         Preconditions.checkArgument(players.size() >= 2);
+        players = List.copyOf(players);
         Preconditions.checkArgument(tileToPlace == null || nextAction == Action.PLACE_TILE);
         requireNonNull(tileDecks);
         requireNonNull(board);
