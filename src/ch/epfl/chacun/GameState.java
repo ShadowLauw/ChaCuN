@@ -162,30 +162,28 @@ public record GameState(
         MessageBoard newMessageBoard = messageBoard;
 
         Zone specialPowerZone = placedTile.specialPowerZone();
-        if (specialPowerZone != null) {
-            Zone.SpecialPower specialPower = specialPowerZone.specialPower();
-            switch (specialPower) {
-                case SHAMAN -> {
-                    return new GameState(
-                            players,
-                            tileDecks,
-                            null,
-                            newBoard,
-                            Action.RETAKE_PAWN,
-                            messageBoard
-                    ).withTurnFinishedIfRemovalImpossible();
-                }
-                case LOGBOAT -> newMessageBoard = messageBoard.withScoredLogboat(currentPlayer(),
-                        board.riverSystemArea((Zone.Water) specialPowerZone));
-                case HUNTING_TRAP -> {
-                    Area<Zone.Meadow> adjacentMeadow = board.adjacentMeadow(placedTile.pos(), (Zone.Meadow) specialPowerZone);
-                    //A ajouter au prochain rendu
-                    Set<Animal> deersToCancel = getSimpleCancelledDeers(adjacentMeadow);
-                    newMessageBoard = messageBoard.withScoredHuntingTrap(currentPlayer(), adjacentMeadow);
-                    newBoard = newBoard.withMoreCancelledAnimals(Area.animals(adjacentMeadow, Set.of()));
-                }
-                default -> {}
+        switch (specialPowerZone) {
+            case Zone.Meadow meadow when meadow.specialPower() == Zone.SpecialPower.SHAMAN -> {
+                return new GameState(
+                        players,
+                        tileDecks,
+                        null,
+                        newBoard,
+                        Action.RETAKE_PAWN,
+                        messageBoard
+                ).withTurnFinishedIfRemovalImpossible();
             }
+            case Zone.Water lake when lake.specialPower() == Zone.SpecialPower.LOGBOAT ->
+                    newMessageBoard = messageBoard.withScoredLogboat(currentPlayer(),
+                            board.riverSystemArea((Zone.Water) specialPowerZone));
+            case Zone.Meadow meadow when meadow.specialPower() == Zone.SpecialPower.HUNTING_TRAP -> {
+                Area<Zone.Meadow> adjacentMeadow = board.adjacentMeadow(placedTile.pos(), (Zone.Meadow) specialPowerZone);
+                //A ajouter au prochain rendu
+                Set<Animal> deersToCancel = getSimpleCancelledDeers(adjacentMeadow);
+                newMessageBoard = messageBoard.withScoredHuntingTrap(currentPlayer(), adjacentMeadow);
+                newBoard = newBoard.withMoreCancelledAnimals(Area.animals(adjacentMeadow, Set.of()));
+            }
+            case null, default-> {}
         }
 
         return new GameState(
@@ -264,29 +262,27 @@ public record GameState(
     private GameState withTurnFinished() {
         MessageBoard newMessageBoard = messageBoard;
 
-        for (Area<Zone.River> river : board.riversClosedByLastTile()) {
+        Set<Area<Zone.River>> riversArea = board.riversClosedByLastTile();
+        for (Area<Zone.River> river : riversArea) {
             newMessageBoard = newMessageBoard.withScoredRiver(river);
         }
 
-        List<Zone.Forest> zonesForestsClosed = new ArrayList<>();
-        for (Area<Zone.Forest> forest : board.forestsClosedByLastTile()) {
-            newMessageBoard = newMessageBoard.withScoredForest(forest);
-            zonesForestsClosed.addAll(forest.zones());
+        Set<Area<Zone.Forest>> forestsArea = board.forestsClosedByLastTile();
+        Area<Zone.Forest> forestAreaWithMenhir = null;
+        for (Area<Zone.Forest> forestArea : forestsArea) {
+            newMessageBoard = newMessageBoard.withScoredForest(forestArea);
+            if (Area.hasMenhir(forestArea)) {
+                forestAreaWithMenhir = forestArea;
+            }
         }
-        Board newBoard = board.withoutGatherersOrFishersIn(
-                board.forestsClosedByLastTile(),
-                board.riversClosedByLastTile()
-        );
-
-        boolean playerHasClosedAForestWithMenhir = zonesForestsClosed.stream().anyMatch(
-                forest -> forest.kind() == Zone.Forest.Kind.WITH_MENHIR
-        );
+        Board newBoard = board.withoutGatherersOrFishersIn(forestsArea, riversArea);
 
         boolean playerCanPlaySecondTurn = false;
-        if (playerHasClosedAForestWithMenhir && newBoard.lastPlacedTile().tile().kind() == Tile.Kind.NORMAL) {
+        if (forestAreaWithMenhir != null && newBoard.lastPlacedTile().tile().kind() == Tile.Kind.NORMAL) {
             newMessageBoard = newMessageBoard.withClosedForestWithMenhir(
                     currentPlayer(),
-                    newBoard.forestArea(zonesForestsClosed.getFirst()));
+                    forestAreaWithMenhir
+            );
             playerCanPlaySecondTurn = true;
         }
 
