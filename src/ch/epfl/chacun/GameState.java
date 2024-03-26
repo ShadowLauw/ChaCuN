@@ -179,7 +179,7 @@ public record GameState(
             case Zone.Meadow meadow when meadow.specialPower() == Zone.SpecialPower.HUNTING_TRAP -> {
                 Area<Zone.Meadow> adjacentMeadow = board.adjacentMeadow(placedTile.pos(), (Zone.Meadow) specialPowerZone);
                 //A ajouter au prochain rendu
-                Set<Animal> deersToCancel = getSimpleCancelledDeers(adjacentMeadow);
+                Set<Animal> deersToCancel = getSimpleCancelledDeers(adjacentMeadow, false);
                 newMessageBoard = messageBoard.withScoredHuntingTrap(currentPlayer(), adjacentMeadow);
                 newBoard = newBoard.withMoreCancelledAnimals(Area.animals(adjacentMeadow, Set.of()));
             }
@@ -337,7 +337,7 @@ public record GameState(
         for (Area<Zone.Meadow> meadowArea : board.meadowAreas()) {
             Zone.Meadow zoneWithPitTrap = (Zone.Meadow) meadowArea.zoneWithSpecialPower(Zone.SpecialPower.PIT_TRAP);
             Set<Animal> cancelledAnimals = zoneWithPitTrap == null ?
-                    getSimpleCancelledDeers(meadowArea) : getFurthestCancelledDeers(zoneWithPitTrap);
+                    getSimpleCancelledDeers(meadowArea, true) : getFurthestCancelledDeers(zoneWithPitTrap);
             newBoard = newBoard.withMoreCancelledAnimals(cancelledAnimals);
             newMessageBoard = newMessageBoard.withScoredMeadow(meadowArea, cancelledAnimals);
             if (zoneWithPitTrap != null) {
@@ -377,8 +377,8 @@ public record GameState(
      * @param meadowArea the meadow area to check
      * @return the set of the deers to cancel in the given area without taking into account the distance of the deers
      */
-    private Set<Animal> getSimpleCancelledDeers(Area<Zone.Meadow> meadowArea) {
-        boolean isThereFire = meadowArea.zoneWithSpecialPower(Zone.SpecialPower.WILD_FIRE) != null;
+    private Set<Animal> getSimpleCancelledDeers(Area<Zone.Meadow> meadowArea, boolean takeFireIntoAccount) {
+        boolean isThereFire = takeFireIntoAccount && meadowArea.zoneWithSpecialPower(Zone.SpecialPower.WILD_FIRE) != null;
 
         Set<Animal> areaNotCancelledAnimals = Area.animals(meadowArea, Set.of());
         areaNotCancelledAnimals.removeAll(board.cancelledAnimals());
