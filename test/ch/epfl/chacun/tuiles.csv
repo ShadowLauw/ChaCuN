@@ -23,7 +23,7 @@ Id,N,E,S,W,Z0,Z1,Z2,Z3,Z4,Z5,Z6,Z7,Z8,Z9,Type
 21,M0,R012,R210,M0,M,R,Ma,,,,,,,,Normale
 22,R012,M2,F3,R210,M,R,Ma,F,,,,,,,Normale
 23,R012,R210,F3,F3,Ma,R,M,Fm,,,,,,,Normale
-24,R012,M2,F3,R450,M,R,Ma,F,M,R,,,Lf,,Normale
+24,R012,M2,F3,R450,M,R1,Ma,F,M,R1,,,Lf,,Normale
 25,R012,R210,F3,M0,M,R,Md,F,,,,,,,Normale
 26,R012,R210,F3,F4,M,R,M,F,F,,,,,,Normale
 27,M0,R012,R210,F3,M,R,Md,F,,,,,,,Normale

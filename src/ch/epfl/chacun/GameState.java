@@ -171,7 +171,7 @@ public record GameState(
                         newBoard,
                         Action.RETAKE_PAWN,
                         messageBoard
-                ).withTurnFinishedIfRemovalImpossible();
+                ).withPlacingOccupantIfRemovalImpossible();
             }
             case Zone z when z.specialPower() == Zone.SpecialPower.LOGBOAT ->
                     newMessageBoard = messageBoard.withScoredLogboat(currentPlayer(),
@@ -183,7 +183,8 @@ public record GameState(
                 newMessageBoard = messageBoard.withScoredHuntingTrap(currentPlayer(), adjacentMeadow);
                 newBoard = newBoard.withMoreCancelledAnimals(Area.animals(adjacentMeadow, Set.of()));
             }
-            case null, default-> {}
+            case null, default -> {
+            }
         }
 
         return new GameState(
@@ -250,8 +251,16 @@ public record GameState(
      *
      * @return the GameState with the turn finished or the next action being RETAKE_PAWN
      */
-    private GameState withTurnFinishedIfRemovalImpossible() {
-        return board.occupantCount(currentPlayer(), Occupant.Kind.PAWN) > 0 ? this : this.withTurnFinished();
+    private GameState withPlacingOccupantIfRemovalImpossible() {
+        return board.occupantCount(currentPlayer(), Occupant.Kind.PAWN) > 0 ? this :
+                new GameState(
+                        players,
+                        tileDecks,
+                        null,
+                        board,
+                        Action.OCCUPY_TILE,
+                        messageBoard
+                ).withTurnFinishedIfOccupationImpossible();
     }
 
     /**
