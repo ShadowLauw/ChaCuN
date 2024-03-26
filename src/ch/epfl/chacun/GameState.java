@@ -163,7 +163,7 @@ public record GameState(
 
         Zone specialPowerZone = placedTile.specialPowerZone();
         switch (specialPowerZone) {
-            case Zone.Meadow meadow when meadow.specialPower() == Zone.SpecialPower.SHAMAN -> {
+            case Zone z when z.specialPower() == Zone.SpecialPower.SHAMAN -> {
                 return new GameState(
                         players,
                         tileDecks,
@@ -173,10 +173,10 @@ public record GameState(
                         messageBoard
                 ).withTurnFinishedIfRemovalImpossible();
             }
-            case Zone.Water lake when lake.specialPower() == Zone.SpecialPower.LOGBOAT ->
+            case Zone z when z.specialPower() == Zone.SpecialPower.LOGBOAT ->
                     newMessageBoard = messageBoard.withScoredLogboat(currentPlayer(),
                             board.riverSystemArea((Zone.Water) specialPowerZone));
-            case Zone.Meadow meadow when meadow.specialPower() == Zone.SpecialPower.HUNTING_TRAP -> {
+            case Zone z when z.specialPower() == Zone.SpecialPower.HUNTING_TRAP -> {
                 Area<Zone.Meadow> adjacentMeadow = board.adjacentMeadow(placedTile.pos(), (Zone.Meadow) specialPowerZone);
                 //A ajouter au prochain rendu
                 Set<Animal> deersToCancel = getSimpleCancelledDeers(adjacentMeadow, false);
