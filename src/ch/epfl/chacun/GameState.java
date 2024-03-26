@@ -162,28 +162,30 @@ public record GameState(
         MessageBoard newMessageBoard = messageBoard;
 
         Zone specialPowerZone = placedTile.specialPowerZone();
-        Zone.SpecialPower specialPower = null;
-        if (specialPowerZone != null)
-            specialPower = specialPowerZone.specialPower();
-
-        if (specialPower == Zone.SpecialPower.SHAMAN) {
-            return new GameState(
-                    players,
-                    tileDecks,
-                    null,
-                    newBoard,
-                    Action.RETAKE_PAWN,
-                    messageBoard
-            ).withTurnFinishedIfRemovalImpossible();
-        } else if (specialPower == Zone.SpecialPower.LOGBOAT) {
-            newMessageBoard = messageBoard.withScoredLogboat(currentPlayer(),
-                    board.riverSystemArea((Zone.Water) specialPowerZone));
-        } else if (specialPower == Zone.SpecialPower.HUNTING_TRAP) {
-            Area<Zone.Meadow> adjacentMeadow = board.adjacentMeadow(placedTile.pos(), (Zone.Meadow) specialPowerZone);
-            //A ajouter au prochain rendu
-            Set<Animal> deersToCancel = getSimpleCancelledDeers(adjacentMeadow);
-            newMessageBoard = messageBoard.withScoredHuntingTrap(currentPlayer(), adjacentMeadow);
-            newBoard = newBoard.withMoreCancelledAnimals(Area.animals(adjacentMeadow, Set.of()));
+        if (specialPowerZone != null) {
+            Zone.SpecialPower specialPower = specialPowerZone.specialPower();
+            switch (specialPower) {
+                case SHAMAN -> {
+                    return new GameState(
+                            players,
+                            tileDecks,
+                            null,
+                            newBoard,
+                            Action.RETAKE_PAWN,
+                            messageBoard
+                    ).withTurnFinishedIfRemovalImpossible();
+                }
+                case LOGBOAT -> newMessageBoard = messageBoard.withScoredLogboat(currentPlayer(),
+                        board.riverSystemArea((Zone.Water) specialPowerZone));
+                case HUNTING_TRAP -> {
+                    Area<Zone.Meadow> adjacentMeadow = board.adjacentMeadow(placedTile.pos(), (Zone.Meadow) specialPowerZone);
+                    //A ajouter au prochain rendu
+                    Set<Animal> deersToCancel = getSimpleCancelledDeers(adjacentMeadow);
+                    newMessageBoard = messageBoard.withScoredHuntingTrap(currentPlayer(), adjacentMeadow);
+                    newBoard = newBoard.withMoreCancelledAnimals(Area.animals(adjacentMeadow, Set.of()));
+                }
+                default -> {}
+            }
         }
 
         return new GameState(
