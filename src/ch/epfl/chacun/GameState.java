@@ -265,30 +265,35 @@ public record GameState(
         for (Area<Zone.River> river : board.riversClosedByLastTile()) {
             newMessageBoard = newMessageBoard.withScoredRiver(river);
         }
+
         List<Zone.Forest> zonesForestsClosed = new ArrayList<>();
         for (Area<Zone.Forest> forest : board.forestsClosedByLastTile()) {
             newMessageBoard = newMessageBoard.withScoredForest(forest);
             zonesForestsClosed.addAll(forest.zones());
         }
+        Board newBoard = board.withoutGatherersOrFishersIn(
+                board.forestsClosedByLastTile(),
+                board.riversClosedByLastTile()
+        );
 
         boolean playerHasClosedAForestWithMenhir = zonesForestsClosed.stream().anyMatch(
                 forest -> forest.kind() == Zone.Forest.Kind.WITH_MENHIR
         );
 
         boolean playerCanPlaySecondTurn = false;
-        if (playerHasClosedAForestWithMenhir && board.lastPlacedTile().tile().kind() == Tile.Kind.NORMAL) {
+        if (playerHasClosedAForestWithMenhir && newBoard.lastPlacedTile().tile().kind() == Tile.Kind.NORMAL) {
             newMessageBoard = newMessageBoard.withClosedForestWithMenhir(
                     currentPlayer(),
-                    board.forestArea(zonesForestsClosed.getFirst()));
+                    newBoard.forestArea(zonesForestsClosed.getFirst()));
             playerCanPlaySecondTurn = true;
         }
 
         TileDecks newTileDecks = tileDecks.withTopTileDrawnUntil(
                 playerCanPlaySecondTurn ? Tile.Kind.MENHIR : Tile.Kind.NORMAL,
-                board::couldPlaceTile
+                newBoard::couldPlaceTile
         );
         if (playerCanPlaySecondTurn && newTileDecks.menhirTiles().isEmpty()) {
-            newTileDecks = newTileDecks.withTopTileDrawnUntil(Tile.Kind.NORMAL, board::couldPlaceTile);
+            newTileDecks = newTileDecks.withTopTileDrawnUntil(Tile.Kind.NORMAL, newBoard::couldPlaceTile);
             playerCanPlaySecondTurn = false;
         }
 
@@ -304,19 +309,19 @@ public record GameState(
                         newPlayers,
                         newTileDecks,
                         null,
-                        board,
+                        newBoard,
                         Action.END_GAME,
                         newMessageBoard
                 ).withFinalPointsCounted();
             newTileDecks = newTileDecks.withTopTileDrawn(Tile.Kind.NORMAL);
-            newPlayers.add(newPlayers.removeFirst());
+            Collections.rotate(newPlayers, -1);
         }
 
         return new GameState(
                 newPlayers,
                 newTileDecks,
                 tileToPlay,
-                board,
+                newBoard,
                 Action.PLACE_TILE,
                 newMessageBoard
         );
@@ -376,10 +381,13 @@ public record GameState(
      */
     private Set<Animal> getSimpleCancelledDeers(Area<Zone.Meadow> meadowArea) {
         boolean isThereFire = meadowArea.zoneWithSpecialPower(Zone.SpecialPower.WILD_FIRE) != null;
-        int numberOfSmilodons = isThereFire ? 0 : (int) Area.animals(meadowArea, Set.of()).stream().filter(
+
+        Set<Animal> areaNotCancelledAnimals = Area.animals(meadowArea, Set.of());
+        areaNotCancelledAnimals.removeAll(board.cancelledAnimals());
+        int numberOfSmilodons = isThereFire ? 0 : (int) areaNotCancelledAnimals.stream().filter(
                 animal -> animal.kind() == Animal.Kind.TIGER).count();
 
-        return Area.animals(meadowArea, Set.of()).stream().filter(
+        return areaNotCancelledAnimals.stream().filter(
                 animal -> animal.kind() == Animal.Kind.DEER).limit(numberOfSmilodons).collect(Collectors.toSet());
     }
 
@@ -394,12 +402,18 @@ public record GameState(
         Area<Zone.Meadow> meadowArea = board.meadowArea(pitTrapMeadow);
         Pos posOfCentralMeadow = board.tileWithId(pitTrapMeadow.tileId()).pos();
         Area<Zone.Meadow> adjacentMeadowArea = board.adjacentMeadow(posOfCentralMeadow, pitTrapMeadow);
+
         boolean isThereFire = meadowArea.zoneWithSpecialPower(Zone.SpecialPower.WILD_FIRE) != null;
-        int numberOfSmilodons = isThereFire ? 0 : (int) Area.animals(meadowArea, Set.of()).stream().filter(
+        Set<Animal> areaNotCancelledAnimals = Area.animals(meadowArea, Set.of());
+        areaNotCancelledAnimals.removeAll(board.cancelledAnimals());
+        Set<Animal> insideAreaNotCancelledAnimals = Area.animals(adjacentMeadowArea, Set.of());
+        insideAreaNotCancelledAnimals.removeAll(board.cancelledAnimals());
+
+        int numberOfSmilodons = isThereFire ? 0 : (int) areaNotCancelledAnimals.stream().filter(
                 animal -> animal.kind() == Animal.Kind.TIGER).count();
-        Set<Animal> deersInAdjacentArea = Area.animals(adjacentMeadowArea, Set.of()).stream().filter(
+        Set<Animal> deersInAdjacentArea = insideAreaNotCancelledAnimals.stream().filter(
                 animal -> animal.kind() == Animal.Kind.DEER).collect(Collectors.toSet());
-        Set<Animal> deersOutsideAdjacentArea = Area.animals(meadowArea, deersInAdjacentArea).stream().filter(
+        Set<Animal> deersOutsideAdjacentArea = areaNotCancelledAnimals.stream().filter(
                 animal -> animal.kind() == Animal.Kind.DEER).collect(Collectors.toSet());
 
         if (numberOfSmilodons > 0) {
