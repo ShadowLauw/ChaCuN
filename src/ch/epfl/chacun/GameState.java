@@ -277,14 +277,8 @@ public record GameState(
         }
         Board newBoard = board.withoutGatherersOrFishersIn(forestsArea, riversArea);
 
-        boolean playerCanPlaySecondTurn = false;
-        if (forestAreaWithMenhir != null && newBoard.lastPlacedTile().tile().kind() == Tile.Kind.NORMAL) {
-            newMessageBoard = newMessageBoard.withClosedForestWithMenhir(
-                    currentPlayer(),
-                    forestAreaWithMenhir
-            );
-            playerCanPlaySecondTurn = true;
-        }
+        boolean playerCanPlaySecondTurn = forestAreaWithMenhir != null
+                && newBoard.lastPlacedTile().tile().kind() == Tile.Kind.NORMAL;
 
         TileDecks newTileDecks = tileDecks.withTopTileDrawnUntil(
                 playerCanPlaySecondTurn ? Tile.Kind.MENHIR : Tile.Kind.NORMAL,
@@ -298,6 +292,10 @@ public record GameState(
         List<PlayerColor> newPlayers = new LinkedList<>(players);
         Tile tileToPlay;
         if (playerCanPlaySecondTurn) {
+            newMessageBoard = newMessageBoard.withClosedForestWithMenhir(
+                    currentPlayer(),
+                    forestAreaWithMenhir
+            );
             tileToPlay = newTileDecks.topTile(Tile.Kind.MENHIR);
             newTileDecks = newTileDecks.withTopTileDrawn(Tile.Kind.MENHIR);
         } else {
