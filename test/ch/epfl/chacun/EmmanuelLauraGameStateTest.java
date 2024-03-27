@@ -497,6 +497,19 @@ public class EmmanuelLauraGameStateTest {
     void withOccupantRemovedThrows () {
         //IAE si prochaine action n'est pas retake pawn
         //ou si l'occupant donné n'est ni null ni un pion.
+
+        Board board = fullBoard();
+        Tile startTile = TileReader.readTileFromCSV(56);
+        TileDecks tileDecks = new TileDecks(List.of(), List.of(), List.of());
+        List<PlayerColor> players = List.of(PlayerColor.RED, PlayerColor.GREEN, PlayerColor.PURPLE);
+        MessageBoard messageBoard = new MessageBoard(new LauraTextMakerClass(), List.of());
+
+        GameState gameState = new GameState(players, tileDecks, null, board, GameState.Action.OCCUPY_TILE, messageBoard);
+
+        assertThrows(IllegalArgumentException.class, () -> gameState.withOccupantRemoved(new Occupant(Occupant.Kind.PAWN, 560)));
+
+        GameState gameState2 = new GameState(players, tileDecks, null, board, GameState.Action.RETAKE_PAWN, messageBoard);
+        assertThrows(IllegalArgumentException.class, () -> gameState2.withOccupantRemoved(new Occupant(Occupant.Kind.HUT, 560)));
     }
 
     @Test
@@ -507,6 +520,16 @@ public class EmmanuelLauraGameStateTest {
     @Test
     void withNewOccupantThrows () {
         //throws si la prochaine action n'est pas occupytile
+
+        Board board = fullBoard();
+        Tile startTile = TileReader.readTileFromCSV(19);
+        TileDecks tileDecks = new TileDecks(List.of(), List.of(), List.of());
+        List<PlayerColor> players = List.of(PlayerColor.RED, PlayerColor.GREEN, PlayerColor.PURPLE);
+        MessageBoard messageBoard = new MessageBoard(new LauraTextMakerClass(), List.of());
+
+        GameState gameState = new GameState(players, tileDecks, startTile, board, GameState.Action.PLACE_TILE, messageBoard);
+
+        assertThrows(IllegalArgumentException.class, () -> gameState.withNewOccupant(new Occupant(Occupant.Kind.PAWN, 560)));
     }
 
     @Test
