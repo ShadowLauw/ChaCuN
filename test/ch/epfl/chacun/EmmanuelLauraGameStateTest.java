@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -407,14 +408,11 @@ public class EmmanuelLauraGameStateTest {
         List<PlayerColor> players = List.of(PlayerColor.RED, PlayerColor.GREEN, PlayerColor.PURPLE);
         MessageBoard messageBoard = new MessageBoard(new LauraTextMakerClass(), List.of());
         Tile tile19 = TileReader.readTileFromCSV(19);
-        GameState gameState = new GameState(players, tileDecks, tile19, board, GameState.Action.OCCUPY_TILE, messageBoard);
+        final GameState gameState = new GameState(players, tileDecks, tile19, board, GameState.Action.OCCUPY_TILE, messageBoard);
+        assertThrows(IllegalArgumentException.class, () -> gameState.withPlacedTile(new PlacedTile(tile19, PlayerColor.RED, Rotation.NONE, new Pos(-2, 0), null)));
 
-        //assertThrows(IllegalArgumentException.class, gameState.withPlacedTile(new PlacedTile(tile19, PlayerColor.RED, Rotation.NONE, new Pos(-2, 0), null)));
-
-
-
-
-
+        GameState gameState2 = new GameState(players, tileDecks, tile19, board, GameState.Action.PLACE_TILE, messageBoard);
+        assertThrows(IllegalArgumentException.class, () -> gameState2.withPlacedTile(new PlacedTile(tile19, PlayerColor.RED, Rotation.NONE, new Pos(-2, 0), new Occupant(Occupant.Kind.PAWN, 191))));
     }
 
     @Test
@@ -425,6 +423,69 @@ public class EmmanuelLauraGameStateTest {
         //que la prochaine action soit occupytile ou remove pawn (deux cas : soit on peut remove, soit c de nouveau occupytile quand opp remove, soit on peut même pas occuper la tuile du chaman et c fin de tour merci au-revoir)
 
         //plein d'autres trucs (tester tt les withTurnFinish a gogo)
+
+        //BON BAH ICI C LA MERDE
+
+        //Test du placement d'une tuile générique :
+
+        Board board = fullBoard();
+
+        Tile shamanTile = TileReader.readTileFromCSV(88);
+        Tile pitTrapTile = TileReader.readTileFromCSV(94);
+        Tile loagBoatTile = TileReader.readTileFromCSV(93);
+
+        TileDecks tileDecks = new TileDecks(List.of(), List.of(), List.of());
+        List<PlayerColor> players = List.of(PlayerColor.RED, PlayerColor.GREEN, PlayerColor.PURPLE);
+        MessageBoard messageBoard = new MessageBoard(new LauraTextMakerClass(), List.of());
+        Tile tile19 = TileReader.readTileFromCSV(18);
+        GameState gameState = new GameState(players, tileDecks, tile19, board, GameState.Action.PLACE_TILE, messageBoard);
+
+        gameState = gameState.withPlacedTile(new PlacedTile(tile19, PlayerColor.RED, Rotation.NONE, new Pos(0, 2), null));
+        assertEquals(GameState.Action.OCCUPY_TILE, gameState.nextAction());
+        assertEquals(board.withNewTile(new PlacedTile(tile19, PlayerColor.RED, Rotation.NONE, new Pos(0, 2), null)), gameState.board());
+        assertEquals(messageBoard, gameState.messageBoard());
+
+        gameState = new GameState(players, tileDecks, shamanTile, board, GameState.Action.PLACE_TILE, messageBoard);
+
+        gameState = gameState.withPlacedTile(new PlacedTile(shamanTile, PlayerColor.RED, Rotation.RIGHT, new Pos(0, 2), null));
+
+        //ça switch sur OCCUPY_TILE vu que il a pas de pion le pauvre
+        assertEquals(GameState.Action.OCCUPY_TILE, gameState.nextAction());
+        assertEquals(board.withNewTile(new PlacedTile(shamanTile, PlayerColor.RED, Rotation.RIGHT, new Pos(0, 2), null)), gameState.board());
+
+        gameState = new GameState(players, tileDecks, pitTrapTile, board, GameState.Action.PLACE_TILE, messageBoard);
+
+        gameState = gameState.withPlacedTile(new PlacedTile(pitTrapTile, PlayerColor.RED, Rotation.RIGHT, new Pos(0, 2), null));
+
+        assertEquals(GameState.Action.OCCUPY_TILE, gameState.nextAction());
+
+        //tout ça juste pour récupérer l'aire avec le champ mdr
+        Area<Zone.Meadow> zones = gameState.board().adjacentMeadow(new Pos(0, 2), (Zone.Meadow) pitTrapTile.s().zones().getFirst());
+        assertEquals(messageBoard.withScoredHuntingTrap(PlayerColor.RED, zones), gameState.messageBoard());
+
+        gameState = new GameState(players, tileDecks, loagBoatTile, board, GameState.Action.PLACE_TILE, messageBoard);
+
+        gameState = gameState.withPlacedTile(new PlacedTile(loagBoatTile, PlayerColor.RED, Rotation.RIGHT, new Pos(-1, 2), null));
+
+        assertEquals(GameState.Action.OCCUPY_TILE, gameState.nextAction());
+        assertEquals(board.withNewTile(new PlacedTile(loagBoatTile, PlayerColor.RED, Rotation.RIGHT, new Pos(-1, 2), null)), gameState.board());
+
+        final int zoneId2 = loagBoatTile.n().zones().get(1).id();
+        List<Area<Zone.Water>> filteredWarerAreas = gameState.board().riverSystemAreas().stream()
+                .filter(area -> area.zones().stream().anyMatch(zone -> zone.id() == zoneId2))
+                .collect(Collectors.toList());
+
+        assertEquals(messageBoard.withScoredLogboat(PlayerColor.RED, filteredWarerAreas.getFirst()), gameState.messageBoard());
+
+        //le moment où le joueur peut pas poser de pions (le plus simple c de prendre le cas où il a déjà posé ses 5 pions)
+
+        board = fullBoard();
+        board = board.withOccupant(new Occupant(Occupant.Kind.PAWN, 511));
+        gameState = new GameState(players, tileDecks, shamanTile, board, GameState.Action.PLACE_TILE, messageBoard);
+
+        gameState = gameState.withPlacedTile(new PlacedTile(shamanTile, PlayerColor.RED, Rotation.RIGHT, new Pos(0, 2), null));
+
+        assertEquals(GameState.Action.RETAKE_PAWN, gameState.nextAction());
     }
 
     @Test
