@@ -223,17 +223,17 @@ public class EmmanuelLauraGameStateTest {
 
         GameState gameState = new GameState(players, tileDecks, null, board, GameState.Action.START_GAME, messageBoard);
         assertEquals(5, gameState.freeOccupantsCount(PlayerColor.RED, Occupant.Kind.PAWN));
-        board = board.withOccupant(new Occupant(Occupant.Kind.PAWN, 380));
-        board = board.withOccupant(new Occupant(Occupant.Kind.PAWN, 222));
+        board = board.withOccupant(new Occupant(Occupant.Kind.PAWN, 510));
+        board = board.withOccupant(new Occupant(Occupant.Kind.PAWN, 251));
 
 
         gameState = new GameState(players, tileDecks, null, board, GameState.Action.START_GAME, messageBoard);
         assertEquals(3, gameState.freeOccupantsCount(PlayerColor.RED, Occupant.Kind.PAWN));
-        assertEquals(1, gameState.freeOccupantsCount(PlayerColor.RED, Occupant.Kind.HUT));
+        assertEquals(3, gameState.freeOccupantsCount(PlayerColor.RED, Occupant.Kind.HUT));
 
         board = board.withOccupant(new Occupant(Occupant.Kind.HUT, 171));
         gameState = new GameState(players, tileDecks, null, board, GameState.Action.START_GAME, messageBoard);
-        assertEquals(0, gameState.freeOccupantsCount(PlayerColor.RED, Occupant.Kind.HUT));
+        assertEquals(2, gameState.freeOccupantsCount(PlayerColor.GREEN, Occupant.Kind.HUT));
     }
     @Test
     void lastTilePotentialOccupant () {
