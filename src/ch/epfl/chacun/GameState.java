@@ -111,7 +111,7 @@ public record GameState(
         Set<Occupant> potentialOccupants = new HashSet<>(lastPlacedTile.potentialOccupants());
         potentialOccupants.removeIf(occupant -> {
             if (freeOccupantsCount(currentPlayer(), occupant.kind()) == 0)
-                return false;
+                return true;
             else {
                 Zone zone = lastPlacedTile.zoneWithId(occupant.zoneId());
                 return switch (zone) {
