@@ -110,13 +110,18 @@ public record GameState(
 
         Set<Occupant> potentialOccupants = new HashSet<>(lastPlacedTile.potentialOccupants());
         potentialOccupants.removeIf(occupant -> {
-            Zone zone = lastPlacedTile.zoneWithId(occupant.zoneId());
-            return switch (zone) {
-                case Zone.Forest forest -> board.forestArea(forest).isOccupied();
-                case Zone.Meadow meadow -> board.meadowArea(meadow).isOccupied();
-                case Zone.River river when occupant.kind() == Occupant.Kind.PAWN -> board.riverArea(river).isOccupied();
-                case Zone.Water water -> board.riverSystemArea(water).isOccupied();
-            };
+            if (freeOccupantsCount(currentPlayer(), occupant.kind()) == 0)
+                return false;
+            else {
+                Zone zone = lastPlacedTile.zoneWithId(occupant.zoneId());
+                return switch (zone) {
+                    case Zone.Forest forest -> board.forestArea(forest).isOccupied();
+                    case Zone.Meadow meadow -> board.meadowArea(meadow).isOccupied();
+                    case Zone.River river when occupant.kind() == Occupant.Kind.PAWN ->
+                            board.riverArea(river).isOccupied();
+                    case Zone.Water water -> board.riverSystemArea(water).isOccupied();
+                };
+            }
         });
         potentialOccupants.removeIf(occupant ->
                 freeOccupantsCount(currentPlayer(), occupant.kind()) == 0
