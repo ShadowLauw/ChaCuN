@@ -418,8 +418,9 @@ public record GameState(
                 animal -> animal.kind() == Animal.Kind.TIGER).count();
         Set<Animal> deersInAdjacentArea = insideAreaNotCancelledAnimals.stream().filter(
                 animal -> animal.kind() == Animal.Kind.DEER).collect(Collectors.toSet());
-        Set<Animal> deersOutsideAdjacentArea = areaNotCancelledAnimals.stream().filter(
-                animal -> animal.kind() == Animal.Kind.DEER).collect(Collectors.toSet());
+        areaNotCancelledAnimals.removeAll(deersInAdjacentArea);
+        Set<Animal> deersOutsideAdjacentArea = areaNotCancelledAnimals.stream()
+                .filter(animal -> animal.kind() == Animal.Kind.DEER).collect(Collectors.toSet());
 
         if (numberOfSmilodons > 0) {
             if (numberOfSmilodons < deersOutsideAdjacentArea.size()) {
