@@ -169,23 +169,25 @@ public record GameState(
         Zone specialPowerZone = placedTile.specialPowerZone();
         switch (specialPowerZone) {
             case Zone z when z.specialPower() == Zone.SpecialPower.SHAMAN -> {
-                return new GameState(
+                boolean canRemoveOccupant = newBoard.occupantCount(currentPlayer(), Occupant.Kind.PAWN) > 0;
+                GameState newGameState = new GameState(
                         players,
                         tileDecks,
                         null,
                         newBoard,
-                        Action.RETAKE_PAWN,
+                        canRemoveOccupant ? Action.RETAKE_PAWN : Action.OCCUPY_TILE,
                         messageBoard
-                ).withPlacingOccupantIfRemovalImpossible();
+                );
+                return canRemoveOccupant ? newGameState : newGameState.withTurnFinishedIfOccupationImpossible();
             }
             case Zone z when z.specialPower() == Zone.SpecialPower.LOGBOAT ->
-                    newMessageBoard = messageBoard.withScoredLogboat(currentPlayer(),
+                    newMessageBoard = newMessageBoard.withScoredLogboat(currentPlayer(),
                             newBoard.riverSystemArea((Zone.Water) specialPowerZone));
             case Zone z when z.specialPower() == Zone.SpecialPower.HUNTING_TRAP -> {
                 Area<Zone.Meadow> adjacentMeadow = newBoard.adjacentMeadow(placedTile.pos(), (Zone.Meadow) specialPowerZone);
                 //A ajouter au prochain rendu
                 Set<Animal> deersToCancel = getSimpleCancelledDeers(adjacentMeadow, false);
-                newMessageBoard = messageBoard.withScoredHuntingTrap(currentPlayer(), adjacentMeadow);
+                newMessageBoard = newMessageBoard.withScoredHuntingTrap(currentPlayer(), adjacentMeadow);
                 newBoard = newBoard.withMoreCancelledAnimals(Area.animals(adjacentMeadow, Set.of()));
             }
             case null, default -> {
