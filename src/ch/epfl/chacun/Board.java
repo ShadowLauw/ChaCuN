@@ -233,20 +233,11 @@ public final class Board {
      * @return the number of the given occupant kind placed by the player on the board
      */
     public int occupantCount(PlayerColor player, Occupant.Kind occupantKind) {
-        int count = 0;
-        for (Occupant occupant : occupants()) {
-            if (tileWithId(Zone.tileId(occupant.zoneId())).placer().equals(player)
-                    && occupant.kind().equals(occupantKind)
-            ) {
-                count++;
-            }
-        }
-        return count;
-        //TODO LAURA
-//        return (int) occupants().stream()
-//                .filter(occupant -> tileWithId(Zone.tileId(occupant.zoneId())).placer().equals(player)
-//                        && occupant.kind().equals(occupantKind))
-//                .count();
+        //must cast because the stream return a long
+        return (int) occupants().stream()
+                .filter(occupant -> tileWithId(Zone.tileId(occupant.zoneId())).placer().equals(player)
+                        && occupant.kind().equals(occupantKind))
+                .count();
     }
 
     /**

@@ -15,6 +15,7 @@ import static java.util.Objects.requireNonNull;
  * @param rotation the rotation of the tile
  * @param pos      the position of the tile
  * @param occupant (Occupant) the occupant of the tile
+ *
  * @author Laura Paraboschi (364161)
  * @author Emmanuel Omont (372632)
  */
@@ -94,7 +95,6 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
             if (zone.id() == id)
                 return zone;
         }
-        ;
         throw new IllegalArgumentException();
     }
 
@@ -158,16 +158,13 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
             return occupants;
         } else {
             for (Zone zone : tile.zones()) {
-                //the player can place a hut on the lake if there is one
-                if (zone instanceof Zone.Lake lake)
-                    occupants.add(new Occupant(Occupant.Kind.HUT, lake.id()));
-                else {
-                    //the player can place a pawn on each sideZone of the tile
-                    occupants.add(new Occupant(Occupant.Kind.PAWN, zone.id()));
-                    //the player can place a hut on each river if it is not connected to a lake
-                    if (zone instanceof Zone.River river && !river.hasLake())
-                        occupants.add(new Occupant(Occupant.Kind.HUT, river.id()));
-                }
+                occupants.add(new Occupant(
+                            zone instanceof Zone.Lake? Occupant.Kind.HUT : Occupant.Kind.PAWN,
+                            zone.id()
+                        ));
+                //the player can place a hut on each river if it is not connected to a lake
+                if (zone instanceof Zone.River river && !river.hasLake())
+                    occupants.add(new Occupant(Occupant.Kind.HUT, river.id()));
             }
         }
         return occupants;

@@ -88,7 +88,7 @@ public record GameState(
     }
 
     /**
-     * Returns the number of free occupants pf the given player of the given kind
+     * Returns the number of free occupants of the given player of the given kind
      *
      * @param player the color of the player
      * @param kind   the kind of the occupant

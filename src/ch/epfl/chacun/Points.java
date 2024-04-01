@@ -12,8 +12,7 @@ public final class Points {
     /**
      * Private constructor to prevent instantiation.
      */
-    private Points() {
-    }
+    private Points() {}
 
     /**
      * Returns the number of points for a closed Forest.

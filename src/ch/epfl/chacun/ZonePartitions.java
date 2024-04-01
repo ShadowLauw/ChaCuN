@@ -9,6 +9,7 @@ import java.util.Set;
  * @param meadows      the meadow zone partition
  * @param rivers       the river zone partition
  * @param riverSystems the river system zone partition
+ *
  * @author Laura Paraboschi (364161)
  * @author Emmanuel Omont (372632)
  */
@@ -85,7 +86,8 @@ public record ZonePartitions(
                     case Zone.Lake lake -> riverSystems.addSingleton(lake, openConnections[lake.localId()]);
                 }
             }
-
+            //we have to do it apart, because otherwise we could not union the 2 areas, as the both will probably not
+            //exist
             for (Zone zone : tile.zones()) {
                 if (zone instanceof Zone.River river) {
                     if (river.hasLake()) {

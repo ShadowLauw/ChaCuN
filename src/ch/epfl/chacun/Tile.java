@@ -15,6 +15,7 @@ import java.util.stream.Stream;
  * @param e    The east side of the tile
  * @param s    The south side of the tile
  * @param w    The west side of the tile
+ *
  * @author Laura Paraboschi (364161)
  * @author Emmanuel Omont (372632)
  */
