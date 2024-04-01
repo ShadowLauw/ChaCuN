@@ -3,6 +3,7 @@ package ch.epfl.chacun;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 
@@ -116,12 +117,10 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
      * @return the forests zone of the tile
      */
     public Set<Zone.Forest> forestZones() {
-        Set<Zone.Forest> forests = new HashSet<>();
-        for (Zone zone : tile.zones()) {
-            if (zone instanceof Zone.Forest forest)
-                forests.add(forest);
-        }
-        return forests;
+        return tile.zones().stream()
+                .filter(zone -> zone instanceof Zone.Forest)
+                .map(zone -> (Zone.Forest) zone)
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -130,12 +129,10 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
      * @return the meadow zone of the tile
      */
     public Set<Zone.Meadow> meadowZones() {
-        Set<Zone.Meadow> meadows = new HashSet<>();
-        for (Zone zone : tile.zones()) {
-            if (zone instanceof Zone.Meadow meadow)
-                meadows.add(meadow);
-        }
-        return meadows;
+        return tile.zones().stream()
+                .filter(zone -> zone instanceof Zone.Meadow)
+                .map(zone -> (Zone.Meadow) zone)
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -144,12 +141,10 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
      * @return the river zone of the tile
      */
     public Set<Zone.River> riverZones() {
-        Set<Zone.River> rivers = new HashSet<>();
-        for (Zone zone : tile.zones()) {
-            if (zone instanceof Zone.River river)
-                rivers.add(river);
-        }
-        return rivers;
+        return tile.zones().stream()
+                .filter(zone -> zone instanceof Zone.River)
+                .map(zone -> (Zone.River) zone)
+                .collect(Collectors.toSet());
     }
 
     /**

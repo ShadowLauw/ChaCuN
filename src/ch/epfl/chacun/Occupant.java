@@ -2,7 +2,6 @@ package ch.epfl.chacun;
 
 import java.util.List;
 
-import static ch.epfl.chacun.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -39,7 +38,7 @@ public record Occupant(Kind kind, int zoneId) {
      */
     public Occupant {
         requireNonNull(kind);
-        checkArgument(zoneId > 0);
+        Preconditions.checkArgument(zoneId > 0);
     }
 
     /**

@@ -55,6 +55,8 @@ public record ZonePartitions(
          *
          * @param tile the tile containing the zones to add
          */
+        //TODO LAURA Heu c quoi ce 10 qui pop comme ça mdr ? MAGIC CONSTANT OUUUU
+        //TODO LAURA ET MANU : REVOIR LE i<4 je pense qu'on peut faire mieux avec tileside
         public void addTile(Tile tile) {
             int[] openConnections = new int[10];
             for (int i = 0; i < 4; i++) {

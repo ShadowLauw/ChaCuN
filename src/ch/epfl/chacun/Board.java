@@ -1,6 +1,7 @@
 package ch.epfl.chacun;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Represents the board of the game
@@ -136,6 +137,11 @@ public final class Board {
             }
         }
         return occupants;
+        //TODO LAURA
+//        return Arrays.stream(tileIndex)
+//                .mapToObj(i -> placedTiles[i].occupant())
+//                .filter(Objects::nonNull)
+//                .collect(Collectors.toSet());
     }
 
     /**
@@ -211,11 +217,9 @@ public final class Board {
                 Pos posTranslated = pos.translated(dx, dy);
                 PlacedTile tile = tileAt(posTranslated);
                 if (tile != null) {
-                    for (Zone.Meadow zone : tile.meadowZones()) {
-                        if (areaOfTheZone.zones().contains(zone)) {
-                            adjacentZones.add(zone);
-                        }
-                    }
+                    tile.meadowZones().stream()
+                            .filter(zone -> areaOfTheZone.zones().contains(zone))
+                            .forEach(adjacentZones::add);
                 }
             }
         }
@@ -238,6 +242,11 @@ public final class Board {
             }
         }
         return count;
+        //TODO LAURA
+//        return (int) occupants().stream()
+//                .filter(occupant -> tileWithId(Zone.tileId(occupant.zoneId())).placer().equals(player)
+//                        && occupant.kind().equals(occupantKind))
+//                .count();
     }
 
     /**
@@ -256,7 +265,7 @@ public final class Board {
                 }
             }
         }
-        return Set.copyOf(positions);
+        return Collections.unmodifiableSet(positions);
     }
 
     /**
@@ -285,6 +294,17 @@ public final class Board {
             }
         }
         return forests;
+
+        //TODO LAURA
+//        PlacedTile lastPlacedTile = lastPlacedTile();
+//        if (lastPlacedTile != null) {
+//            return lastPlacedTile.forestZones().stream()
+//                    .map(this::forestArea)
+//                    .filter(Area::isClosed)
+//                    .collect(Collectors.toSet());
+//        }
+//        return Collections.emptySet();
+
     }
 
     /**
@@ -304,6 +324,17 @@ public final class Board {
             }
         }
         return rivers;
+
+        //TODO LAURA
+//        PlacedTile lastPlacedTile = lastPlacedTile();
+//        if (lastPlacedTile != null) {
+//            return lastPlacedTile.riverZones().stream()
+//                    .map(this::riverArea)
+//                    .filter(Area::isClosed)
+//                    .collect(Collectors.toSet());
+//        }
+//        return Collections.emptySet();
+//    }
     }
 
     /**
@@ -324,6 +355,14 @@ public final class Board {
             return true;
         }
         return false;
+        //TODO LAURA
+//        if (insertionPositions().contains(tile.pos())) {
+//            return Arrays.stream(Direction.values())
+//                    .map(direction -> tileAt(tile.pos().neighbor(direction)))
+//                    .filter(Objects::nonNull)
+//                    .noneMatch(neighborTile -> !tile.side(direction).isSameKindAs(neighborTile.side(direction.opposite())));
+//        }
+//        return false;
     }
 
     /**
@@ -340,6 +379,12 @@ public final class Board {
             }
         }
         return false;
+
+        //TODO LAURA
+//        return insertionPositions().stream()
+//                .flatMap(pos -> Arrays.stream(Rotation.values()).map(rotation -> new PlacedTile(tile, null, rotation, pos)))
+//                .anyMatch(this::canAddTile);
+
     }
 
     /**
@@ -425,6 +470,7 @@ public final class Board {
                 zoneIdsToClear.add(zone.id());
             }
         }
+
         for (Area<Zone.River> river : rivers) {
             newZonePartitionsBuilder.clearFishers(river);
             tileIdsToClear.addAll(river.tileIds());
@@ -457,8 +503,9 @@ public final class Board {
         newCancelledAnimals.addAll(newlyCancelledAnimals);
 
         return new Board(placedTiles.clone(), tileIndex.clone(), zonePartitions, newCancelledAnimals);
+        //TODO LAURA : ici on pourrait retirer les .clone() on passe quand même tous les tests
     }
-    
+
     @Override
     public boolean equals(Object that) {
         if (that == null) {
