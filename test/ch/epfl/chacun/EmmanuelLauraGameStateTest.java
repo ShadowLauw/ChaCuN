@@ -355,7 +355,7 @@ public class EmmanuelLauraGameStateTest {
     void lastTilePotentialOccupantThrows () {
         //si le plateau est vide il aime pas
         List<PlayerColor> players = new ArrayList<>(List.of(PlayerColor.BLUE, PlayerColor.YELLOW));
-        TileDecks tileDecks = new TileDecks(List.of(), List.of(), List.of());
+        TileDecks tileDecks = new TileDecks(List.of(TileReader.readTileFromCSV(56)), List.of(TileReader.readTileFromCSV(32)), List.of());
         GameState gameState = GameState.initial(players, tileDecks, new LauraTextMakerClass());
         assertThrows(IllegalArgumentException.class, gameState::lastTilePotentialOccupants);
         gameState = gameState.withStartingTilePlaced();
@@ -371,7 +371,7 @@ public class EmmanuelLauraGameStateTest {
         List<PlayerColor> players = List.of(PlayerColor.RED, PlayerColor.GREEN, PlayerColor.PURPLE);
         MessageBoard messageBoard = new MessageBoard(new LauraTextMakerClass(), List.of());
 
-        GameState gameState = new GameState(players, tileDecks, startTile, board, GameState.Action.OCCUPY_TILE, messageBoard);
+        GameState gameState = new GameState(players, tileDecks, null, board, GameState.Action.OCCUPY_TILE, messageBoard);
 
         assertThrows(IllegalArgumentException.class, gameState::withStartingTilePlaced);
     }
@@ -388,15 +388,15 @@ public class EmmanuelLauraGameStateTest {
         List<PlayerColor> players = List.of(PlayerColor.RED, PlayerColor.GREEN, PlayerColor.PURPLE);
         MessageBoard messageBoard = new MessageBoard(new LauraTextMakerClass(), List.of());
 
-        GameState gameState = new GameState(players, tileDecks, startTile, board, GameState.Action.START_GAME, messageBoard);
+        GameState gameState = new GameState(players, tileDecks, null, board, GameState.Action.START_GAME, messageBoard);
         gameState = gameState.withStartingTilePlaced();
         board = board.withNewTile(new PlacedTile(startTile, null, Rotation.NONE, new Pos(0, 0), null));
         assertEquals(GameState.Action.PLACE_TILE, gameState.nextAction());
-        //assertEquals(gameState.tile(new Position(0, 0)), startTile);
         assertTrue(gameState.tileDecks().startTiles().isEmpty());
         assertEquals(1, gameState.tileDecks().deckSize(Tile.Kind.NORMAL));
         assertEquals(board, gameState.board());
         assertEquals(tile38, gameState.tileToPlace());
+        assertEquals(startTile, gameState.board().tileAt(new Pos(0, 0)).tile());
     }
 
     @Test
@@ -408,7 +408,7 @@ public class EmmanuelLauraGameStateTest {
         List<PlayerColor> players = List.of(PlayerColor.RED, PlayerColor.GREEN, PlayerColor.PURPLE);
         MessageBoard messageBoard = new MessageBoard(new LauraTextMakerClass(), List.of());
         Tile tile19 = TileReader.readTileFromCSV(19);
-        final GameState gameState = new GameState(players, tileDecks, tile19, board, GameState.Action.OCCUPY_TILE, messageBoard);
+        final GameState gameState = new GameState(players, tileDecks, null, board, GameState.Action.OCCUPY_TILE, messageBoard);
         assertThrows(IllegalArgumentException.class, () -> gameState.withPlacedTile(new PlacedTile(tile19, PlayerColor.RED, Rotation.NONE, new Pos(-2, 0), null)));
 
         GameState gameState2 = new GameState(players, tileDecks, tile19, board, GameState.Action.PLACE_TILE, messageBoard);
@@ -489,11 +489,6 @@ public class EmmanuelLauraGameStateTest {
     }
 
     @Test
-    void withTurnFinishedWorks() {
-
-    }
-
-    @Test
     void withOccupantRemovedThrows () {
         //IAE si prochaine action n'est pas retake pawn
         //ou si l'occupant donné n'est ni null ni un pion.
@@ -515,6 +510,20 @@ public class EmmanuelLauraGameStateTest {
     @Test
     void withOccupantRemovedWorks () {
         //vérifier que l'occupant est bien supprimé, ou pas supprimé si le joueur le veut pas.
+        //vérifier que la prochaine action est bien occupytile
+        Board board = fullBoard();
+        board = board.withOccupant(new Occupant(Occupant.Kind.PAWN, 560));
+        TileDecks tileDecks = new TileDecks(List.of(), List.of(), List.of());
+        List<PlayerColor> players = List.of(PlayerColor.RED, PlayerColor.GREEN, PlayerColor.PURPLE);
+        MessageBoard messageBoard = new MessageBoard(new LauraTextMakerClass(), List.of());
+        GameState gameState = new GameState(players, tileDecks, null, board, GameState.Action.RETAKE_PAWN, messageBoard);
+        gameState = gameState.withOccupantRemoved(new Occupant(Occupant.Kind.PAWN, 560));
+        assertEquals(gameState.board().occupants().size(), 0);
+        assertEquals(gameState.nextAction(), GameState.Action.OCCUPY_TILE);
+        gameState = new GameState(players, tileDecks, null, board, GameState.Action.RETAKE_PAWN, messageBoard);
+        gameState = gameState.withOccupantRemoved(null);
+        assertEquals(gameState.board().occupants().size(), 1);
+        assertEquals(gameState.nextAction(), GameState.Action.OCCUPY_TILE);
     }
 
     @Test
@@ -536,10 +545,431 @@ public class EmmanuelLauraGameStateTest {
     void withNewOccupantWorks () {
         // vérifier si il a bien ajouté l'occupant à la dernière tuile
         //vérifier qu'il fait rien quand ça vaut null
+        Board board = fullBoard();
+        TileDecks tileDecks = new TileDecks(List.of(), List.of(), List.of());
+        List<PlayerColor> players = List.of(PlayerColor.RED, PlayerColor.GREEN, PlayerColor.PURPLE);
+        MessageBoard messageBoard = new MessageBoard(new LauraTextMakerClass(), List.of());
+        GameState gameState = new GameState(players, tileDecks, null, board, GameState.Action.OCCUPY_TILE, messageBoard);
+        gameState = gameState.withNewOccupant(new Occupant(Occupant.Kind.PAWN, 560));
+        assertEquals(gameState.board().occupants().size(), 1);
+        gameState = new GameState(players, tileDecks, null, board, GameState.Action.OCCUPY_TILE, messageBoard);
+        gameState = gameState.withNewOccupant(null);
+        assertEquals(gameState.board().occupants().size(), 0);
     }
 
     @Test
-    void finDuJeuWorks () {
-        //vérifier que la fin du jeu se comporte correctement.
+    void cancelledDeersWorksInDifferentSituations() {
+        //HuntingTrap -> Meadow Alone
+        Board board = Board.EMPTY;
+        PlacedTile tile25 = new PlacedTile(TileReader.readTileFromCSV(25), PlayerColor.RED, Rotation.NONE, new Pos(0, 0));
+        PlacedTile tile22 = new PlacedTile(TileReader.readTileFromCSV(22), PlayerColor.BLUE, Rotation.NONE, new Pos(1, 0));
+        PlacedTile tile40 = new PlacedTile(TileReader.readTileFromCSV(40), PlayerColor.GREEN, Rotation.RIGHT, new Pos(1, 1));
+        PlacedTile huntingTrapTile = new PlacedTile(TileReader.readTileFromCSV(94), PlayerColor.PURPLE, Rotation.NONE, new Pos(0, 1));
+        PlacedTile tile41 = new PlacedTile(TileReader.readTileFromCSV(41), PlayerColor.RED, Rotation.RIGHT, new Pos(1, 2));
+        PlacedTile tile31 = new PlacedTile(TileReader.readTileFromCSV(31), PlayerColor.BLUE, Rotation.LEFT, new Pos(0, 2));
+        PlacedTile tile62 = new PlacedTile(TileReader.readTileFromCSV(62), PlayerColor.GREEN, Rotation.NONE, new Pos(-2, 0));
+        PlacedTile tile67 = new PlacedTile(TileReader.readTileFromCSV(67), PlayerColor.PURPLE, Rotation.HALF_TURN, new Pos(-1, 1));
+        PlacedTile tile35 = new PlacedTile(TileReader.readTileFromCSV(35), PlayerColor.RED, Rotation.NONE, new Pos(2, 0));
+        PlacedTile tile61 = new PlacedTile(TileReader.readTileFromCSV(61), PlayerColor.BLUE, Rotation.NONE, new Pos(-1, 0));
+        board = board.withNewTile(tile25);
+        board = board.withNewTile(tile22);
+        board = board.withOccupant(new Occupant(Occupant.Kind.PAWN, 222));
+        board = board.withNewTile(tile40);
+        board = board.withNewTile(tile41);
+        board = board.withNewTile(tile31);
+        board = board.withNewTile(tile61);
+        board = board.withNewTile(tile67);
+        board = board.withNewTile(tile35);
+        board = board.withNewTile(tile62);
+
+
+        Area<Zone.Meadow> adjacentArea = new Area<>(
+                Set.of((Zone.Meadow)tile25.zoneWithId(250), (Zone.Meadow)tile22.zoneWithId(222), (Zone.Meadow)tile40.zoneWithId(402), (Zone.Meadow)tile41.zoneWithId(410), (Zone.Meadow)tile31.zoneWithId(311), (Zone.Meadow)tile61.zoneWithId(610), (Zone.Meadow)tile67.zoneWithId(672), (Zone.Meadow)huntingTrapTile.zoneWithId(941)),
+                List.of(PlayerColor.BLUE),
+                0
+                );
+        Set<Animal> cancelledHuntingTrap = new HashSet<>(Area.animals(adjacentArea, Set.of()));
+        Area<Zone.Meadow> area = new Area<>(
+                Set.of((Zone.Meadow)tile25.zoneWithId(250), (Zone.Meadow)tile22.zoneWithId(222), (Zone.Meadow)tile40.zoneWithId(402), (Zone.Meadow)tile41.zoneWithId(410), (Zone.Meadow)tile31.zoneWithId(311), (Zone.Meadow)tile62.zoneWithId(620), (Zone.Meadow)tile67.zoneWithId(672), (Zone.Meadow)huntingTrapTile.zoneWithId(941), (Zone.Meadow)tile35.zoneWithId(350), (Zone.Meadow)tile61.zoneWithId(610)),
+                List.of(PlayerColor.BLUE),
+                0
+        );
+
+        Area<Zone.Forest> forestArea = new Area<>(
+                Set.of((Zone.Forest)huntingTrapTile.zoneWithId(940), (Zone.Forest) tile25.zoneWithId(253)),
+                List.of(PlayerColor.PURPLE),
+                0
+        );
+
+        TileDecks tileDecks = new TileDecks(List.of(), List.of(), List.of());
+        List<PlayerColor> players = List.of(PlayerColor.PURPLE, PlayerColor.GREEN, PlayerColor.BLUE, PlayerColor.RED);
+        MessageBoard messageBoard = new MessageBoard(new LauraTextMakerClass(), List.of());
+        GameState gameState = new GameState(players, tileDecks, huntingTrapTile.tile(), board, GameState.Action.PLACE_TILE, messageBoard);
+        gameState = gameState.withPlacedTile(huntingTrapTile);
+        gameState = new GameState(gameState.players(), gameState.tileDecks(), null, gameState.board(), GameState.Action.OCCUPY_TILE, gameState.messageBoard());
+        gameState = gameState.withNewOccupant(new Occupant(Occupant.Kind.PAWN, 940));
+        MessageBoard myMessageBoard = new MessageBoard(new LauraTextMakerClass(), List.of());
+        myMessageBoard = myMessageBoard.withScoredHuntingTrap(PlayerColor.PURPLE, adjacentArea);
+        myMessageBoard = myMessageBoard.withScoredMeadow(area, cancelledHuntingTrap);
+        myMessageBoard = myMessageBoard.withScoredForest(forestArea);
+        myMessageBoard = myMessageBoard.withWinners(Set.of(PlayerColor.PURPLE), 11);
+        Set<MessageBoard.Message> myMessages = new HashSet<>(myMessageBoard.messages());
+        Set<MessageBoard.Message> gameStateMessages = new HashSet<>(gameState.messageBoard().messages());
+        assertEquals(myMessages, gameStateMessages);
+
+        //Pit Trap with Fire
+        PlacedTile tile92 = new PlacedTile(TileReader.readTileFromCSV(92), PlayerColor.PURPLE, Rotation.NONE, new Pos(0, 1));
+        PlacedTile tile43 = new PlacedTile(TileReader.readTileFromCSV(43), PlayerColor.GREEN, Rotation.HALF_TURN, new Pos(1, 1));
+        board = Board.EMPTY;
+        board = board.withNewTile(tile25);
+        board = board.withNewTile(tile22);
+        board = board.withOccupant(new Occupant(Occupant.Kind.PAWN, 222));
+        board = board.withNewTile(tile43);
+        board = board.withNewTile(tile41);
+        board = board.withNewTile(tile31);
+        board = board.withNewTile(tile61);
+        board = board.withNewTile(tile67);
+        board = board.withNewTile(tile35);
+        board = board.withNewTile(tile62);
+
+
+        adjacentArea = new Area<>(
+                Set.of((Zone.Meadow)tile25.zoneWithId(250), (Zone.Meadow)tile22.zoneWithId(222), (Zone.Meadow)tile41.zoneWithId(410), (Zone.Meadow)tile31.zoneWithId(311), (Zone.Meadow)tile61.zoneWithId(610), (Zone.Meadow)tile67.zoneWithId(672), (Zone.Meadow)tile92.zoneWithId(921)),
+                List.of(PlayerColor.BLUE),
+                0
+        );
+        Set<Animal> cancelledPitTrap = new HashSet<>();
+        cancelledPitTrap.add(new Animal(6200, Animal.Kind.DEER));
+        area = new Area<>(
+                Set.of((Zone.Meadow)tile25.zoneWithId(250), (Zone.Meadow)tile22.zoneWithId(222), (Zone.Meadow)tile41.zoneWithId(410), (Zone.Meadow)tile31.zoneWithId(311), (Zone.Meadow)tile62.zoneWithId(620), (Zone.Meadow)tile67.zoneWithId(672), (Zone.Meadow)tile92.zoneWithId(921), (Zone.Meadow)tile35.zoneWithId(350), (Zone.Meadow)tile61.zoneWithId(610)),
+                List.of(PlayerColor.BLUE),
+                0
+        );
+
+       forestArea = new Area<>(
+                Set.of((Zone.Forest)tile92.zoneWithId(920), (Zone.Forest) tile25.zoneWithId(253), (Zone.Forest) tile43.zoneWithId(430),(Zone.Forest)tile41.zoneWithId(412)),
+                List.of(PlayerColor.PURPLE),
+                0
+        );
+
+        tileDecks = new TileDecks(List.of(), List.of(), List.of());
+        players = List.of(PlayerColor.PURPLE, PlayerColor.GREEN, PlayerColor.BLUE, PlayerColor.RED);
+        messageBoard = new MessageBoard(new LauraTextMakerClass(), List.of());
+        gameState = new GameState(players, tileDecks, huntingTrapTile.tile(), board, GameState.Action.PLACE_TILE, messageBoard);
+        gameState = gameState.withPlacedTile(tile92);
+        gameState = new GameState(gameState.players(), gameState.tileDecks(), null, gameState.board(), GameState.Action.OCCUPY_TILE, gameState.messageBoard());
+        gameState = gameState.withNewOccupant(new Occupant(Occupant.Kind.PAWN, 920));
+        myMessageBoard = new MessageBoard(new LauraTextMakerClass(), List.of());
+        myMessageBoard = myMessageBoard.withScoredPitTrap(adjacentArea, cancelledPitTrap);
+        myMessageBoard = myMessageBoard.withScoredMeadow(area, cancelledPitTrap);
+        myMessageBoard = myMessageBoard.withScoredForest(forestArea);
+        myMessageBoard = myMessageBoard.withWinners(Set.of(PlayerColor.BLUE), 17);
+        myMessages = new HashSet<>(myMessageBoard.messages());
+        gameStateMessages = new HashSet<>(gameState.messageBoard().messages());
+        assertEquals(myMessages, gameStateMessages);
+
+        //pit trap with fire
+        board = Board.EMPTY;
+        board = board.withNewTile(tile25);
+        board = board.withNewTile(tile22);
+        board = board.withOccupant(new Occupant(Occupant.Kind.PAWN, 222));
+        board = board.withNewTile(tile43);
+        board = board.withNewTile(tile41);
+        board = board.withNewTile(tile31);
+        board = board.withNewTile(tile61);
+        board = board.withNewTile(tile67);
+        board = board.withNewTile(tile35);
+        board = board.withNewTile(tile62);
+
+        PlacedTile tileWithFire = new PlacedTile(TileReader.readTileFromCSV(85), PlayerColor.GREEN, Rotation.NONE, new Pos(-1, -1));
+        board = board.withNewTile(tileWithFire);
+
+
+        adjacentArea = new Area<>(
+                Set.of((Zone.Meadow)tile25.zoneWithId(250), (Zone.Meadow)tile22.zoneWithId(222), (Zone.Meadow)tile41.zoneWithId(410), (Zone.Meadow)tile31.zoneWithId(311), (Zone.Meadow)tile61.zoneWithId(610), (Zone.Meadow)tile67.zoneWithId(672), (Zone.Meadow)tile92.zoneWithId(921)),
+                List.of(PlayerColor.BLUE),
+                0
+        );
+
+        area = new Area<>(
+                Set.of((Zone.Meadow)tile25.zoneWithId(250), (Zone.Meadow)tile22.zoneWithId(222), (Zone.Meadow)tile41.zoneWithId(410), (Zone.Meadow)tile31.zoneWithId(311), (Zone.Meadow)tile62.zoneWithId(620), (Zone.Meadow)tile67.zoneWithId(672), (Zone.Meadow)tile92.zoneWithId(921), (Zone.Meadow)tile35.zoneWithId(350), (Zone.Meadow)tile61.zoneWithId(610), (Zone.Meadow) tileWithFire.zoneWithId(850)),
+                List.of(PlayerColor.BLUE),
+                0
+        );
+
+        forestArea = new Area<>(
+                Set.of((Zone.Forest)tile92.zoneWithId(920), (Zone.Forest) tile25.zoneWithId(253), (Zone.Forest) tile43.zoneWithId(430),(Zone.Forest)tile41.zoneWithId(412)),
+                List.of(PlayerColor.PURPLE),
+                0
+        );
+
+        tileDecks = new TileDecks(List.of(), List.of(), List.of());
+        players = List.of(PlayerColor.PURPLE, PlayerColor.GREEN, PlayerColor.BLUE, PlayerColor.RED);
+        messageBoard = new MessageBoard(new LauraTextMakerClass(), List.of());
+        gameState = new GameState(players, tileDecks, huntingTrapTile.tile(), board, GameState.Action.PLACE_TILE, messageBoard);
+        gameState = gameState.withPlacedTile(tile92);
+        gameState = new GameState(gameState.players(), gameState.tileDecks(), null, gameState.board(), GameState.Action.OCCUPY_TILE, gameState.messageBoard());
+        gameState = gameState.withNewOccupant(new Occupant(Occupant.Kind.PAWN, 920));
+        myMessageBoard = new MessageBoard(new LauraTextMakerClass(), List.of());
+        myMessageBoard = myMessageBoard.withScoredPitTrap(adjacentArea, Set.of());
+        myMessageBoard = myMessageBoard.withScoredMeadow(area, Set.of());
+        myMessageBoard = myMessageBoard.withScoredForest(forestArea);
+        myMessageBoard = myMessageBoard.withWinners(Set.of(PlayerColor.BLUE), 18);
+        myMessages = new HashSet<>(myMessageBoard.messages());
+        gameStateMessages = new HashSet<>(gameState.messageBoard().messages());
+        assertEquals(myMessages, gameStateMessages);
+
+
+        //Pit trap with hunting trap
+        board = Board.EMPTY;
+        board = board.withNewTile(tile25);
+        board = board.withNewTile(tile22);
+        board = board.withOccupant(new Occupant(Occupant.Kind.PAWN, 222));
+        board = board.withNewTile(tile43);
+        board = board.withNewTile(tile41);
+        board = board.withNewTile(tile31);
+        board = board.withNewTile(tile61);
+        board = board.withNewTile(tile67);
+        board = board.withNewTile(tile35);
+        board = board.withNewTile(tile62);
+        board = board.withNewTile(tile92);
+
+        PlacedTile huntingTrapTile2 = new PlacedTile(TileReader.readTileFromCSV(94), PlayerColor.PURPLE, Rotation.NONE, new Pos(2, 2));
+
+        adjacentArea = new Area<>(
+                Set.of((Zone.Meadow)tile25.zoneWithId(250), (Zone.Meadow)tile22.zoneWithId(222), (Zone.Meadow)tile41.zoneWithId(410), (Zone.Meadow)tile31.zoneWithId(311), (Zone.Meadow)tile61.zoneWithId(610), (Zone.Meadow)tile67.zoneWithId(672), (Zone.Meadow)tile92.zoneWithId(921)),
+                List.of(PlayerColor.BLUE),
+                0
+        );
+        Area<Zone.Meadow> adjacentAreaHuntingTrap = new Area<>(
+                Set.of((Zone.Meadow)huntingTrapTile2.zoneWithId(941), (Zone.Meadow)tile41.zoneWithId(410)),
+                List.of(),
+                0
+        );
+        area = new Area<>(
+                Set.of((Zone.Meadow)tile25.zoneWithId(250), (Zone.Meadow)tile22.zoneWithId(222), (Zone.Meadow)tile41.zoneWithId(410), (Zone.Meadow)tile31.zoneWithId(311), (Zone.Meadow)tile62.zoneWithId(620), (Zone.Meadow)tile67.zoneWithId(672), (Zone.Meadow)tile92.zoneWithId(921), (Zone.Meadow)tile35.zoneWithId(350), (Zone.Meadow)tile61.zoneWithId(610), (Zone.Meadow)huntingTrapTile2.zoneWithId(941)),
+                List.of(PlayerColor.BLUE),
+                0
+        );
+
+
+        cancelledHuntingTrap = new HashSet<>(Area.animals(adjacentAreaHuntingTrap, Set.of()));
+        cancelledHuntingTrap.add(new Animal(6200, Animal.Kind.DEER));
+
+        tileDecks = new TileDecks(List.of(), List.of(), List.of());
+        players = List.of(PlayerColor.PURPLE, PlayerColor.GREEN, PlayerColor.BLUE, PlayerColor.RED);
+        messageBoard = new MessageBoard(new LauraTextMakerClass(), List.of());
+        gameState = new GameState(players, tileDecks, huntingTrapTile.tile(), board, GameState.Action.PLACE_TILE, messageBoard);
+        gameState = gameState.withPlacedTile(huntingTrapTile2);
+        gameState = new GameState(gameState.players(), gameState.tileDecks(), null, gameState.board(), GameState.Action.OCCUPY_TILE, gameState.messageBoard());
+        gameState = gameState.withNewOccupant(new Occupant(Occupant.Kind.PAWN, 940));
+        myMessageBoard = new MessageBoard(new LauraTextMakerClass(), List.of());
+        myMessageBoard = myMessageBoard.withScoredHuntingTrap(PlayerColor.PURPLE, adjacentAreaHuntingTrap);
+        myMessageBoard = myMessageBoard.withScoredPitTrap(adjacentArea, cancelledHuntingTrap);
+        myMessageBoard = myMessageBoard.withScoredMeadow(area, cancelledHuntingTrap);
+        myMessageBoard = myMessageBoard.withWinners(Set.of(PlayerColor.BLUE), 15);
+        myMessages = new HashSet<>(myMessageBoard.messages());
+        gameStateMessages = new HashSet<>(gameState.messageBoard().messages());
+        assertEquals(myMessages, gameStateMessages);
+
+        //Pit trap with hunting trap and fire
+        board = Board.EMPTY;
+        board = board.withNewTile(tile25);
+        board = board.withNewTile(tile22);
+        board = board.withOccupant(new Occupant(Occupant.Kind.PAWN, 222));
+        board = board.withNewTile(tile43);
+        board = board.withNewTile(tile41);
+        board = board.withNewTile(tile31);
+        board = board.withNewTile(tile61);
+        board = board.withNewTile(tile67);
+        board = board.withNewTile(tile35);
+        board = board.withNewTile(tile62);
+        board = board.withNewTile(tile92);
+        board = board.withNewTile(tileWithFire);
+
+
+        adjacentArea = new Area<>(
+                Set.of((Zone.Meadow)tile25.zoneWithId(250), (Zone.Meadow)tile22.zoneWithId(222), (Zone.Meadow)tile41.zoneWithId(410), (Zone.Meadow)tile31.zoneWithId(311), (Zone.Meadow)tile61.zoneWithId(610), (Zone.Meadow)tile67.zoneWithId(672), (Zone.Meadow)tile92.zoneWithId(921)),
+                List.of(PlayerColor.BLUE),
+                0
+        );
+        adjacentAreaHuntingTrap = new Area<>(
+                Set.of((Zone.Meadow)huntingTrapTile2.zoneWithId(941), (Zone.Meadow)tile41.zoneWithId(410)),
+                List.of(),
+                0
+        );
+        area = new Area<>(
+                Set.of((Zone.Meadow)tile25.zoneWithId(250), (Zone.Meadow)tile22.zoneWithId(222), (Zone.Meadow)tile41.zoneWithId(410), (Zone.Meadow)tile31.zoneWithId(311), (Zone.Meadow)tile62.zoneWithId(620), (Zone.Meadow)tile67.zoneWithId(672), (Zone.Meadow)tile92.zoneWithId(921), (Zone.Meadow)tile35.zoneWithId(350), (Zone.Meadow)tile61.zoneWithId(610), (Zone.Meadow)huntingTrapTile2.zoneWithId(941), (Zone.Meadow) tileWithFire.zoneWithId(850)),
+                List.of(PlayerColor.BLUE),
+                0
+        );
+
+        cancelledHuntingTrap = new HashSet<>(Area.animals(adjacentAreaHuntingTrap, Set.of()));
+
+        tileDecks = new TileDecks(List.of(), List.of(), List.of());
+        players = List.of(PlayerColor.PURPLE, PlayerColor.GREEN, PlayerColor.BLUE, PlayerColor.RED);
+        messageBoard = new MessageBoard(new LauraTextMakerClass(), List.of());
+        gameState = new GameState(players, tileDecks, huntingTrapTile.tile(), board, GameState.Action.PLACE_TILE, messageBoard);
+        gameState = gameState.withPlacedTile(huntingTrapTile2);
+        gameState = new GameState(gameState.players(), gameState.tileDecks(), null, gameState.board(), GameState.Action.OCCUPY_TILE, gameState.messageBoard());
+        gameState = gameState.withNewOccupant(new Occupant(Occupant.Kind.PAWN, 940));
+        myMessageBoard = new MessageBoard(new LauraTextMakerClass(), List.of());
+        myMessageBoard = myMessageBoard.withScoredHuntingTrap(PlayerColor.PURPLE, adjacentAreaHuntingTrap);
+        myMessageBoard = myMessageBoard.withScoredPitTrap(adjacentArea, cancelledHuntingTrap);
+        myMessageBoard = myMessageBoard.withScoredMeadow(area, cancelledHuntingTrap);
+        myMessageBoard = myMessageBoard.withWinners(Set.of(PlayerColor.BLUE), 16);
+        myMessages = new HashSet<>(myMessageBoard.messages());
+        gameStateMessages = new HashSet<>(gameState.messageBoard().messages());
+        assertEquals(myMessages, gameStateMessages);
+
+    }
+
+    @Test
+    void withTurnFinishedWorks() {
+        //Verification points forêt
+        //Verification points rivières
+        //Second tour ou non
+        //Elimination du tas
+        //Changement de joueur ou non
+
+        //Dans mon cas c'est la tuile 1 qui est la dernière à être placée
+        //CAS CLASSIQUE
+        Board board = fullBoard();
+
+        TileDecks tileDecks = new TileDecks(List.of(), List.of(TileReader.readTileFromCSV(14), TileReader.readTileFromCSV(12)), List.of());
+        List<PlayerColor> players = List.of(PlayerColor.BLUE, PlayerColor.GREEN, PlayerColor.PURPLE);
+        MessageBoard messageBoard = new MessageBoard(new LauraTextMakerClass(), List.of());
+        GameState gameState = new GameState(players, tileDecks, null, board, GameState.Action.OCCUPY_TILE, messageBoard);
+        gameState = gameState.withNewOccupant(new Occupant(Occupant.Kind.PAWN, 10));
+
+        MessageBoard myMessageBoard = new MessageBoard(new LauraTextMakerClass(), List.of());
+        myMessageBoard = myMessageBoard.withScoredForest(board.forestArea((Zone.Forest) TileReader.readTileFromCSV(1).s().zones().getFirst()));
+        myMessageBoard = myMessageBoard.withScoredRiver(board.riverArea((Zone.River) TileReader.readTileFromCSV(1).e().zones().get(1)));
+        assertEquals(myMessageBoard.messages(), gameState.messageBoard().messages());
+
+        TileDecks newTileDecks = new TileDecks(List.of(), List.of(TileReader.readTileFromCSV(12)), List.of());
+        assertEquals(gameState.tileDecks().normalTiles(), newTileDecks.normalTiles());
+        assertEquals(gameState.tileToPlace(), TileReader.readTileFromCSV(14));
+        List<PlayerColor> newPlayers = new ArrayList<>(List.of(PlayerColor.GREEN, PlayerColor.PURPLE, PlayerColor.BLUE));
+        assertEquals(gameState.players(), newPlayers);
+
+        //CAS PAS DE SECOND TOUR ClASSIQUE
+        board = fullBoard();
+        PlacedTile tile79 = new PlacedTile(TileReader.readTileFromCSV(79), PlayerColor.RED, Rotation.NONE, new Pos(1, 1));
+        board = board.withNewTile(tile79);
+        players = List.of(PlayerColor.RED, PlayerColor.GREEN, PlayerColor.PURPLE);
+        messageBoard = new MessageBoard(new LauraTextMakerClass(), List.of());
+        gameState = new GameState(players, tileDecks, null, board, GameState.Action.OCCUPY_TILE, messageBoard);
+        gameState = gameState.withNewOccupant(new Occupant(Occupant.Kind.PAWN, 790));
+        myMessageBoard = new MessageBoard(new LauraTextMakerClass(), List.of());
+
+        assertEquals(myMessageBoard.messages(), gameState.messageBoard().messages());
+        newTileDecks = new TileDecks(List.of(), List.of(TileReader.readTileFromCSV(12)), List.of());
+        assertEquals(gameState.tileDecks().normalTiles(), newTileDecks.normalTiles());
+        assertEquals(gameState.tileToPlace(), TileReader.readTileFromCSV(14));
+        newPlayers = new ArrayList<>(List.of(PlayerColor.GREEN, PlayerColor.PURPLE, PlayerColor.RED));
+        assertEquals(gameState.players(), newPlayers);
+
+        //CAS SECOND TOUR
+        board = fullBoard();
+        PlacedTile tile39 = new PlacedTile(TileReader.readTileFromCSV(39), PlayerColor.RED, Rotation.NONE, new Pos(1, 1));
+        PlacedTile tile36 = new PlacedTile(TileReader.readTileFromCSV(36), PlayerColor.GREEN, Rotation.RIGHT, new Pos(2, 1));
+        board = board.withNewTile(tile36);
+        board = board.withNewTile(tile39);
+        players = List.of(PlayerColor.RED, PlayerColor.GREEN, PlayerColor.PURPLE);
+        messageBoard = new MessageBoard(new LauraTextMakerClass(), List.of());
+        tileDecks = new TileDecks(List.of(), List.of(TileReader.readTileFromCSV(12)), List.of(TileReader.readTileFromCSV(80), TileReader.readTileFromCSV(81), TileReader.readTileFromCSV(82)));
+        gameState = new GameState(players, tileDecks, null, board, GameState.Action.OCCUPY_TILE, messageBoard);
+        gameState = gameState.withNewOccupant(new Occupant(Occupant.Kind.PAWN, 390));
+        myMessageBoard = new MessageBoard(new LauraTextMakerClass(), List.of());
+        myMessageBoard = myMessageBoard.withScoredForest(board.forestArea((Zone.Forest) TileReader.readTileFromCSV(39).w().zones().getFirst()));
+        myMessageBoard = myMessageBoard.withClosedForestWithMenhir(PlayerColor.RED, board.forestArea((Zone.Forest) TileReader.readTileFromCSV(39).w().zones().getFirst()));
+
+        assertEquals(myMessageBoard.messages(), gameState.messageBoard().messages());
+        newTileDecks = new TileDecks(List.of(), List.of(TileReader.readTileFromCSV(12)), List.of(TileReader.readTileFromCSV(81), TileReader.readTileFromCSV(82)));
+        assertEquals(gameState.tileDecks().normalTiles(), newTileDecks.normalTiles());
+        assertEquals(gameState.tileToPlace(), TileReader.readTileFromCSV(80));
+        newPlayers = new ArrayList<>(List.of(PlayerColor.RED, PlayerColor.GREEN, PlayerColor.PURPLE));
+        assertEquals(gameState.players(), newPlayers);
+
+        //CAS PAS DE SECOND TOUR CAR PAS DE MENHIR
+        board = fullBoard();
+        board = board.withNewTile(tile36);
+        board = board.withNewTile(tile39);
+        players = List.of(PlayerColor.RED, PlayerColor.GREEN, PlayerColor.PURPLE);
+        messageBoard = new MessageBoard(new LauraTextMakerClass(), List.of());
+        tileDecks = new TileDecks(List.of(), List.of(TileReader.readTileFromCSV(12)), List.of());
+        gameState = new GameState(players, tileDecks, null, board, GameState.Action.OCCUPY_TILE, messageBoard);
+        gameState = gameState.withNewOccupant(new Occupant(Occupant.Kind.PAWN, 390));
+        myMessageBoard = new MessageBoard(new LauraTextMakerClass(), List.of());
+        assertEquals(myMessageBoard.messages(), gameState.messageBoard().messages());
+        newTileDecks = new TileDecks(List.of(), List.of(), List.of());
+        assertEquals(gameState.tileDecks().normalTiles(), newTileDecks.normalTiles());
+        assertEquals(gameState.tileToPlace(), TileReader.readTileFromCSV(12));
+        newPlayers = new ArrayList<>(List.of(PlayerColor.GREEN, PlayerColor.PURPLE, PlayerColor.RED));
+        assertEquals(gameState.players(), newPlayers);
+
+        //VIRE DES TUILES NORMALES
+        PlacedTile tile13 = new PlacedTile(TileReader.readTileFromCSV(13), PlayerColor.RED, Rotation.NONE, new Pos(0, 0));
+        board = Board.EMPTY.withNewTile(tile13);
+        players = List.of(PlayerColor.RED, PlayerColor.GREEN, PlayerColor.PURPLE);
+        messageBoard = new MessageBoard(new LauraTextMakerClass(), List.of());
+        tileDecks = new TileDecks(List.of(), List.of(TileReader.readTileFromCSV(31), TileReader.readTileFromCSV(61), TileReader.readTileFromCSV(62), TileReader.readTileFromCSV(72)), List.of());
+        gameState = new GameState(players, tileDecks, null, board, GameState.Action.OCCUPY_TILE, messageBoard);
+        gameState = gameState.withNewOccupant(new Occupant(Occupant.Kind.PAWN, 130));
+        myMessageBoard = new MessageBoard(new LauraTextMakerClass(), List.of());
+        assertEquals(myMessageBoard.messages(), gameState.messageBoard().messages());
+        newTileDecks = new TileDecks(List.of(), List.of(), List.of());
+        assertEquals(gameState.tileDecks().normalTiles(), newTileDecks.normalTiles());
+        assertEquals(gameState.tileToPlace(), TileReader.readTileFromCSV(72));
+        newPlayers = new ArrayList<>(List.of(PlayerColor.GREEN, PlayerColor.PURPLE, PlayerColor.RED));
+        assertEquals(gameState.players(), newPlayers);
+
+        //CAS PAS DE SECOND TOUR CAR PAS DE MENHIR OK
+        PlacedTile tile29 = new PlacedTile(TileReader.readTileFromCSV(29), PlayerColor.RED, Rotation.NONE, new Pos(0, 0));
+        board = Board.EMPTY.withNewTile(tile29);
+        PlacedTile tile11 = new PlacedTile(TileReader.readTileFromCSV(11), PlayerColor.GREEN, Rotation.NONE, new Pos(0, -1));
+        board = board.withNewTile(tile11);
+        PlacedTile tile14 = new PlacedTile(TileReader.readTileFromCSV(14), PlayerColor.BLUE, Rotation.NONE, new Pos(-1, 0));
+        board = board.withNewTile(tile14);
+        players = List.of(PlayerColor.BLUE, PlayerColor.GREEN, PlayerColor.RED);
+        messageBoard = new MessageBoard(new LauraTextMakerClass(), List.of());
+        tileDecks = new TileDecks(List.of(), List.of(TileReader.readTileFromCSV(31), TileReader.readTileFromCSV(61)), List.of(TileReader.readTileFromCSV(85)));
+        gameState = new GameState(players, tileDecks, null, board, GameState.Action.OCCUPY_TILE, messageBoard);
+        gameState = gameState.withNewOccupant(new Occupant(Occupant.Kind.PAWN, 140));
+        myMessageBoard = new MessageBoard(new LauraTextMakerClass(), List.of());
+        assertEquals(myMessageBoard.messages(), gameState.messageBoard().messages());
+        newTileDecks = new TileDecks(List.of(), List.of(TileReader.readTileFromCSV(61)), List.of());
+        assertEquals(gameState.tileDecks().normalTiles(), newTileDecks.normalTiles());
+        assertEquals(gameState.tileDecks().menhirTiles(), newTileDecks.menhirTiles());
+        assertEquals(gameState.tileToPlace(), TileReader.readTileFromCSV(31));
+        newPlayers = new ArrayList<>(List.of(PlayerColor.GREEN, PlayerColor.RED, PlayerColor.BLUE));
+        assertEquals(gameState.players(), newPlayers);
+    }
+
+    @Test
+    void finDuJeuWorks() {
+        //test déjà fait dans cancelled deers
+        //ici : end Game, tile null, double gagnants
+        PlacedTile tile35 = new PlacedTile(TileReader.readTileFromCSV(35), PlayerColor.RED, Rotation.NONE, new Pos(0, 0));
+        PlacedTile tile84 = new PlacedTile(TileReader.readTileFromCSV(84), PlayerColor.GREEN, Rotation.RIGHT, new Pos(1, 0));
+        Board board = Board.EMPTY.withNewTile(tile35);
+        TileDecks tileDecks = new TileDecks(List.of(), List.of(tile84.tile()), List.of());
+        List<PlayerColor> players = List.of(PlayerColor.RED, PlayerColor.GREEN, PlayerColor.PURPLE);
+        MessageBoard messageBoard = new MessageBoard(new LauraTextMakerClass(), List.of());
+        GameState gameState = new GameState(players, tileDecks, null, board, GameState.Action.OCCUPY_TILE, messageBoard);
+        gameState = gameState.withNewOccupant(new Occupant(Occupant.Kind.PAWN, 350));
+        gameState = gameState.withPlacedTile(tile84);
+        gameState = gameState.withNewOccupant(new Occupant(Occupant.Kind.PAWN, 842));
+        assertEquals(gameState.nextAction(), GameState.Action.END_GAME);
+        assertEquals(gameState.tileDecks().normalTiles(), List.of());
+        assertNull(gameState.tileToPlace());
+        messageBoard = new MessageBoard(new LauraTextMakerClass(), List.of());
+        messageBoard = messageBoard.withScoredMeadow(new Area<>(Set.of((Zone.Meadow)tile35.zoneWithId(350)), List.of(PlayerColor.RED), 0), Set.of());
+        messageBoard = messageBoard.withScoredMeadow(new Area<>(Set.of((Zone.Meadow)tile84.zoneWithId(842)), List.of(PlayerColor.GREEN), 0), Set.of());
+        messageBoard = messageBoard.withWinners(Set.of(PlayerColor.RED, PlayerColor.GREEN), 3);
+        Set<MessageBoard.Message> myMessages = new HashSet<>(messageBoard.messages());
+        Set<MessageBoard.Message> gameStateMessages = new HashSet<>(gameState.messageBoard().messages());
+        assertEquals(myMessages, gameStateMessages);
     }
 }

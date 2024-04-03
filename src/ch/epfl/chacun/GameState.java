@@ -3,6 +3,7 @@ package ch.epfl.chacun;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -123,9 +124,6 @@ public record GameState(
                 };
             }
         });
-        potentialOccupants.removeIf(occupant ->
-                freeOccupantsCount(currentPlayer(), occupant.kind()) == 0
-        );
 
         return potentialOccupants;
     }
@@ -190,8 +188,7 @@ public record GameState(
                 newMessageBoard = newMessageBoard.withScoredHuntingTrap(currentPlayer(), adjacentMeadow);
                 newBoard = newBoard.withMoreCancelledAnimals(Area.animals(adjacentMeadow, Set.of()));
             }
-            case null, default -> {
-            }
+            case null, default -> {}
         }
 
         return new GameState(
@@ -220,7 +217,7 @@ public record GameState(
                 tileDecks,
                 null,
                 occupant == null ? board : board.withoutOccupant(occupant),
-                nextAction,
+                Action.OCCUPY_TILE,
                 messageBoard
         ).withTurnFinishedIfOccupationImpossible();
     }
@@ -251,23 +248,6 @@ public record GameState(
      */
     private GameState withTurnFinishedIfOccupationImpossible() {
         return lastTilePotentialOccupants().isEmpty() ? this.withTurnFinished() : this;
-    }
-
-    /**
-     * Check if the removal is possible, and if not finish the turn
-     *
-     * @return the GameState with the turn finished or the next action being RETAKE_PAWN
-     */
-    private GameState withPlacingOccupantIfRemovalImpossible() {
-        return board.occupantCount(currentPlayer(), Occupant.Kind.PAWN) > 0 ? this :
-                new GameState(
-                        players,
-                        tileDecks,
-                        null,
-                        board,
-                        Action.OCCUPY_TILE,
-                        messageBoard
-                ).withTurnFinishedIfOccupationImpossible();
     }
 
     /**
@@ -353,7 +333,7 @@ public record GameState(
             Set<Animal> cancelledAnimals = zoneWithPitTrap == null ?
                     getSimpleCancelledDeers(meadowArea, true) : getFurthestCancelledDeers(zoneWithPitTrap);
             newBoard = newBoard.withMoreCancelledAnimals(cancelledAnimals);
-            newMessageBoard = newMessageBoard.withScoredMeadow(meadowArea, cancelledAnimals);
+            newMessageBoard = newMessageBoard.withScoredMeadow(meadowArea, newBoard.cancelledAnimals());
             if (zoneWithPitTrap != null) {
                 newMessageBoard = newMessageBoard.withScoredPitTrap(newBoard.adjacentMeadow(
                         newBoard.tileWithId(zoneWithPitTrap.tileId()).pos(), zoneWithPitTrap), newBoard.cancelledAnimals());
@@ -368,7 +348,7 @@ public record GameState(
             }
         }
 
-        int maxPoints = newMessageBoard.points().values().stream().max(Integer::compare).orElseThrow();
+        int maxPoints = newMessageBoard.points().values().stream().max(Integer::compare).orElse(0);
         Set<PlayerColor> winners = newMessageBoard.points().entrySet().stream()
                 .filter(entry -> entry.getValue() == maxPoints)
                 .map(Map.Entry::getKey)
@@ -394,13 +374,12 @@ public record GameState(
     private Set<Animal> getSimpleCancelledDeers(Area<Zone.Meadow> meadowArea, boolean takeFireIntoAccount) {
         boolean isThereFire = takeFireIntoAccount && meadowArea.zoneWithSpecialPower(Zone.SpecialPower.WILD_FIRE) != null;
 
-        Set<Animal> areaNotCancelledAnimals = Area.animals(meadowArea, Set.of());
-        areaNotCancelledAnimals.removeAll(board.cancelledAnimals());
+        Set<Animal> areaNotCancelledAnimals = Area.animals(meadowArea, board.cancelledAnimals());
         int numberOfSmilodons = isThereFire ? 0 : (int) areaNotCancelledAnimals.stream().filter(
                 animal -> animal.kind() == Animal.Kind.TIGER).count();
 
-        return areaNotCancelledAnimals.stream().filter(
-                animal -> animal.kind() == Animal.Kind.DEER).skip(numberOfSmilodons).collect(Collectors.toSet());
+        return areaNotCancelledAnimals.stream().filter(animal -> animal.kind() == Animal.Kind.DEER)
+                .limit(numberOfSmilodons).collect(Collectors.toSet());
     }
 
     /**
@@ -416,10 +395,8 @@ public record GameState(
         Area<Zone.Meadow> adjacentMeadowArea = board.adjacentMeadow(posOfCentralMeadow, pitTrapMeadow);
 
         boolean isThereFire = meadowArea.zoneWithSpecialPower(Zone.SpecialPower.WILD_FIRE) != null;
-        Set<Animal> areaNotCancelledAnimals = Area.animals(meadowArea, Set.of());
-        areaNotCancelledAnimals.removeAll(board.cancelledAnimals());
-        Set<Animal> insideAreaNotCancelledAnimals = Area.animals(adjacentMeadowArea, Set.of());
-        insideAreaNotCancelledAnimals.removeAll(board.cancelledAnimals());
+        Set<Animal> areaNotCancelledAnimals = Area.animals(meadowArea, board.cancelledAnimals());
+        Set<Animal> insideAreaNotCancelledAnimals = Area.animals(adjacentMeadowArea, board.cancelledAnimals());
 
         int numberOfSmilodons = isThereFire ? 0 : (int) areaNotCancelledAnimals.stream().filter(
                 animal -> animal.kind() == Animal.Kind.TIGER).count();
@@ -432,11 +409,11 @@ public record GameState(
         if (numberOfSmilodons > 0) {
             if (numberOfSmilodons < deersOutsideAdjacentArea.size()) {
                 furthestCancelledDeers.addAll(deersOutsideAdjacentArea.stream()
-                        .skip(numberOfSmilodons).collect(Collectors.toSet()));
+                        .limit(numberOfSmilodons).collect(Collectors.toSet()));
             } else {
                 furthestCancelledDeers.addAll(deersOutsideAdjacentArea);
                 furthestCancelledDeers.addAll(deersInAdjacentArea.stream()
-                        .skip(numberOfSmilodons - deersOutsideAdjacentArea.size()).collect(Collectors.toSet()));
+                        .limit(numberOfSmilodons - deersOutsideAdjacentArea.size()).collect(Collectors.toSet()));
             }
         }
 
