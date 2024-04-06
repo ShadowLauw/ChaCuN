@@ -1,6 +1,7 @@
 package ch.epfl.chacun;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Represents the different areas of the board
@@ -154,12 +155,11 @@ public record Area<Z extends Zone>(Set<Z> zones, List<PlayerColor> occupants, in
      */
     public Set<PlayerColor> majorityOccupants() {
         int[] count = new int[PlayerColor.ALL.size()];
-        int max = 0;
         for (PlayerColor occupant : occupants) {
             count[occupant.ordinal()]++;
-            if (count[occupant.ordinal()] > max)
-                max = count[occupant.ordinal()];
         }
+        //we are sure to get something, as the array is initialized with 0;
+        int max = Arrays.stream(count).max().getAsInt();
         Set<PlayerColor> majority = new HashSet<>();
         if (max == 0)
             return majority;
@@ -232,11 +232,9 @@ public record Area<Z extends Zone>(Set<Z> zones, List<PlayerColor> occupants, in
      * @return the set of tileIds
      */
     public Set<Integer> tileIds() {
-        Set<Integer> tileIds = new HashSet<>();
-        for (Z zone : zones) {
-            tileIds.add(zone.tileId());
-        }
-        return tileIds;
+        return zones.stream()
+                    .map(Zone::tileId)
+                    .collect(Collectors.toSet());
     }
 
     /**

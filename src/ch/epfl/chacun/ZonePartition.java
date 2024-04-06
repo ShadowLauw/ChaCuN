@@ -9,6 +9,7 @@ import java.util.Set;
  *
  * @param <Z>   the type of the zones
  * @param areas the areas of the zone partition
+ *
  * @author Laura Paraboschi (364161)
  * @author Emmanuel Omont (372632)
  */

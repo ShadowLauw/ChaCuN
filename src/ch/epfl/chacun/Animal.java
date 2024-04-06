@@ -23,7 +23,7 @@ public record Animal(int id, Kind kind) {
     /**
      * Returns the tileID the animal is on
      *
-     * @return (int) the tileID the animal is on
+     * @return the tileID the animal is on
      */
     public int tileId() {
         return id / TILE_ID_DIVIDER;

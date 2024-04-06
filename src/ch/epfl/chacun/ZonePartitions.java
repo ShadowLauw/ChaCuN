@@ -9,6 +9,7 @@ import java.util.Set;
  * @param meadows      the meadow zone partition
  * @param rivers       the river zone partition
  * @param riverSystems the river system zone partition
+ *
  * @author Laura Paraboschi (364161)
  * @author Emmanuel Omont (372632)
  */
@@ -55,6 +56,8 @@ public record ZonePartitions(
          *
          * @param tile the tile containing the zones to add
          */
+        //TODO LAURA Heu c quoi ce 10 qui pop comme ça mdr ? MAGIC CONSTANT OUUUU
+        //TODO LAURA ET MANU : REVOIR LE i<4 je pense qu'on peut faire mieux avec tileside
         public void addTile(Tile tile) {
             int[] openConnections = new int[10];
             for (int i = 0; i < 4; i++) {
@@ -83,7 +86,8 @@ public record ZonePartitions(
                     case Zone.Lake lake -> riverSystems.addSingleton(lake, openConnections[lake.localId()]);
                 }
             }
-
+            //we have to do it apart, because otherwise we could not union the 2 areas, as the both will probably not
+            //exist
             for (Zone zone : tile.zones()) {
                 if (zone instanceof Zone.River river) {
                     if (river.hasLake()) {

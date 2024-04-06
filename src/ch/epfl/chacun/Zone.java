@@ -81,7 +81,7 @@ public sealed interface Zone {
     }
 
     /**
-     * Represents the different kinds of forests
+     * Represents a forest
      *
      * @param id   the unique identifier of the forest
      * @param kind the kind of the forest
@@ -94,7 +94,7 @@ public sealed interface Zone {
     }
 
     /**
-     * Represents the different kinds of meadows
+     * Represents a meadow
      *
      * @param id           the unique identifier of the meadow
      * @param animals      the animals in the meadow
@@ -126,7 +126,7 @@ public sealed interface Zone {
     }
 
     /**
-     * Represents the different kinds of lakes
+     * Represents a lake
      *
      * @param id           the unique identifier of the lake
      * @param fishCount    the number of fish in the lake
@@ -136,7 +136,7 @@ public sealed interface Zone {
     }
 
     /**
-     * Represents the different kinds of rivers
+     * Represents a river
      *
      * @param id        the unique identifier of the river
      * @param fishCount the number of fish in the river

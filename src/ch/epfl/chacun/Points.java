@@ -27,8 +27,6 @@ public final class Points {
         return (2 * tileCount + 3 * mushroomGroupCount);
     }
 
-    ;
-
     /**
      * Returns the number of points for a closed River.
      *
@@ -41,8 +39,6 @@ public final class Points {
         checkArgument(tileCount > 1 && fishCount >= 0);
         return (tileCount + fishCount);
     }
-
-    ;
 
     /**
      * Returns the number of points for a meadow.
@@ -86,8 +82,6 @@ public final class Points {
         return (2 * lakeCount);
     }
 
-    ;
-
     /**
      * Returns the number of points for the event Raft.
      *
@@ -99,6 +93,4 @@ public final class Points {
         checkArgument(lakeCount > 0);
         return (lakeCount);
     }
-
-    ;
 }

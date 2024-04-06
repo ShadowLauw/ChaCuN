@@ -9,6 +9,7 @@ import java.util.function.Predicate;
  * @param startTiles  the start tiles deck (composed of only the start tile)
  * @param normalTiles the normal tiles deck
  * @param menhirTiles the menhir tiles deck
+ *
  * @author Laura Paraboschi (364161)
  * @author Emmanuel Omont (372632)
  */

@@ -10,8 +10,7 @@ public final class Preconditions {
     /**
      * Private constructor to prevent instantiation.
      */
-    private Preconditions() {
-    }
+    private Preconditions() {}
 
     /**
      * Check if the given condition is true, otherwise throws an IllegalArgumentException.

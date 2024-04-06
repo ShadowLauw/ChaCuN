@@ -118,7 +118,9 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
         int points = Points.forLogboat(Area.lakeCount(riverSystem));
         newMessages.add(new Message(
                 textMaker.playerScoredLogboat(scorer, points, Area.lakeCount(riverSystem)),
-                points, Set.of(scorer), riverSystem.tileIds()
+                points,
+                Set.of(scorer),
+                riverSystem.tileIds()
         ));
         return new MessageBoard(textMaker, newMessages);
     }
@@ -185,13 +187,18 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
     ) {
         Set<Animal> animals = Area.animals(adjacentMeadow, cancelledAnimals);
         Map<Animal.Kind, Integer> animalsCount = new HashMap<>();
+
         for (Animal animal : animals) {
             animalsCount.merge(animal.kind(), 1, Integer::sum);
         }
+
         int points = Points.forMeadow(
                 animalsCount.getOrDefault(Animal.Kind.MAMMOTH, 0),
                 animalsCount.getOrDefault(Animal.Kind.AUROCHS, 0),
-                animalsCount.getOrDefault(Animal.Kind.DEER, 0));
+                animalsCount.getOrDefault(Animal.Kind.DEER, 0)
+        );
+
+        //TODO LAURA : peut-être que faire une énumération c plus propre que 3 strings...
         if ((scorer != null || adjacentMeadow.isOccupied()) && points > 0) {
             List<Message> newMessages = new ArrayList<>(messages);
             switch (messageType) {
@@ -203,13 +210,13 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
                         textMaker.playersScoredPitTrap(adjacentMeadow.majorityOccupants(), points, animalsCount),
                         points, adjacentMeadow.majorityOccupants(), adjacentMeadow.tileIds()
                 ));
-                case "huntingTrap" -> {
+                case "huntingTrap" ->
                     //Even though intellij says that the scorer could be null, in the case of hunting trap, it can't
                     newMessages.add(new Message(
                             textMaker.playerScoredHuntingTrap(scorer, points, animalsCount),
                             points, Set.of(scorer), adjacentMeadow.tileIds()
                     ));
-                }
+
             }
             return new MessageBoard(textMaker, newMessages);
         }
