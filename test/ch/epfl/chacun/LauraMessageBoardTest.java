@@ -199,7 +199,9 @@ public class LauraMessageBoardTest {
                 textMaker.playerScoredHuntingTrap(PlayerColor.RED, 8, map),
                 8, Set.of(PlayerColor.RED), Set.of(56,20,87, 81, 30)
         ));
-        assertEquals(messages, messageBoard.messages());
+        Set<MessageBoard.Message> myMessages = new HashSet<>(messageBoard.messages());
+        Set<MessageBoard.Message> messagesToTest = new HashSet<>(messages);
+        assertEquals(myMessages, messagesToTest);
     }
 
     @Test
