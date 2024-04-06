@@ -14,6 +14,7 @@ public enum PlayerColor {
     GREEN,
     YELLOW,
     PURPLE;
+
     /**
      * List of all the possible colors
      */

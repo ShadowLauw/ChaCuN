@@ -9,7 +9,6 @@ import java.util.function.Predicate;
  * @param startTiles  the start tiles deck (composed of only the start tile)
  * @param normalTiles the normal tiles deck
  * @param menhirTiles the menhir tiles deck
- *
  * @author Laura Paraboschi (364161)
  * @author Emmanuel Omont (372632)
  */
@@ -65,6 +64,7 @@ public record TileDecks(List<Tile> startTiles, List<Tile> normalTiles, List<Tile
      */
     public TileDecks withTopTileDrawn(Tile.Kind kind) {
         Preconditions.checkArgument(deckSize(kind) > 0);
+
         return switch (kind) {
             case START -> new TileDecks(startTiles.subList(1, startTiles.size()), normalTiles, menhirTiles);
             case NORMAL -> new TileDecks(startTiles, normalTiles.subList(1, normalTiles.size()), menhirTiles);
@@ -80,12 +80,25 @@ public record TileDecks(List<Tile> startTiles, List<Tile> normalTiles, List<Tile
      * @return a new TileDecks with the top tile of the given kind drawn until the given predicate is satisfied
      */
     public TileDecks withTopTileDrawnUntil(Tile.Kind kind, Predicate<Tile> predicate) {
-        TileDecks newTileDeck = new TileDecks(this.startTiles, this.normalTiles, this.menhirTiles);
-        Tile topTile = newTileDeck.topTile(kind);
-        while (topTile != null && !predicate.test(topTile)) {
+        TileDecks newTileDeck = this;
+
+        while (topTileMatches(newTileDeck, kind, predicate)) {
             newTileDeck = newTileDeck.withTopTileDrawn(kind);
-            topTile = newTileDeck.topTile(kind);
         }
+
         return newTileDeck;
+    }
+
+    /**
+     * Returns whether the top tile of the deck of the given kind matches the given predicate
+     *
+     * @param td        the tile deck
+     * @param kind      the kind of deck
+     * @param predicate the predicate to satisfy
+     * @return whether the top tile of the deck of the given kind matches the given predicate
+     */
+    private boolean topTileMatches(TileDecks td, Tile.Kind kind, Predicate<Tile> predicate) {
+        Tile topTile = td.topTile(kind);
+        return topTile != null && !predicate.test(topTile);
     }
 }

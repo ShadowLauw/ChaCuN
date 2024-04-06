@@ -1,9 +1,7 @@
 package ch.epfl.chacun;
 
-import static ch.epfl.chacun.Preconditions.checkArgument;
-
 /**
- * Immutable class for computing the points for some events during a game.
+ * Computes the points for some events during a game.
  *
  * @author Laura Paraboschi (364161)
  * @author Emmanuel Omont (372632)
@@ -12,7 +10,8 @@ public final class Points {
     /**
      * Private constructor to prevent instantiation.
      */
-    private Points() {}
+    private Points() {
+    }
 
     /**
      * Returns the number of points for a closed Forest.
@@ -23,8 +22,9 @@ public final class Points {
      * @throws IllegalArgumentException if the tileCount is not strictly superior to 1 or if the mushroomGroupCount is negative
      */
     public static int forClosedForest(int tileCount, int mushroomGroupCount) {
-        checkArgument(tileCount > 1 && mushroomGroupCount >= 0);
-        return (2 * tileCount + 3 * mushroomGroupCount);
+        Preconditions.checkArgument(tileCount > 1 && mushroomGroupCount >= 0);
+
+        return 2 * tileCount + 3 * mushroomGroupCount;
     }
 
     /**
@@ -36,8 +36,9 @@ public final class Points {
      * @throws IllegalArgumentException if the tileCount is not strictly superior to 1 or if the fishCount is negative
      */
     public static int forClosedRiver(int tileCount, int fishCount) {
-        checkArgument(tileCount > 1 && fishCount >= 0);
-        return (tileCount + fishCount);
+        Preconditions.checkArgument(tileCount > 1 && fishCount >= 0);
+
+        return tileCount + fishCount;
     }
 
     /**
@@ -50,11 +51,10 @@ public final class Points {
      * @throws IllegalArgumentException if the mammothCount, aurochsCount or deerCount is negative
      */
     public static int forMeadow(int mammothCount, int aurochsCount, int deerCount) {
-        checkArgument(mammothCount >= 0 && aurochsCount >= 0 && deerCount >= 0);
-        return (3 * mammothCount + 2 * aurochsCount + deerCount);
-    }
+        Preconditions.checkArgument(mammothCount >= 0 && aurochsCount >= 0 && deerCount >= 0);
 
-    ;
+        return 3 * mammothCount + 2 * aurochsCount + deerCount;
+    }
 
     /**
      * Returns the number of points for a closed river System.
@@ -64,11 +64,10 @@ public final class Points {
      * @throws IllegalArgumentException if the fishCount is negative
      */
     public static int forRiverSystem(int fishCount) {
-        checkArgument(fishCount >= 0);
-        return (fishCount);
-    }
+        Preconditions.checkArgument(fishCount >= 0);
 
-    ;
+        return fishCount;
+    }
 
     /**
      * Returns the number of points for the event Logboat.
@@ -78,8 +77,9 @@ public final class Points {
      * @throws IllegalArgumentException if the lakeCount is not strictly superior to 0
      */
     public static int forLogboat(int lakeCount) {
-        checkArgument(lakeCount > 0);
-        return (2 * lakeCount);
+        Preconditions.checkArgument(lakeCount > 0);
+
+        return 2 * lakeCount;
     }
 
     /**
@@ -90,7 +90,8 @@ public final class Points {
      * @throws IllegalArgumentException if the lakeCount is not strictly superior to 0
      */
     public static int forRaft(int lakeCount) {
-        checkArgument(lakeCount > 0);
-        return (lakeCount);
+        Preconditions.checkArgument(lakeCount > 0);
+
+        return lakeCount;
     }
 }

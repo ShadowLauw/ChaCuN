@@ -13,10 +13,12 @@ public enum Rotation {
     RIGHT,
     HALF_TURN,
     LEFT;
+
     /**
      * The list of all possible rotations.
      */
     public static final List<Rotation> ALL = List.of(values());
+
     /**
      * The number of possible rotations.
      */
@@ -33,8 +35,6 @@ public enum Rotation {
         return ALL.get(position);
     }
 
-    ;
-
     /**
      * Returns the rotation that, with the current one, produce the null Rotation.
      *
@@ -45,23 +45,19 @@ public enum Rotation {
         return ALL.get(position);
     }
 
-    ;
-
     /**
-     * Returns the number of quarter turns required to obtain the current rotation from the null rotation.
+     * Returns the number of quarter turns required to obtain the current rotation
      *
-     * @return the number of quarter turns required to obtain the current rotation from the null rotation
+     * @return the number of quarter turns required to obtain the current rotation
      */
     public int quarterTurnsCW() {
         return this.ordinal();
     }
 
-    ;
-
     /**
-     * Returns the number of degrees required to obtain the current rotation from the null rotation.
+     * Returns the number of degrees required to obtain the current rotation
      *
-     * @return the number of degrees required to obtain the current rotation from the null rotation
+     * @return the number of degrees required to obtain the current rotation
      */
     public int degreesCW() {
         // The number of degrees in a quarter turn

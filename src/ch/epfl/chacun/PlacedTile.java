@@ -15,7 +15,6 @@ import static java.util.Objects.requireNonNull;
  * @param rotation the rotation of the tile
  * @param pos      the position of the tile
  * @param occupant (Occupant) the occupant of the tile
- *
  * @author Laura Paraboschi (364161)
  * @author Emmanuel Omont (372632)
  */
@@ -74,7 +73,7 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
      * @return the TileSide in the given direction
      */
     public TileSide side(Direction direction) {
-        Direction dir = direction.rotated(this.rotation.negated());
+        Direction dir = direction.rotated(rotation.negated());
         return switch (dir) {
             case E -> tile.e();
             case S -> tile.s();
@@ -91,11 +90,10 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
      * @throws IllegalArgumentException if the zone with the given id is not found
      */
     public Zone zoneWithId(int id) {
-        for (Zone zone : tile.zones()) {
-            if (zone.id() == id)
-                return zone;
-        }
-        throw new IllegalArgumentException();
+        return tile.zones().stream()
+                .filter(zone -> zone.id() == id)
+                .findFirst()
+                .orElseThrow(IllegalArgumentException::new);
     }
 
     /**
@@ -104,11 +102,10 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
      * @return the zone with a special power of the Tile (if there is one) otherwise null
      */
     public Zone specialPowerZone() {
-        for (Zone zone : tile.zones()) {
-            if (zone.specialPower() != null)
-                return zone;
-        }
-        return null;
+        return tile.zones().stream()
+                .filter(zone -> zone.specialPower() != null)
+                .findFirst()
+                .orElse(null);
     }
 
     /**
@@ -117,10 +114,13 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
      * @return the forests zone of the tile
      */
     public Set<Zone.Forest> forestZones() {
-        return tile.zones().stream()
-                .filter(zone -> zone instanceof Zone.Forest)
-                .map(zone -> (Zone.Forest) zone)
-                .collect(Collectors.toSet());
+        Set<Zone.Forest> forests = new HashSet<>();
+        for (Zone zone : tile.zones()) {
+            if (zone instanceof Zone.Forest forest)
+                forests.add(forest);
+        }
+
+        return forests;
     }
 
     /**
@@ -129,10 +129,13 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
      * @return the meadow zone of the tile
      */
     public Set<Zone.Meadow> meadowZones() {
-        return tile.zones().stream()
-                .filter(zone -> zone instanceof Zone.Meadow)
-                .map(zone -> (Zone.Meadow) zone)
-                .collect(Collectors.toSet());
+        Set<Zone.Meadow> meadows = new HashSet<>();
+        for (Zone zone : tile.zones()) {
+            if (zone instanceof Zone.Meadow meadow)
+                meadows.add(meadow);
+        }
+
+        return meadows;
     }
 
     /**
@@ -141,10 +144,13 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
      * @return the river zone of the tile
      */
     public Set<Zone.River> riverZones() {
-        return tile.zones().stream()
-                .filter(zone -> zone instanceof Zone.River)
-                .map(zone -> (Zone.River) zone)
-                .collect(Collectors.toSet());
+        Set<Zone.River> rivers = new HashSet<>();
+        for (Zone zone : tile.zones()) {
+            if (zone instanceof Zone.River river)
+                rivers.add(river);
+        }
+
+        return rivers;
     }
 
     /**
@@ -153,20 +159,21 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
      * @return the set of the potential occupants of the tile
      */
     public Set<Occupant> potentialOccupants() {
+        if (placer == null)
+            return Set.of();
+
         Set<Occupant> occupants = new HashSet<>();
-        if (this.placer == null) {
-            return occupants;
-        } else {
-            for (Zone zone : tile.zones()) {
-                occupants.add(new Occupant(
-                            zone instanceof Zone.Lake? Occupant.Kind.HUT : Occupant.Kind.PAWN,
-                            zone.id()
-                        ));
-                //the player can place a hut on each river if it is not connected to a lake
-                if (zone instanceof Zone.River river && !river.hasLake())
-                    occupants.add(new Occupant(Occupant.Kind.HUT, river.id()));
-            }
+        for (Zone zone : tile.zones()) {
+            occupants.add(new Occupant(
+                    zone instanceof Zone.Lake
+                            ? Occupant.Kind.HUT
+                            : Occupant.Kind.PAWN,
+                    zone.id()
+            ));
+            if (zone instanceof Zone.River river && !river.hasLake())
+                occupants.add(new Occupant(Occupant.Kind.HUT, river.id()));
         }
+
         return occupants;
     }
 
@@ -179,6 +186,7 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
      */
     public PlacedTile withOccupant(Occupant occupant) {
         Preconditions.checkArgument(this.occupant == null);
+
         return new PlacedTile(tile, placer, rotation, pos, occupant);
     }
 
@@ -198,8 +206,9 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
      * @return the id of the zone occupied by the given occupant kind (or -1 if there is no such zone)
      */
     public int idOfZoneOccupiedBy(Occupant.Kind occupantKind) {
-        if (this.occupant == null || this.occupant.kind() != occupantKind)
+        if (occupant == null || occupant.kind() != occupantKind)
             return -1;
-        return this.occupant.zoneId();
+
+        return occupant.zoneId();
     }
 }

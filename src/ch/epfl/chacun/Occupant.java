@@ -5,7 +5,7 @@ import java.util.List;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Represents the different occupants of the board
+ * Represents an occupants of the board
  *
  * @param kind   The kind of the occupant
  * @param zoneId The ID of the zone the occupant is in
@@ -18,6 +18,7 @@ public record Occupant(Kind kind, int zoneId) {
      * The count of the pawn a player has at the start of the game
      */
     private static final int PAWN_COUNT = 5;
+
     /**
      * The count of the hut a player has at the start of the game
      */

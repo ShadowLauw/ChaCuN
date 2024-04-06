@@ -10,10 +10,11 @@ public final class Preconditions {
     /**
      * Private constructor to prevent instantiation.
      */
-    private Preconditions() {}
+    private Preconditions() {
+    }
 
     /**
-     * Check if the given condition is true, otherwise throws an IllegalArgumentException.
+     * Check if the given condition is true.
      *
      * @param shouldBeTrue the boolean to check
      * @throws IllegalArgumentException if the given condition is false

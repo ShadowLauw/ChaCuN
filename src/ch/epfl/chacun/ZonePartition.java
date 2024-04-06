@@ -51,12 +51,10 @@ public record ZonePartition<Z extends Zone>(Set<Area<Z>> areas) {
      * @throws IllegalArgumentException if the zone is not in any area of the partition
      */
     private static <Z extends Zone> Area<Z> staticAreaContaining(Z zone, Set<Area<Z>> areas) {
-        for (Area<Z> area : areas) {
-            if (area.zones().contains(zone)) {
-                return area;
-            }
-        }
-        throw new IllegalArgumentException();
+        return areas.stream()
+                .filter(area -> area.zones().contains(zone))
+                .findFirst()
+                .orElseThrow(IllegalArgumentException::new);
     }
 
     /**
@@ -96,7 +94,6 @@ public record ZonePartition<Z extends Zone>(Set<Area<Z>> areas) {
         public void addInitialOccupant(Z zone, PlayerColor color) {
             Area<Z> areaContainingZone = staticAreaContaining(zone, areas);
 
-            //throws IllegalArgumentException if the area is already occupied
             areas.add(areaContainingZone.withInitialOccupant(color));
             areas.remove(areaContainingZone);
         }
@@ -112,7 +109,6 @@ public record ZonePartition<Z extends Zone>(Set<Area<Z>> areas) {
         public void removeOccupant(Z zone, PlayerColor color) {
             Area<Z> areaContainingZone = staticAreaContaining(zone, areas);
 
-            //throws IllegalArgumentException if the area doesn't contain an occupant of the color given
             areas.add(areaContainingZone.withoutOccupant(color));
             areas.remove(areaContainingZone);
         }
@@ -141,12 +137,8 @@ public record ZonePartition<Z extends Zone>(Set<Area<Z>> areas) {
             Area<Z> areaContainingZone1 = staticAreaContaining(zone1, areas);
             Area<Z> areaContainingZone2 = staticAreaContaining(zone2, areas);
 
-            if (areaContainingZone1.equals(areaContainingZone2))
-                areas.remove(areaContainingZone1);
-            else {
-                areas.remove(areaContainingZone1);
-                areas.remove(areaContainingZone2);
-            }
+            areas.remove(areaContainingZone1);
+            areas.remove(areaContainingZone2);
             areas.add(areaContainingZone1.connectTo(areaContainingZone2));
         }
 

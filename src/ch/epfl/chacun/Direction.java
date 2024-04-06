@@ -13,10 +13,12 @@ public enum Direction {
     E,
     S,
     W;
+
     /**
      * List of all the possible directions
      */
     public static final List<Direction> ALL = List.of(values());
+
     /**
      * Number of possible directions
      */

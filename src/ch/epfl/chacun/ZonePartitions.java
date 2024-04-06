@@ -9,7 +9,6 @@ import java.util.Set;
  * @param meadows      the meadow zone partition
  * @param rivers       the river zone partition
  * @param riverSystems the river system zone partition
- *
  * @author Laura Paraboschi (364161)
  * @author Emmanuel Omont (372632)
  */
@@ -19,6 +18,15 @@ public record ZonePartitions(
         ZonePartition<Zone.River> rivers,
         ZonePartition<Zone.Water> riverSystems
 ) {
+    /**
+     * Number of sides of a tile
+     */
+    private final static int NUMBER_OF_SIDES = 4;
+
+    /**
+     * Max number of zones of a tile
+     */
+    private final static int NUMBER_OF_ZONES = 10;
 
     /**
      * Represents the empty zone partitions
@@ -56,43 +64,34 @@ public record ZonePartitions(
          *
          * @param tile the tile containing the zones to add
          */
-        //TODO LAURA Heu c quoi ce 10 qui pop comme ça mdr ? MAGIC CONSTANT OUUUU
-        //TODO LAURA ET MANU : REVOIR LE i<4 je pense qu'on peut faire mieux avec tileside
         public void addTile(Tile tile) {
-            int[] openConnections = new int[10];
-            for (int i = 0; i < 4; i++) {
+            int[] openConnections = new int[NUMBER_OF_ZONES];
+            for (int i = 0; i < NUMBER_OF_SIDES; i++) {
                 for (Zone zone : tile.sides().get(i).zones()) {
                     openConnections[zone.localId()]++;
-                    if (zone instanceof Zone.River river) {
-                        if (river.hasLake()) {
-                            openConnections[river.lake().localId()]++;
-                            openConnections[river.localId()]++;
-                        }
+                    if (zone instanceof Zone.River river && river.hasLake()) {
+                        openConnections[river.lake().localId()]++;
+                        openConnections[river.localId()]++;
                     }
                 }
             }
 
             for (Zone zone : tile.zones()) {
+                int openConnectionsCount = openConnections[zone.localId()];
                 switch (zone) {
-                    case Zone.Forest forest -> forests.addSingleton(forest, openConnections[forest.localId()]);
-                    case Zone.Meadow meadow -> meadows.addSingleton(meadow, openConnections[meadow.localId()]);
+                    case Zone.Forest forest -> forests.addSingleton(forest, openConnectionsCount);
+                    case Zone.Meadow meadow -> meadows.addSingleton(meadow, openConnectionsCount);
                     case Zone.River river -> {
-                        rivers.addSingleton(
-                                river,
-                                river.hasLake() ? openConnections[zone.localId()] - 1 : openConnections[river.localId()]
-                        );
-                        riverSystems.addSingleton(river, openConnections[river.localId()]);
+                        rivers.addSingleton(river, river.hasLake() ? openConnectionsCount - 1 : openConnectionsCount);
+                        riverSystems.addSingleton(river, openConnectionsCount);
                     }
-                    case Zone.Lake lake -> riverSystems.addSingleton(lake, openConnections[lake.localId()]);
+                    case Zone.Lake lake -> riverSystems.addSingleton(lake, openConnectionsCount);
                 }
             }
-            //we have to do it apart, because otherwise we could not union the 2 areas, as the both will probably not
-            //exist
+
             for (Zone zone : tile.zones()) {
-                if (zone instanceof Zone.River river) {
-                    if (river.hasLake()) {
-                        riverSystems.union(river, river.lake());
-                    }
+                if (zone instanceof Zone.River river && river.hasLake()) {
+                    riverSystems.union(river, river.lake());
                 }
             }
         }
@@ -111,8 +110,8 @@ public record ZonePartitions(
                         meadows.union(m1, m2);
                 case TileSide.Forest(Zone.Forest f1) when s2 instanceof TileSide.Forest(Zone.Forest f2) ->
                         forests.union(f1, f2);
-                case TileSide.River(Zone.Meadow m1_1, Zone.River r1, Zone.Meadow m1_2) when s2 instanceof
-                        TileSide.River(Zone.Meadow m2_1, Zone.River r2, Zone.Meadow m2_2) -> {
+                case TileSide.River(Zone.Meadow m1_1, Zone.River r1, Zone.Meadow m1_2)
+                        when s2 instanceof TileSide.River(Zone.Meadow m2_1, Zone.River r2, Zone.Meadow m2_2) -> {
                     meadows.union(m1_1, m2_2);
                     meadows.union(m1_2, m2_1);
                     rivers.union(r1, r2);

@@ -5,11 +5,13 @@ package ch.epfl.chacun;
  *
  * @param x Horizontal coordinate
  * @param y Vertical coordinate
- *
  * @author Laura Paraboschi (364161)
  * @author Emmanuel Omont (372632)
  */
 public record Pos(int x, int y) {
+    /**
+     * Origin of the board
+     */
     public static final Pos ORIGIN = new Pos(0, 0);
 
     /**

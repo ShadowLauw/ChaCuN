@@ -42,11 +42,7 @@ public record Area<Z extends Zone>(Set<Z> zones, List<PlayerColor> occupants, in
      * @return true if the area has a menhir
      */
     public static boolean hasMenhir(Area<Zone.Forest> forest) {
-        for (Zone.Forest zone : forest.zones()) {
-            if (zone.kind() == Zone.Forest.Kind.WITH_MENHIR)
-                return true;
-        }
-        return false;
+        return forest.zones().stream().anyMatch(zone -> zone.kind() == Zone.Forest.Kind.WITH_MENHIR);
     }
 
     /**
@@ -56,12 +52,7 @@ public record Area<Z extends Zone>(Set<Z> zones, List<PlayerColor> occupants, in
      * @return the number of zones with mushrooms in the given area
      */
     public static int mushroomGroupCount(Area<Zone.Forest> forest) {
-        int number = 0;
-        for (Zone.Forest zone : forest.zones()) {
-            if (zone.kind() == Zone.Forest.Kind.WITH_MUSHROOMS)
-                number++;
-        }
-        return number;
+        return (int) forest.zones().stream().filter(zone -> zone.kind() == Zone.Forest.Kind.WITH_MUSHROOMS).count();
     }
 
     /**
@@ -80,6 +71,7 @@ public record Area<Z extends Zone>(Set<Z> zones, List<PlayerColor> occupants, in
                 }
             }
         }
+
         return animalsList;
     }
 
@@ -98,6 +90,7 @@ public record Area<Z extends Zone>(Set<Z> zones, List<PlayerColor> occupants, in
                 fishCount += zone.lake().fishCount();
             }
         }
+
         return fishCount;
     }
 
@@ -108,11 +101,7 @@ public record Area<Z extends Zone>(Set<Z> zones, List<PlayerColor> occupants, in
      * @return the number of fish in the given river system
      */
     public static int riverSystemFishCount(Area<Zone.Water> riverSystem) {
-        int fishCount = 0;
-        for (Zone.Water zone : riverSystem.zones()) {
-            fishCount += zone.fishCount();
-        }
-        return fishCount;
+        return riverSystem.zones().stream().mapToInt(Zone.Water::fishCount).sum();
     }
 
     /**
@@ -122,12 +111,7 @@ public record Area<Z extends Zone>(Set<Z> zones, List<PlayerColor> occupants, in
      * @return the number of lakes in the given river system
      */
     public static int lakeCount(Area<Zone.Water> riverSystem) {
-        int lakeCount = 0;
-        for (Zone.Water zone : riverSystem.zones()) {
-            if (zone instanceof Zone.Lake)
-                lakeCount++;
-        }
-        return lakeCount;
+        return (int) riverSystem.zones().stream().filter(zone -> zone instanceof Zone.Lake).count();
     }
 
     /**
@@ -158,37 +142,33 @@ public record Area<Z extends Zone>(Set<Z> zones, List<PlayerColor> occupants, in
         for (PlayerColor occupant : occupants) {
             count[occupant.ordinal()]++;
         }
-        //we are sure to get something, as the array is initialized with 0;
-        int max = Arrays.stream(count).max().getAsInt();
-        Set<PlayerColor> majority = new HashSet<>();
-        if (max == 0)
-            return majority;
-        else {
-            for (PlayerColor playerColor : PlayerColor.ALL) {
-                if (count[playerColor.ordinal()] == max)
-                    majority.add(playerColor);
-            }
-        }
-        return majority;
+
+        int max = Arrays.stream(count).max().orElse(0);
+        return max == 0
+                ? Set.of()
+                : PlayerColor.ALL.stream()
+                .filter(playerColor -> count[playerColor.ordinal()] == max)
+                .collect(Collectors.toSet());
     }
 
     /**
      * Return a new Area with the given area connected to the current area
      *
      * @param that the area to connect to
-     * @return the new area
+     * @return the new area created by connecting the two areas
      */
     public Area<Z> connectTo(Area<Z> that) {
         int newOpenConnections = openConnections - 2;
-        Set<Z> zones = new HashSet<>(this.zones);
-        List<PlayerColor> newOccupants = new ArrayList<>(this.occupants);
+        Set<Z> newZones = new HashSet<>(zones);
+        List<PlayerColor> newOccupants = new ArrayList<>(occupants);
 
         if (!that.equals(this)) {
             newOccupants.addAll(that.occupants());
-            zones.addAll(that.zones());
+            newZones.addAll(that.zones());
             newOpenConnections += that.openConnections();
         }
-        return new Area<>(zones, newOccupants, newOpenConnections);
+
+        return new Area<>(newZones, newOccupants, newOpenConnections);
     }
 
     /**
@@ -200,6 +180,7 @@ public record Area<Z extends Zone>(Set<Z> zones, List<PlayerColor> occupants, in
      */
     public Area<Z> withInitialOccupant(PlayerColor occupant) {
         Preconditions.checkArgument(!isOccupied());
+
         return new Area<>(zones, List.of(occupant), openConnections);
     }
 
@@ -212,8 +193,10 @@ public record Area<Z extends Zone>(Set<Z> zones, List<PlayerColor> occupants, in
      */
     public Area<Z> withoutOccupant(PlayerColor occupant) {
         Preconditions.checkArgument(occupants.contains(occupant));
+
         List<PlayerColor> newOccupant = new ArrayList<>(occupants);
         newOccupant.remove(occupant);
+
         return new Area<>(zones, newOccupant, openConnections);
     }
 
@@ -233,8 +216,8 @@ public record Area<Z extends Zone>(Set<Z> zones, List<PlayerColor> occupants, in
      */
     public Set<Integer> tileIds() {
         return zones.stream()
-                    .map(Zone::tileId)
-                    .collect(Collectors.toSet());
+                .map(Zone::tileId)
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -244,11 +227,10 @@ public record Area<Z extends Zone>(Set<Z> zones, List<PlayerColor> occupants, in
      * @return the zone with the given special power or null if there is none
      */
     public Zone zoneWithSpecialPower(Zone.SpecialPower specialPower) {
-        for (Z zone : zones) {
-            if (zone.specialPower() == specialPower)
-                return zone;
-        }
-        return null;
+        return zones.stream()
+                .filter(zone -> zone.specialPower() == specialPower)
+                .findFirst()
+                .orElse(null);
     }
 
 }

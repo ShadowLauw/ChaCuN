@@ -4,7 +4,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -55,12 +54,12 @@ public record GameState(
      */
     public GameState {
         Preconditions.checkArgument(players.size() >= 2);
-        players = List.copyOf(players);
         Preconditions.checkArgument(tileToPlace == null ^ nextAction == Action.PLACE_TILE);
         requireNonNull(tileDecks);
         requireNonNull(board);
         requireNonNull(nextAction);
         requireNonNull(messageBoard);
+        players = List.copyOf(players);
     }
 
     /**
@@ -71,7 +70,12 @@ public record GameState(
      * the next action being START_GAME, and an empty message board
      */
     public static GameState initial(List<PlayerColor> players, TileDecks tileDecks, TextMaker textMaker) {
-        return new GameState(players, tileDecks, null, Board.EMPTY, Action.START_GAME,
+        return new GameState(
+                players,
+                tileDecks,
+                null,
+                Board.EMPTY,
+                Action.START_GAME,
                 new MessageBoard(textMaker, List.of())
         );
     }
@@ -82,11 +86,7 @@ public record GameState(
      * @return the player whose turn it is
      */
     public PlayerColor currentPlayer() {
-        if (nextAction == Action.START_GAME || nextAction == Action.END_GAME) {
-            return null;
-        } else {
-            return players.getFirst();
-        }
+        return nextAction == Action.START_GAME || nextAction == Action.END_GAME ? null : players.getFirst();
     }
 
     /**
@@ -111,20 +111,16 @@ public record GameState(
         Preconditions.checkArgument(lastPlacedTile != null);
 
         Set<Occupant> potentialOccupants = new HashSet<>(lastPlacedTile.potentialOccupants());
-        potentialOccupants.removeIf(occupant -> {
-            if (freeOccupantsCount(currentPlayer(), occupant.kind()) == 0)
-                return true;
-            else {
-                Zone zone = lastPlacedTile.zoneWithId(occupant.zoneId());
-                return switch (zone) {
+        potentialOccupants.removeIf(occupant ->
+                freeOccupantsCount(currentPlayer(), occupant.kind()) == 0
+                        || switch (lastPlacedTile.zoneWithId(occupant.zoneId())) {
                     case Zone.Forest forest -> board.forestArea(forest).isOccupied();
                     case Zone.Meadow meadow -> board.meadowArea(meadow).isOccupied();
                     case Zone.River river when occupant.kind() == Occupant.Kind.PAWN ->
                             board.riverArea(river).isOccupied();
                     case Zone.Water water -> board.riverSystemArea(water).isOccupied();
-                };
-            }
-        });
+                }
+        );
 
         return potentialOccupants;
     }
@@ -137,15 +133,16 @@ public record GameState(
      */
     public GameState withStartingTilePlaced() {
         Preconditions.checkArgument(nextAction == Action.START_GAME);
+
         return new GameState(
                 players,
                 tileDecks.withTopTileDrawn(Tile.Kind.START).withTopTileDrawn(Tile.Kind.NORMAL),
                 tileDecks.topTile(Tile.Kind.NORMAL),
                 board.withNewTile(new PlacedTile(
-                        tileDecks.topTile(Tile.Kind.START)
-                        , null
-                        , Rotation.NONE
-                        , new Pos(0, 0))
+                        tileDecks.topTile(Tile.Kind.START),
+                        null,
+                        Rotation.NONE,
+                        new Pos(0, 0))
                 ),
                 Action.PLACE_TILE,
                 messageBoard
@@ -189,7 +186,8 @@ public record GameState(
                 newMessageBoard = newMessageBoard.withScoredHuntingTrap(currentPlayer(), adjacentMeadow);
                 newBoard = newBoard.withMoreCancelledAnimals(Area.animals(adjacentMeadow, Set.of()));
             }
-            case null, default -> {}
+            case null, default -> {
+            }
         }
 
         return new GameState(

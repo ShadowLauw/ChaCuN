@@ -52,8 +52,6 @@ public sealed interface TileSide {
         }
     }
 
-    ;
-
     /**
      * Public record representing the meadow tile side
      *
@@ -81,8 +79,6 @@ public sealed interface TileSide {
             return that instanceof Meadow;
         }
     }
-
-    ;
 
     /**
      * Public record representing the river tile side

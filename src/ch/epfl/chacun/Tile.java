@@ -15,7 +15,6 @@ import java.util.stream.Stream;
  * @param e    The east side of the tile
  * @param s    The south side of the tile
  * @param w    The west side of the tile
- *
  * @author Laura Paraboschi (364161)
  * @author Emmanuel Omont (372632)
  */
@@ -44,9 +43,12 @@ public record Tile(int id, Kind kind, TileSide n, TileSide e, TileSide s, TileSi
      * @return a set of Zone representing the side zones of the current tile
      */
     public Set<Zone> sideZones() {
-        return Stream.of(n, e, s, w)
-                .flatMap(side -> side.zones().stream())
-                .collect(Collectors.toSet());
+        Set<Zone> sideZones = new HashSet<>(n.zones());
+        sideZones.addAll(e.zones());
+        sideZones.addAll(s.zones());
+        sideZones.addAll(w.zones());
+
+        return sideZones;
     }
 
     /**
@@ -54,14 +56,12 @@ public record Tile(int id, Kind kind, TileSide n, TileSide e, TileSide s, TileSi
      *
      * @return a set of Zone representing the zones of the current tile
      */
-    //TODO LAURA : ICI C PAS FOU MAIS JE SAIS PAS COMMENT FAIRE MIEUX
     public Set<Zone> zones() {
         Set<Zone> zones = sideZones();
         Set<Zone> result = new HashSet<>(zones);
         for (Zone zone : zones) {
-            if (zone instanceof Zone.River river) {
-                if (river.hasLake())
-                    result.add(river.lake());
+            if (zone instanceof Zone.River river && river.hasLake()) {
+                result.add(river.lake());
             }
         }
         return result;
