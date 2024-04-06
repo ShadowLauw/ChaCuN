@@ -1,9 +1,6 @@
 package ch.epfl.chacun;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.StringJoiner;
-import java.util.TreeSet;
+import java.util.*;
 
 public class LauraTextMakerClass implements TextMaker{
     @Override
@@ -51,10 +48,11 @@ public class LauraTextMakerClass implements TextMaker{
 
     @Override
     public String playerScoredHuntingTrap(PlayerColor scorer, int points, Map<Animal.Kind, Integer> animals) {
+        Map<Animal.Kind, Integer> animalsTreeMap = new TreeMap<>(animals);
         return new StringJoiner(" ")
                 .add(scorer.toString())
                 .add(String.valueOf(points))
-                .add(animals.toString())
+                .add(animalsTreeMap.toString())
                 .toString();
     }
 
@@ -70,10 +68,11 @@ public class LauraTextMakerClass implements TextMaker{
     @Override
     public String playersScoredMeadow(Set<PlayerColor> scorers, int points, Map<Animal.Kind, Integer> animals) {
         Set<PlayerColor> scorerrsTreeSet = new TreeSet<>(scorers);
+        Map<Animal.Kind, Integer> animalsTreeMap = new TreeMap<>(animals);
         return new StringJoiner(" ")
                 .add(scorerrsTreeSet.toString())
                 .add(String.valueOf(points))
-                .add(animals.toString())
+                .add(animalsTreeMap.toString())
                 .toString();
     }
 

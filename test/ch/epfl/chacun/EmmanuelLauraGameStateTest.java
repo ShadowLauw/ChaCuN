@@ -92,7 +92,7 @@ public class EmmanuelLauraGameStateTest {
             new GameState(
                     List.of(PlayerColor.YELLOW),
                     tileDecks,
-                    startTile,
+                    null,
                     board2,
                     GameState.Action.OCCUPY_TILE,
                     messageBoard
@@ -124,11 +124,11 @@ public class EmmanuelLauraGameStateTest {
         });
 
         //on ne peut pas avoir tileDecks null
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(NullPointerException.class, () -> {
             new GameState(
                     players,
                     null,
-                    startTile,
+                    null,
                     board2,
                     GameState.Action.OCCUPY_TILE,
                     messageBoard
@@ -136,11 +136,11 @@ public class EmmanuelLauraGameStateTest {
         });
 
         //on ne peut pas avoir board null
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(NullPointerException.class, () -> {
             new GameState(
                     players,
                     tileDecks,
-                    startTile,
+                    null,
                     null,
                     GameState.Action.OCCUPY_TILE,
                     messageBoard
@@ -148,11 +148,11 @@ public class EmmanuelLauraGameStateTest {
         });
 
         //on ne peut pas avoir nextAction null
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(NullPointerException.class, () -> {
             new GameState(
                     players,
                     tileDecks,
-                    startTile,
+                    null,
                     board2,
                     null,
                     messageBoard
@@ -160,11 +160,11 @@ public class EmmanuelLauraGameStateTest {
         });
 
         //on ne ptu pas avoir messageBoard null
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(NullPointerException.class, () -> {
             new GameState(
                     players,
                     tileDecks,
-                    startTile,
+                    null,
                     board2,
                     GameState.Action.OCCUPY_TILE,
                     null
@@ -617,7 +617,7 @@ public class EmmanuelLauraGameStateTest {
         Set<MessageBoard.Message> gameStateMessages = new HashSet<>(gameState.messageBoard().messages());
         assertEquals(myMessages, gameStateMessages);
 
-        //Pit Trap with Fire
+        //Pit Trap
         PlacedTile tile92 = new PlacedTile(TileReader.readTileFromCSV(92), PlayerColor.PURPLE, Rotation.NONE, new Pos(0, 1));
         PlacedTile tile43 = new PlacedTile(TileReader.readTileFromCSV(43), PlayerColor.GREEN, Rotation.HALF_TURN, new Pos(1, 1));
         board = Board.EMPTY;
