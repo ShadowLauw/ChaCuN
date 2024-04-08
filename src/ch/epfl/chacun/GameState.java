@@ -375,10 +375,9 @@ public record GameState(
      */
     private Set<Animal> getSimpleCancelledDeers(Area<Zone.Meadow> meadowArea) {
         Set<Animal> areaNotCancelledAnimals = Area.animals(meadowArea, board.cancelledAnimals());
-        int numberOfSmilodons = (int) areaNotCancelledAnimals.stream().filter(
-                animal -> animal.kind() == Animal.Kind.TIGER).count();
+        int numberOfSmilodons = getAnimalSet(areaNotCancelledAnimals, Animal.Kind.TIGER).size();
 
-        return areaNotCancelledAnimals.stream().filter(animal -> animal.kind() == Animal.Kind.DEER)
+        return getAnimalSet(areaNotCancelledAnimals, Animal.Kind.DEER).stream()
                 .limit(numberOfSmilodons).collect(Collectors.toSet());
     }
 
@@ -396,15 +395,16 @@ public record GameState(
         Set<Animal> areaNotCancelledAnimals = Area.animals(meadowArea, board.cancelledAnimals());
         Set<Animal> insideAreaNotCancelledAnimals = Area.animals(adjacentMeadowArea, board.cancelledAnimals());
 
-        int numberOfSmilodons = (int) areaNotCancelledAnimals.stream().filter(
-                animal -> animal.kind() == Animal.Kind.TIGER).count();
-        Set<Animal> deersInAdjacentArea = insideAreaNotCancelledAnimals.stream().filter(
-                animal -> animal.kind() == Animal.Kind.DEER).collect(Collectors.toSet());
+        int numberOfSmilodons = getAnimalSet(areaNotCancelledAnimals, Animal.Kind.TIGER).size();
+        Set<Animal> deersInAdjacentArea = getAnimalSet(insideAreaNotCancelledAnimals, Animal.Kind.DEER);
         areaNotCancelledAnimals.removeAll(deersInAdjacentArea);
-        Set<Animal> deersOutsideAdjacentArea = areaNotCancelledAnimals.stream()
-                .filter(animal -> animal.kind() == Animal.Kind.DEER).collect(Collectors.toSet());
+        Set<Animal> deersOutsideAdjacentArea = getAnimalSet(areaNotCancelledAnimals, Animal.Kind.DEER);
 
         return Stream.concat(deersOutsideAdjacentArea.stream(), deersInAdjacentArea.stream()).limit(numberOfSmilodons)
                 .collect(Collectors.toSet());
+    }
+
+    private Set<Animal> getAnimalSet(Set<Animal> animals, Animal.Kind kind) {
+        return animals.stream().filter(animal -> animal.kind() == kind).collect(Collectors.toSet());
     }
 }

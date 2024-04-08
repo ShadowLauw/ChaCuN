@@ -89,10 +89,11 @@ public class LauraTextMakerClass implements TextMaker{
     @Override
     public String playersScoredPitTrap(Set<PlayerColor> scorers, int points, Map<Animal.Kind, Integer> animals) {
         Set<PlayerColor> scorerrsTreeSet = new TreeSet<>(scorers);
+        Map<Animal.Kind, Integer> animalsTreeMap = new TreeMap<>(animals);
         return new StringJoiner(" ")
                 .add(scorerrsTreeSet.toString())
                 .add(String.valueOf(points))
-                .add(animals.toString())
+                .add(animalsTreeMap.toString())
                 .toString();
     }
 

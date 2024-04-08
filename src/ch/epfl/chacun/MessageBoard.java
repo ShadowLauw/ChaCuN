@@ -189,7 +189,8 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
             PlayerColor scorer
     ) {
         Set<Animal> animals = Area.animals(adjacentMeadow, cancelledAnimals);
-        Map<Animal.Kind, Integer> animalsCount = new HashMap<>();
+        //Use of EnumMap to get an already sorted map (Animals in a sorted order) for my TextMaker
+        EnumMap<Animal.Kind, Integer> animalsCount = new EnumMap<>(Animal.Kind.class);
 
         for (Animal animal : animals) {
             animalsCount.merge(animal.kind(), 1, Integer::sum);
