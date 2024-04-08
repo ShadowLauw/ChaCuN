@@ -39,7 +39,7 @@ public record Occupant(Kind kind, int zoneId) {
      */
     public Occupant {
         requireNonNull(kind);
-        Preconditions.checkArgument(zoneId > 0);
+        Preconditions.checkArgument(zoneId >= 0);
     }
 
     /**
