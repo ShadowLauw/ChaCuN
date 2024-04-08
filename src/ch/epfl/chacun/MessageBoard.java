@@ -190,7 +190,7 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
     ) {
         Set<Animal> animals = Area.animals(adjacentMeadow, cancelledAnimals);
         //Use of EnumMap to get an already sorted map (Animals in a sorted order) for my TextMaker
-        EnumMap<Animal.Kind, Integer> animalsCount = new EnumMap<>(Animal.Kind.class);
+        Map<Animal.Kind, Integer> animalsCount = new EnumMap<>(Animal.Kind.class);
 
         for (Animal animal : animals) {
             animalsCount.merge(animal.kind(), 1, Integer::sum);

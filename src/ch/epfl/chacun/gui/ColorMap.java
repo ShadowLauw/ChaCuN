@@ -13,7 +13,12 @@ public class ColorMap {
     /**
      * The brightness of the stroke color compared to the fill color.
      */
-    static private final double BRIGHTNESS = 0.60; // 40% lighter is 60% of the brightness.
+    private static final double REDUCED_BRIGHTNESS = 0.60; // 40% lighter is 60% of the brightness.
+
+    /**
+     * Private constructor to prevent instantiation.
+     */
+    private ColorMap() {}
 
     /**
      * Returns the fill color for a given player color.
@@ -37,11 +42,8 @@ public class ColorMap {
      */
     public static Color strokeColor (PlayerColor color) {
         return switch (color) {
-            case RED -> Color.WHITE;
-            case BLUE -> Color.WHITE;
-            case GREEN -> fillColor(color).deriveColor(1, 1, BRIGHTNESS, 1);
-            case YELLOW -> fillColor(color).deriveColor(1, 1, BRIGHTNESS, 1);
-            case PURPLE -> Color.WHITE;
+            case RED, BLUE, PURPLE -> Color.WHITE;
+            case GREEN, YELLOW -> fillColor(color).deriveColor(1, 1, REDUCED_BRIGHTNESS, 1);
         };
     }
 }
