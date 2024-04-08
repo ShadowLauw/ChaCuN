@@ -13,7 +13,7 @@ import static ch.epfl.chacun.gui.ColorMap.strokeColor;
  * @author Laura Paraboschi (364161)
  * @author Emmanuel Omont (372632)
  */
-public abstract class Icon {
+final public class Icon {
     /**
      * the svg path for the pawn
      */
