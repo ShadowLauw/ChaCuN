@@ -1,4 +1,5 @@
 package ch.epfl.chacun;
+import javafx.scene.paint.Color;
 
 import org.junit.jupiter.api.Test;
 
@@ -8,6 +9,11 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class BoardTestEmmanuel {
+    @Test
+    void javafixisInstalled () {
+        Color c = Color.RED;
+        System.out.println(c.getRed());
+    }
     @Test
     void canAddTileTestEmmanuel () {
         Board board = Board.EMPTY;
