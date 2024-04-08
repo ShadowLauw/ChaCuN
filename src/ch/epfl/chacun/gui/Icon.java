@@ -8,6 +8,11 @@ import javafx.scene.shape.SVGPath;
 import static ch.epfl.chacun.gui.ColorMap.fillColor;
 import static ch.epfl.chacun.gui.ColorMap.strokeColor;
 
+/**
+ * A utility class for creating icons for the board.
+ * @author Laura Paraboschi (364161)
+ * @author Emmanuel Omont (372632)
+ */
 public abstract class Icon {
 
     /**

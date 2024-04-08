@@ -3,7 +3,12 @@ package ch.epfl.chacun.gui;
 import ch.epfl.chacun.PlayerColor;
 import javafx.scene.paint.Color;
 
-
+/**
+ * A utility class for mapping player colors to colors.
+ *
+ * @author Laura Paraboschi (364161)
+ * @author Emmanuel Omont (372632)
+ */
 public class ColorMap {
     /**
      * The brightness of the stroke color compared to the fill color.
