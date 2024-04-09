@@ -61,10 +61,32 @@ public final class TextMakerFr implements TextMaker {
      * Enum representing the different objects that can be counted
      */
     private enum MiscObjects {
-        MUSHROOM,
-        FISH,
-        LAKE,
-        TILE
+        MUSHROOM("groupe", " de champignons"),
+        FISH("poisson", ""),
+        LAKE("lac", ""),
+        TILE("tuile", "");
+
+        private final String name;
+        private final String appendix;
+        /**
+         * Return the name of the object
+         * @return the name of the object
+         */
+        public String getName() {
+            return name;
+        }
+
+        /**
+         * Return the appendix of the object
+         * @return the appendix of the object
+         */
+        public String getAppendix() {
+            return appendix;
+        }
+        MiscObjects(String name, String appendix) {
+            this.name = name;
+            this.appendix = appendix;
+        }
     }
 
     /**
@@ -80,8 +102,16 @@ public final class TextMakerFr implements TextMaker {
      * Enum representing the different types of pluralization
      */
     private enum PluralizationType {
-        SIMPLE,
-        MEDIAN_POINT
+        SIMPLE("s"),
+        MEDIAN_POINT("·s");
+
+        private final String pluralization;
+        public String pluralization() {
+            return pluralization;
+        }
+        PluralizationType(String pluralization) {
+            this.pluralization = pluralization;
+        }
     }
 
     /**
@@ -263,7 +293,7 @@ public final class TextMakerFr implements TextMaker {
      * @return the string to pluralize a word with possibly a median point
      */
     private String pluralize(int number, PluralizationType type) {
-        return number > 1 ? (type == PluralizationType.MEDIAN_POINT ? "·s" : "s") : "";
+        return number > 1 ? type.pluralization() : "";
     }
 
     /**
@@ -310,16 +340,20 @@ public final class TextMakerFr implements TextMaker {
      * @return the string representation of miscellaneous objects and their number, with possibly a string to prepend
      */
     private String getMiscString(int objectNumber, MiscObjects object, String prepend) {
-        String objectString = switch (object) {
-            case MUSHROOM -> "groupe de champignons";
-            case FISH -> "poisson";
-            case LAKE -> "lac";
-            case TILE -> "tuile";
-        };
-        return objectNumber > 0
-                ? STR."\{prepend} \{objectNumber} \{objectString}\{pluralize(objectNumber, PluralizationType.SIMPLE)}"
-                : "";
+        String objectString = STR."\{object.getName()}\{pluralize(objectNumber, PluralizationType.SIMPLE)}\{object.getAppendix()}";
+
+        return objectNumber > 0 ? STR."\{prepend} \{objectNumber} \{objectString}" : "";
     }
+
+    /**
+     * Map of the association between the animal kind and its name
+     */
+    private static final Map<Animal.Kind, String> animalNames = Map.of(
+            Animal.Kind.MAMMOTH, "mammouth",
+            Animal.Kind.AUROCHS, "auroch",
+            Animal.Kind.DEER, "cerf",
+            Animal.Kind.TIGER, "tigre"
+    );
 
     /**
      * Return a string representation of the animals and their number
@@ -327,16 +361,10 @@ public final class TextMakerFr implements TextMaker {
      * @return the string representation of the animals and their number
      */
     private String getAnimalString(Map<Animal.Kind, Integer> animals) {
-        //animals is an EnumMap so the order is guaranteed
+        //animals is an EnumMap so the order is guaranteed (see MessageBoard)
         String[] animalsArray = animals.entrySet().stream().map(entry -> {
             int count = entry.getValue();
-            String animal = switch (entry.getKey()) {
-                case MAMMOTH -> "mammouth";
-                case AUROCHS -> "auroch";
-                case DEER -> "cerf";
-                case TIGER -> "tigre";
-            };
-            return STR."\{count} \{animal}\{pluralize(count, PluralizationType.SIMPLE)}";
+            return STR."\{count} \{animalNames.get(entry.getKey())}\{pluralize(count, PluralizationType.SIMPLE)}";
         }).toArray(String[]::new);
 
         return arrayToString(animalsArray);

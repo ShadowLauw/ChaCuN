@@ -9,7 +9,7 @@ import javafx.scene.paint.Color;
  * @author Laura Paraboschi (364161)
  * @author Emmanuel Omont (372632)
  */
-public class ColorMap {
+final public class ColorMap {
     /**
      * The brightness of the stroke color compared to the fill color.
      */
