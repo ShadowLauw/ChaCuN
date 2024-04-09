@@ -111,6 +111,11 @@ public final class TextMakerFr implements TextMaker {
 
         private final String pluralization;
 
+        /**
+         * Return the pluralization
+         *
+         * @return the pluralization
+         */
         public String pluralization() {
             return pluralization;
         }
