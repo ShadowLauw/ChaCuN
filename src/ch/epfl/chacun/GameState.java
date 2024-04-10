@@ -177,11 +177,16 @@ public record GameState(
                 return canRemoveOccupant ? newGameState : newGameState.withTurnFinishedIfOccupationImpossible();
             }
             case Zone z when z.specialPower() == Zone.SpecialPower.LOGBOAT ->
-                    newMessageBoard = newMessageBoard.withScoredLogboat(currentPlayer(),
-                            newBoard.riverSystemArea((Zone.Water) specialPowerZone));
+                    newMessageBoard = newMessageBoard.withScoredLogboat(
+                            currentPlayer(),
+                            newBoard.riverSystemArea((Zone.Water) specialPowerZone)
+                    );
             case Zone z when z.specialPower() == Zone.SpecialPower.HUNTING_TRAP -> {
-                Area<Zone.Meadow> adjacentMeadow = newBoard.adjacentMeadow(placedTile.pos(), (Zone.Meadow) specialPowerZone);
-                //A ajouter au prochain rendu
+                Area<Zone.Meadow> adjacentMeadow = newBoard.adjacentMeadow(
+                        placedTile.pos(),
+                        (Zone.Meadow) specialPowerZone
+                );
+                //To add when huntingtrap is corrected
                 Set<Animal> deersToCancel = getSimpleCancelledDeers(adjacentMeadow);
                 newMessageBoard = newMessageBoard.withScoredHuntingTrap(currentPlayer(), adjacentMeadow);
                 newBoard = newBoard.withMoreCancelledAnimals(Area.animals(adjacentMeadow, Set.of()));
@@ -328,18 +333,19 @@ public record GameState(
         MessageBoard newMessageBoard = messageBoard;
 
         for (Area<Zone.Meadow> meadowArea : board.meadowAreas()) {
-            Zone.Meadow zoneWithPitTrap = (Zone.Meadow) meadowArea.zoneWithSpecialPower(Zone.SpecialPower.PIT_TRAP);
+            Zone.Meadow zonePitTrap = (Zone.Meadow) meadowArea.zoneWithSpecialPower(Zone.SpecialPower.PIT_TRAP);
             boolean isThereFire = meadowArea.zoneWithSpecialPower(Zone.SpecialPower.WILD_FIRE) != null;
             if (!isThereFire) {
-                Set<Animal> cancelledAnimals = zoneWithPitTrap == null
+                Set<Animal> cancelledAnimals = zonePitTrap == null
                         ? getSimpleCancelledDeers(meadowArea)
-                        : getFurthestCancelledDeers(zoneWithPitTrap);
+                        : getFurthestCancelledDeers(zonePitTrap);
                 newBoard = newBoard.withMoreCancelledAnimals(cancelledAnimals);
             }
             newMessageBoard = newMessageBoard.withScoredMeadow(meadowArea, newBoard.cancelledAnimals());
-            if (zoneWithPitTrap != null) {
-                newMessageBoard = newMessageBoard.withScoredPitTrap(newBoard.adjacentMeadow(
-                        newBoard.tileWithId(zoneWithPitTrap.tileId()).pos(), zoneWithPitTrap), newBoard.cancelledAnimals());
+            if (zonePitTrap != null) {
+                Pos posPitTrap = newBoard.tileWithId(zonePitTrap.tileId()).pos();
+                Area<Zone.Meadow> area = newBoard.adjacentMeadow(posPitTrap, zonePitTrap);
+                newMessageBoard = newMessageBoard.withScoredPitTrap(area, newBoard.cancelledAnimals());
             }
         }
 
