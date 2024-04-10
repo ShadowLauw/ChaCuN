@@ -215,6 +215,7 @@ public final class Board {
      */
     public Area<Zone.Meadow> adjacentMeadow(Pos pos, Zone.Meadow meadowZone) {
         Area<Zone.Meadow> areaOfTheZone = meadowArea(meadowZone);
+        Set<Zone.Meadow> meadowsInArea = areaOfTheZone.zones();
         Set<Zone.Meadow> adjacentZones = new HashSet<>();
 
         for (int dx = -1; dx <= 1; ++dx) {
@@ -223,7 +224,7 @@ public final class Board {
                 PlacedTile tile = tileAt(posTranslated);
                 if (tile != null) {
                     tile.meadowZones().stream()
-                            .filter(zone -> areaOfTheZone.zones().contains(zone))
+                            .filter(meadowsInArea::contains)
                             .forEach(adjacentZones::add);
                 }
             }
