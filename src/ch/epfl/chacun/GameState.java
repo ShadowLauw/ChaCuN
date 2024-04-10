@@ -331,8 +331,9 @@ public record GameState(
             Zone.Meadow zoneWithPitTrap = (Zone.Meadow) meadowArea.zoneWithSpecialPower(Zone.SpecialPower.PIT_TRAP);
             boolean isThereFire = meadowArea.zoneWithSpecialPower(Zone.SpecialPower.WILD_FIRE) != null;
             if (!isThereFire) {
-                Set<Animal> cancelledAnimals = zoneWithPitTrap == null ?
-                        getSimpleCancelledDeers(meadowArea) : getFurthestCancelledDeers(zoneWithPitTrap);
+                Set<Animal> cancelledAnimals = zoneWithPitTrap == null
+                        ? getSimpleCancelledDeers(meadowArea)
+                        : getFurthestCancelledDeers(zoneWithPitTrap);
                 newBoard = newBoard.withMoreCancelledAnimals(cancelledAnimals);
             }
             newMessageBoard = newMessageBoard.withScoredMeadow(meadowArea, newBoard.cancelledAnimals());
