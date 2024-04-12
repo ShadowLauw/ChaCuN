@@ -1,5 +1,6 @@
 package ch.epfl.chacun;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -66,8 +67,9 @@ public record ZonePartitions(
          */
         public void addTile(Tile tile) {
             int[] openConnections = new int[NUMBER_OF_ZONES];
+            List<TileSide> sides = tile.sides();
             for (int i = 0; i < NUMBER_OF_SIDES; i++) {
-                for (Zone zone : tile.sides().get(i).zones()) {
+                for (Zone zone : sides.get(i).zones()) {
                     openConnections[zone.localId()]++;
                     if (zone instanceof Zone.River river && river.hasLake()) {
                         openConnections[river.lake().localId()]++;
@@ -75,8 +77,8 @@ public record ZonePartitions(
                     }
                 }
             }
-
-            for (Zone zone : tile.zones()) {
+            Set<Zone> zones = tile.zones();
+            for (Zone zone : zones) {
                 int openConnectionsCount = openConnections[zone.localId()];
                 switch (zone) {
                     case Zone.Forest forest -> forests.addSingleton(forest, openConnectionsCount);
@@ -89,7 +91,7 @@ public record ZonePartitions(
                 }
             }
 
-            for (Zone zone : tile.zones()) {
+            for (Zone zone : zones) {
                 if (zone instanceof Zone.River river && river.hasLake()) {
                     riverSystems.union(river, river.lake());
                 }

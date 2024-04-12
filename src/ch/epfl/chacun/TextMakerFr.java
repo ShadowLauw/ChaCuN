@@ -378,8 +378,9 @@ public final class TextMakerFr implements TextMaker {
      * @return the string representation of the animals and their number
      */
     private String getAnimalString(Map<Animal.Kind, Integer> animals) {
-        //animals is an EnumMap so the order is guaranteed (see MessageBoard)
-        String[] animalsArray = animals.entrySet().stream().filter(entry -> entry.getKey() != Animal.Kind.TIGER)
+        //EnumMap will sort the animals by their order in the enum
+        Map<Animal.Kind, Integer> sortedAnimals = new EnumMap<>(animals);
+        String[] animalsArray = sortedAnimals.entrySet().stream().filter(entry -> entry.getKey() != Animal.Kind.TIGER)
                 .map(entry -> {
                     int count = entry.getValue();
 

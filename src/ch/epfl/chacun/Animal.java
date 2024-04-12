@@ -13,7 +13,7 @@ public record Animal(int id, Kind kind) {
     /**
      * Constant to get the tileID from the animal ID
      */
-    static final int TILE_ID_DIVIDER = 100;
+    private final static int TILE_ID_DIVIDER = 100;
 
     /**
      * Represents the different kinds of animals

@@ -189,8 +189,7 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
             PlayerColor scorer
     ) {
         Set<Animal> animals = Area.animals(adjacentMeadow, cancelledAnimals);
-        //Use of EnumMap to get an already sorted map (Animals in a sorted order) for my TextMaker
-        Map<Animal.Kind, Integer> animalsCount = new EnumMap<>(Animal.Kind.class);
+        Map<Animal.Kind, Integer> animalsCount = new HashMap<>();
 
         for (Animal animal : animals) {
             animalsCount.merge(animal.kind(), 1, Integer::sum);
@@ -208,23 +207,39 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
         List<Message> newMessages = new ArrayList<>(messages);
         switch (meadowType) {
             case MEADOW -> {
-                if (adjacentMeadow.isOccupied())
-                    newMessages.add(new Message(
+                if (adjacentMeadow.isOccupied()) {
+                    newMessages.add(
+                        new Message(
                             textMaker.playersScoredMeadow(adjacentMeadow.majorityOccupants(), points, animalsCount),
-                            points, adjacentMeadow.majorityOccupants(), adjacentMeadow.tileIds()
-                    ));
+                            points,
+                            adjacentMeadow.majorityOccupants(),
+                            adjacentMeadow.tileIds()
+                        )
+                    );
+                }
             }
             case PIT_TRAP -> {
-                if (adjacentMeadow.isOccupied())
-                    newMessages.add(new Message(
+                if (adjacentMeadow.isOccupied()) {
+                    newMessages.add(
+                        new Message(
                             textMaker.playersScoredPitTrap(adjacentMeadow.majorityOccupants(), points, animalsCount),
-                            points, adjacentMeadow.majorityOccupants(), adjacentMeadow.tileIds()
-                    ));
+                            points,
+                            adjacentMeadow.majorityOccupants(),
+                            adjacentMeadow.tileIds()
+                        )
+                    );
+                }
             }
-            case HUNTING_TRAP -> newMessages.add(new Message(
-                    textMaker.playerScoredHuntingTrap(scorer, points, animalsCount),
-                    points, Set.of(scorer), adjacentMeadow.tileIds()
-            ));
+            case HUNTING_TRAP -> {
+                newMessages.add(
+                    new Message(
+                        textMaker.playerScoredHuntingTrap(scorer, points, animalsCount),
+                        points,
+                        Set.of(scorer),
+                        adjacentMeadow.tileIds()
+                    )
+                );
+            }
         }
 
         return new MessageBoard(textMaker, newMessages);

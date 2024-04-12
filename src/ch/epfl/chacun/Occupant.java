@@ -1,7 +1,5 @@
 package ch.epfl.chacun;
 
-import java.util.List;
-
 import static java.util.Objects.requireNonNull;
 
 /**

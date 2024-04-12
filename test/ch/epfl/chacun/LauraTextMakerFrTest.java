@@ -3,6 +3,7 @@ package ch.epfl.chacun;
 import org.junit.jupiter.api.Test;
 
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -57,7 +58,7 @@ public class LauraTextMakerFrTest {
 
     @Test
     void playerScoredHuntingTrapTest() {
-        EnumMap<Animal.Kind, Integer> mapAnimal = new EnumMap<>(Animal.Kind.class);
+        Map<Animal.Kind, Integer> mapAnimal = new HashMap<>();
         mapAnimal.put(Animal.Kind.DEER, 3);
         mapAnimal.put(Animal.Kind.MAMMOTH, 1);
         mapAnimal.put(Animal.Kind.AUROCHS, 2);
@@ -72,9 +73,10 @@ public class LauraTextMakerFrTest {
 
     @Test
     void playersScoredMeadowTest() {
-        EnumMap<Animal.Kind, Integer> mapAnimal = new EnumMap<>(Animal.Kind.class);
-        mapAnimal.put(Animal.Kind.DEER, 1);
+        Map<Animal.Kind, Integer> mapAnimal = new HashMap<>();
         mapAnimal.put(Animal.Kind.TIGER, 18);
+        mapAnimal.put(Animal.Kind.DEER, 1);
+
 
         assertEquals("Dalia a remporté 1 point en tant qu'occupant·e majoritaire d'un pré contenant 1 cerf.", textMaker.playersScoredMeadow(Set.of(PlayerColor.RED), 1, mapAnimal));
 
@@ -95,7 +97,7 @@ public class LauraTextMakerFrTest {
 
     @Test
     void playersScoredPitTrapTest() {
-        EnumMap<Animal.Kind, Integer> mapAnimal = new EnumMap<>(Animal.Kind.class);
+        Map<Animal.Kind, Integer> mapAnimal = new HashMap<>();
         mapAnimal.put(Animal.Kind.MAMMOTH, 2);
         mapAnimal.put(Animal.Kind.DEER, 2);
         mapAnimal.put(Animal.Kind.TIGER, 6);

@@ -14,17 +14,22 @@ public final class Board {
     /**
      * The maximum size of the board
      */
-    private static final int BOARD_MAX_SIZE = 625;
+    private final static int BOARD_MAX_SIZE = 625;
 
     /**
      * The index of the origin (0,0) tile
      */
-    private static final int INDEX_ORIGIN_TILE = 312;
+    private final static int INDEX_ORIGIN_TILE = 312;
 
     /**
      * The reach of the board
      */
-    public static final int REACH = 12;
+    public final static int REACH = 12;
+
+    /**
+     * The width of the board
+     */
+    private static final int WIDTH = 25;
 
     /**
      * The empty board
@@ -35,11 +40,6 @@ public final class Board {
             ZonePartitions.EMPTY,
             Set.of()
     );
-
-    /**
-     * The width of the board
-     */
-    private static final int WIDTH = 25;
 
     /**
      * The Array of the placed tiles
@@ -220,8 +220,7 @@ public final class Board {
 
         for (int dx = -1; dx <= 1; ++dx) {
             for (int dy = -1; dy <= 1; ++dy) {
-                Pos posTranslated = pos.translated(dx, dy);
-                PlacedTile tile = tileAt(posTranslated);
+                PlacedTile tile = tileAt(pos.translated(dx, dy));
                 if (tile != null) {
                     tile.meadowZones().stream()
                             .filter(meadowsInArea::contains)
@@ -242,9 +241,18 @@ public final class Board {
      */
     public int occupantCount(PlayerColor player, Occupant.Kind occupantKind) {
         return (int) occupants().stream()
-                .filter(occupant -> tileWithId(Zone.tileId(occupant.zoneId())).placer() == player
-                        && occupant.kind() == occupantKind)
+                .filter(occupant -> tileFromOccupant(occupant).placer() == player && occupant.kind() == occupantKind)
                 .count();
+    }
+
+    /**
+     * Returns the tile which the occupant is on
+     *
+     * @param occupant the occupant
+     * @return the tile which the occupant is on
+     */
+    private PlacedTile tileFromOccupant(Occupant occupant) {
+        return tileWithId(Zone.tileId(occupant.zoneId()));
     }
 
     /**
@@ -313,10 +321,13 @@ public final class Board {
      * @return true if the tile can be added to the board, false otherwise
      */
     public boolean canAddTile(PlacedTile tile) {
-        return insertionPositions().contains(tile.pos()) && Arrays.stream(Direction.values()).allMatch(direction -> {
-            PlacedTile neighborTile = tileAt(tile.pos().neighbor(direction));
-            return neighborTile == null || tile.side(direction).isSameKindAs(neighborTile.side(direction.opposite()));
-        });
+        return insertionPositions().contains(tile.pos())
+                && Arrays.stream(Direction.values())
+                .allMatch(direction -> {
+                    PlacedTile neighborTile = tileAt(tile.pos().neighbor(direction));
+                    return neighborTile == null
+                            || tile.side(direction).isSameKindAs(neighborTile.side(direction.opposite()));
+                });
     }
 
     /**
@@ -356,8 +367,7 @@ public final class Board {
         ZonePartitions.Builder newZonePartitionsBuilder = new ZonePartitions.Builder(zonePartitions);
         newZonePartitionsBuilder.addTile(tile.tile());
         for (Direction direction : Direction.values()) {
-            Pos pos = tile.pos().neighbor(direction);
-            PlacedTile neighborTile = tileAt(pos);
+            PlacedTile neighborTile = tileAt(tile.pos().neighbor(direction));
             if (neighborTile != null) {
                 newZonePartitionsBuilder.connectSides(tile.side(direction), neighborTile.side(direction.opposite()));
             }
@@ -375,7 +385,7 @@ public final class Board {
      *                                  of the zone is already occupied or if the tile is not in the board
      */
     public Board withOccupant(Occupant occupant) {
-        PlacedTile tile = tileWithId(Zone.tileId(occupant.zoneId()));
+        PlacedTile tile = tileFromOccupant(occupant);
         PlacedTile[] newPlacedTiles = placedTiles.clone();
         newPlacedTiles[getIndexOfTile(tile.pos())] = tile.withOccupant(occupant);
 
@@ -420,17 +430,13 @@ public final class Board {
         for (Area<Zone.Forest> forest : forests) {
             newZonePartitionsBuilder.clearGatherers(forest);
             tileIdsToClear.addAll(forest.tileIds());
-            for (Zone.Forest zone : forest.zones()) {
-                zoneIdsToClear.add(zone.id());
-            }
+            forest.zones().forEach(zone -> zoneIdsToClear.add(zone.id()));
         }
 
         for (Area<Zone.River> river : rivers) {
             newZonePartitionsBuilder.clearFishers(river);
             tileIdsToClear.addAll(river.tileIds());
-            for (Zone.River zone : river.zones()) {
-                zoneIdsToClear.add(zone.id());
-            }
+            river.zones().forEach(zone -> zoneIdsToClear.add(zone.id()));
         }
 
         for (int id : tileIdsToClear) {
@@ -462,9 +468,7 @@ public final class Board {
 
     @Override
     public boolean equals(Object that) {
-        if (that == null) {
-            return false;
-        } else if (that.getClass() == getClass()) {
+        if (that != null && that.getClass() == getClass()) {
             Board thatBoard = (Board) that;
             return Arrays.equals(placedTiles, thatBoard.placedTiles)
                     && Arrays.equals(tileIndex, thatBoard.tileIndex)

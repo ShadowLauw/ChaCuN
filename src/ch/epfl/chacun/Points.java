@@ -8,10 +8,30 @@ package ch.epfl.chacun;
  */
 public final class Points {
     /**
+     * The number of points for each tile in a closed forest
+     */
+    private final static int TILE_POINTS = 2;
+    /**
+     * The number of points for each mushroom group in a closed forest
+     */
+    private final static int MUSHROOM_GROUP_POINTS = 3;
+    /**
+     * The number of points for each tile in a closed river
+     */
+    private final static int MAMMOTH_POINTS = 3;
+    /**
+     * The number of points for each mammoth in a meadow
+     */
+    private final static int AUROCHS_POINTS = 2;
+    /**
+     * The number of points for each aurochs in a meadow
+     */
+    private final static int LAKE_POINTS = 2;
+
+    /**
      * Private constructor to prevent instantiation.
      */
-    private Points() {
-    }
+    private Points() {}
 
     /**
      * Returns the number of points for a closed Forest.
@@ -24,7 +44,7 @@ public final class Points {
     public static int forClosedForest(int tileCount, int mushroomGroupCount) {
         Preconditions.checkArgument(tileCount > 1 && mushroomGroupCount >= 0);
 
-        return 2 * tileCount + 3 * mushroomGroupCount;
+        return TILE_POINTS * tileCount + MUSHROOM_GROUP_POINTS * mushroomGroupCount;
     }
 
     /**
@@ -53,7 +73,7 @@ public final class Points {
     public static int forMeadow(int mammothCount, int aurochsCount, int deerCount) {
         Preconditions.checkArgument(mammothCount >= 0 && aurochsCount >= 0 && deerCount >= 0);
 
-        return 3 * mammothCount + 2 * aurochsCount + deerCount;
+        return MAMMOTH_POINTS * mammothCount + AUROCHS_POINTS * aurochsCount + deerCount;
     }
 
     /**
@@ -79,7 +99,7 @@ public final class Points {
     public static int forLogboat(int lakeCount) {
         Preconditions.checkArgument(lakeCount > 0);
 
-        return 2 * lakeCount;
+        return LAKE_POINTS * lakeCount;
     }
 
     /**

@@ -26,7 +26,6 @@ public record GameState(
         Action nextAction,
         MessageBoard messageBoard
 ) {
-
     /**
      * Represents the different actions that can be done in the game
      */
@@ -114,12 +113,12 @@ public record GameState(
         potentialOccupants.removeIf(occupant ->
                 freeOccupantsCount(currentPlayer(), occupant.kind()) == 0
                         || switch (lastPlacedTile.zoneWithId(occupant.zoneId())) {
-                    case Zone.Forest forest -> board.forestArea(forest).isOccupied();
-                    case Zone.Meadow meadow -> board.meadowArea(meadow).isOccupied();
-                    case Zone.River river when occupant.kind() == Occupant.Kind.PAWN ->
-                            board.riverArea(river).isOccupied();
-                    case Zone.Water water -> board.riverSystemArea(water).isOccupied();
-                }
+                                case Zone.Forest forest -> board.forestArea(forest).isOccupied();
+                                case Zone.Meadow meadow -> board.meadowArea(meadow).isOccupied();
+                                case Zone.River river when occupant.kind() == Occupant.Kind.PAWN ->
+                                        board.riverArea(river).isOccupied();
+                                case Zone.Water water -> board.riverSystemArea(water).isOccupied();
+                        }
         );
 
         return potentialOccupants;
@@ -138,11 +137,13 @@ public record GameState(
                 players,
                 tileDecks.withTopTileDrawn(Tile.Kind.START).withTopTileDrawn(Tile.Kind.NORMAL),
                 tileDecks.topTile(Tile.Kind.NORMAL),
-                board.withNewTile(new PlacedTile(
-                        tileDecks.topTile(Tile.Kind.START),
-                        null,
-                        Rotation.NONE,
-                        new Pos(0, 0))
+                board.withNewTile(
+                        new PlacedTile(
+                            tileDecks.topTile(Tile.Kind.START),
+                            null,
+                            Rotation.NONE,
+                            new Pos(0, 0)
+                        )
                 ),
                 Action.PLACE_TILE,
                 messageBoard
@@ -191,8 +192,7 @@ public record GameState(
                 newMessageBoard = newMessageBoard.withScoredHuntingTrap(currentPlayer(), adjacentMeadow);
                 newBoard = newBoard.withMoreCancelledAnimals(Area.animals(adjacentMeadow, Set.of()));
             }
-            case null, default -> {
-            }
+            case null, default -> {}
         }
 
         return new GameState(
@@ -251,7 +251,7 @@ public record GameState(
      * @return the GameState with the turn finished or the next action being OCCUPY_TILE
      */
     private GameState withTurnFinishedIfOccupationImpossible() {
-        return lastTilePotentialOccupants().isEmpty() ? this.withTurnFinished() : this;
+        return lastTilePotentialOccupants().isEmpty() ? withTurnFinished() : this;
     }
 
     /**
@@ -262,11 +262,13 @@ public record GameState(
     private GameState withTurnFinished() {
         MessageBoard newMessageBoard = messageBoard;
 
+        //Points of closed rivers
         Set<Area<Zone.River>> riversArea = board.riversClosedByLastTile();
         for (Area<Zone.River> river : riversArea) {
             newMessageBoard = newMessageBoard.withScoredRiver(river);
         }
 
+        //Points of closed forests
         Set<Area<Zone.Forest>> forestsArea = board.forestsClosedByLastTile();
         Area<Zone.Forest> forestAreaWithMenhir = null;
         for (Area<Zone.Forest> forestArea : forestsArea) {
@@ -277,18 +279,20 @@ public record GameState(
         }
         Board newBoard = board.withoutGatherersOrFishersIn(forestsArea, riversArea);
 
+        //Second turn management
         boolean playerCanPlaySecondTurn = forestAreaWithMenhir != null
-                && newBoard.lastPlacedTile().tile().kind() == Tile.Kind.NORMAL;
+                && newBoard.lastPlacedTile().kind() == Tile.Kind.NORMAL;
 
         TileDecks newTileDecks = tileDecks.withTopTileDrawnUntil(
                 playerCanPlaySecondTurn ? Tile.Kind.MENHIR : Tile.Kind.NORMAL,
                 newBoard::couldPlaceTile
         );
-        if (playerCanPlaySecondTurn && newTileDecks.menhirTiles().isEmpty()) {
+        if (playerCanPlaySecondTurn && newTileDecks.deckSize(Tile.Kind.MENHIR) == 0) {
             newTileDecks = newTileDecks.withTopTileDrawnUntil(Tile.Kind.NORMAL, newBoard::couldPlaceTile);
             playerCanPlaySecondTurn = false;
         }
 
+        //Next turn & end of the game management
         List<PlayerColor> newPlayers = new LinkedList<>(players);
         Tile tileToPlay;
         if (playerCanPlaySecondTurn) {
@@ -332,6 +336,7 @@ public record GameState(
         Board newBoard = board;
         MessageBoard newMessageBoard = messageBoard;
 
+        //Points of the meadows
         for (Area<Zone.Meadow> meadowArea : board.meadowAreas()) {
             Zone.Meadow zonePitTrap = (Zone.Meadow) meadowArea.zoneWithSpecialPower(Zone.SpecialPower.PIT_TRAP);
             boolean isThereFire = meadowArea.zoneWithSpecialPower(Zone.SpecialPower.WILD_FIRE) != null;
@@ -349,6 +354,7 @@ public record GameState(
             }
         }
 
+        //Points of the river systems
         for (Area<Zone.Water> riverSystemArea : board.riverSystemAreas()) {
             Zone.Water zoneWithRaft = (Zone.Water) riverSystemArea.zoneWithSpecialPower(Zone.SpecialPower.RAFT);
             newMessageBoard = newMessageBoard.withScoredRiverSystem(riverSystemArea);
@@ -357,6 +363,7 @@ public record GameState(
             }
         }
 
+        //Winners management
         int maxPoints = newMessageBoard.points().values().stream().max(Integer::compare).orElse(0);
         Set<PlayerColor> winners = newMessageBoard.points().entrySet().stream()
                 .filter(entry -> entry.getValue() == maxPoints)
@@ -411,6 +418,13 @@ public record GameState(
                 .collect(Collectors.toSet());
     }
 
+    /**
+     * Returns the set of the animals of the given kind in the given set of animals
+     *
+     * @param animals the set of animals
+     * @param kind    the kind of the animals
+     * @return the set of the animals of the given kind in the given set of animals
+     */
     private Set<Animal> getAnimalSet(Set<Animal> animals, Animal.Kind kind) {
         return animals.stream().filter(animal -> animal.kind() == kind).collect(Collectors.toSet());
     }

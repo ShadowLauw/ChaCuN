@@ -9,11 +9,11 @@ import javafx.scene.paint.Color;
  * @author Laura Paraboschi (364161)
  * @author Emmanuel Omont (372632)
  */
-final public class ColorMap {
+public final class ColorMap {
     /**
      * The brightness of the stroke color compared to the fill color.
      */
-    private static final double REDUCED_BRIGHTNESS = 0.60; // 40% lighter is 60% of the brightness.
+    private final static double REDUCED_BRIGHTNESS = 0.60; // 40% lighter is 60% of the brightness.
 
     /**
      * Private constructor to prevent instantiation.

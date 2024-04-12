@@ -15,6 +15,11 @@ public enum Rotation {
     LEFT;
 
     /**
+     * The number of degrees in a quarter turn.
+     */
+    private static final int QUARTER_TURN_DEGREES = 90;
+
+    /**
      * The list of all possible rotations.
      */
     public static final List<Rotation> ALL = List.of(values());
@@ -31,7 +36,7 @@ public enum Rotation {
      * @return the rotation obtained by adding the given rotation to the current one
      */
     public Rotation add(Rotation that) {
-        int position = (this.ordinal() + that.ordinal()) % COUNT;
+        int position = (ordinal() + that.ordinal()) % COUNT;
         return ALL.get(position);
     }
 
@@ -41,7 +46,7 @@ public enum Rotation {
      * @return the rotation obtained by subtracting the given rotation from the current one
      */
     public Rotation negated() {
-        int position = (COUNT - this.ordinal()) % COUNT;
+        int position = (COUNT - ordinal()) % COUNT;
         return ALL.get(position);
     }
 
@@ -51,7 +56,7 @@ public enum Rotation {
      * @return the number of quarter turns required to obtain the current rotation
      */
     public int quarterTurnsCW() {
-        return this.ordinal();
+        return ordinal();
     }
 
     /**
@@ -60,9 +65,7 @@ public enum Rotation {
      * @return the number of degrees required to obtain the current rotation
      */
     public int degreesCW() {
-        // The number of degrees in a quarter turn
-        int QUARTER_TURN_DEGREES = 90;
-        return this.ordinal() * QUARTER_TURN_DEGREES;
+        return ordinal() * QUARTER_TURN_DEGREES;
     }
 
     ;

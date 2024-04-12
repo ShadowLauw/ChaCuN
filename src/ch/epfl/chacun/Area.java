@@ -14,6 +14,11 @@ import java.util.stream.Collectors;
  */
 public record Area<Z extends Zone>(Set<Z> zones, List<PlayerColor> occupants, int openConnections) {
     /**
+     * Number of open connections to subtract when connecting 2 zones
+     */
+    private final static int MINUS_WHEN_CONNECT = 2;
+
+    /**
      * Constructs an area with the given zones, occupants and open connections
      *
      * @param zones           the zones of the area
@@ -139,11 +144,10 @@ public record Area<Z extends Zone>(Set<Z> zones, List<PlayerColor> occupants, in
      */
     public Set<PlayerColor> majorityOccupants() {
         int[] count = new int[PlayerColor.ALL.size()];
-        for (PlayerColor occupant : occupants) {
-            count[occupant.ordinal()]++;
-        }
 
+        occupants.forEach(o -> count[o.ordinal()]++);
         int max = Arrays.stream(count).max().orElse(0);
+
         return max == 0
                 ? Set.of()
                 : PlayerColor.ALL.stream()
@@ -158,7 +162,7 @@ public record Area<Z extends Zone>(Set<Z> zones, List<PlayerColor> occupants, in
      * @return the new area created by connecting the two areas
      */
     public Area<Z> connectTo(Area<Z> that) {
-        int newOpenConnections = openConnections - 2;
+        int newOpenConnections = openConnections - MINUS_WHEN_CONNECT;
         Set<Z> newZones = new HashSet<>(zones);
         List<PlayerColor> newOccupants = new ArrayList<>(occupants);
 
