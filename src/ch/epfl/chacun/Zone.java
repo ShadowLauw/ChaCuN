@@ -10,11 +10,6 @@ import java.util.List;
  */
 public sealed interface Zone {
     /**
-     * Constant to get the tileID from the zone ID
-     */
-    int TILE_ID_DIVIDER = 10;
-
-    /**
      * Represents the different special powers
      */
     enum SpecialPower {
@@ -33,7 +28,7 @@ public sealed interface Zone {
      * @return the tileID the zone is on
      */
     static int tileId(int zoneId) {
-        return zoneId / TILE_ID_DIVIDER;
+        return zoneId / 10;
     }
 
     /**
@@ -43,7 +38,7 @@ public sealed interface Zone {
      * @return the localID of the zone
      */
     static int localId(int zoneId) {
-        return zoneId % TILE_ID_DIVIDER;
+        return zoneId % 10;
     }
 
     /**
@@ -59,7 +54,7 @@ public sealed interface Zone {
      * @return the tileID the current zone is on
      */
     default int tileId() {
-        return id() / TILE_ID_DIVIDER;
+        return tileId(id());
     }
 
     /**
@@ -68,7 +63,7 @@ public sealed interface Zone {
      * @return the localID of the current zone
      */
     default int localId() {
-        return id() % TILE_ID_DIVIDER;
+        return localId(id());
     }
 
     /**

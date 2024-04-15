@@ -389,7 +389,6 @@ class InitialGameStateTest {
         branch2 = branch2.withNewOccupant(occupant25T);
 
 
-        System.out.println(branch2.messageBoard().messages());
 
         assertEquals(PlayerColor.GREEN, branch2.currentPlayer());
         assertEquals(GameState.Action.PLACE_TILE, branch2.nextAction());

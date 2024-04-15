@@ -16,7 +16,7 @@ public record Area<Z extends Zone>(Set<Z> zones, List<PlayerColor> occupants, in
     /**
      * Number of open connections to subtract when connecting 2 zones
      */
-    private final static int MINUS_WHEN_CONNECT = 2;
+    private static final int MINUS_WHEN_CONNECT = 2;
 
     /**
      * Constructs an area with the given zones, occupants and open connections

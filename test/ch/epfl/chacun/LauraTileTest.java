@@ -36,8 +36,6 @@ public class LauraTileTest {
         expected.addAll(forest.zones());
         expected.addAll(meadow.zones());
 
-        System.out.println(expected);
-
         assertEquals(expected, new Tile(0, Tile.Kind.NORMAL, river, riverWithLake, forest, meadow).sideZones());
     }
 

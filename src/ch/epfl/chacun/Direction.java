@@ -17,12 +17,12 @@ public enum Direction {
     /**
      * List of all the possible directions
      */
-    public final static List<Direction> ALL = List.of(values());
+    public static final List<Direction> ALL = List.of(values());
 
     /**
      * Number of possible directions
      */
-    public final static int COUNT = ALL.size();
+    public static final int COUNT = ALL.size();
 
     /**
      * Return the direction facing when rotated.

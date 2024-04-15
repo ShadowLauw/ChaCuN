@@ -13,7 +13,84 @@ public final class TextMakerFr implements TextMaker {
     /**
      * Map of the association between the player's color and their name
      */
-    final private Map<PlayerColor, String> playerNames;
+    private final Map<PlayerColor, String> playerNames;
+
+    /**
+     * Map of the association between the animal kind and its name
+     */
+    private static final Map<Animal.Kind, String> animalNames = Map.of(
+            Animal.Kind.MAMMOTH, "mammouth",
+            Animal.Kind.AUROCHS, "auroch",
+            Animal.Kind.DEER, "cerf"
+    );
+
+    /**
+     * Enum representing the different types of message for the scorers
+     */
+    private enum ScorersType {
+        SIMPLE,
+        POINTS,
+        MAJORITY
+    }
+
+    /**
+     * Enum representing the different types of pluralization
+     */
+    private enum PluralizationType {
+        SIMPLE("s"),
+        MEDIAN_POINT("·s");
+
+        private final String pluralization;
+
+        /**
+         * Return the pluralization
+         *
+         * @return the pluralization
+         */
+        public String pluralization() {
+            return pluralization;
+        }
+
+        PluralizationType(String pluralization) {
+            this.pluralization = pluralization;
+        }
+    }
+
+    /**
+     * Enum representing the different objects that can be counted
+     */
+    private enum MiscObjects {
+        MUSHROOM("groupe", " de champignons"),
+        FISH("poisson", ""),
+        LAKE("lac", ""),
+        TILE("tuile", "");
+
+        private final String name;
+        private final String appendix;
+
+        /**
+         * Return the name of the object
+         *
+         * @return the name of the object
+         */
+        public String getName() {
+            return name;
+        }
+
+        /**
+         * Return the appendix of the object
+         *
+         * @return the appendix of the object
+         */
+        public String getAppendix() {
+            return appendix;
+        }
+
+        MiscObjects(String name, String appendix) {
+            this.name = name;
+            this.appendix = appendix;
+        }
+    }
 
     /**
      * Creates a new french TextMaker with the given player names and colors as players
@@ -55,74 +132,6 @@ public final class TextMakerFr implements TextMaker {
     @Override
     public String playerClosedForestWithMenhir(PlayerColor player) {
         return STR."\{playerName(player)} a fermé une forêt contenant un menhir et peut donc placer une tuile menhir.";
-    }
-
-    /**
-     * Enum representing the different objects that can be counted
-     */
-    private enum MiscObjects {
-        MUSHROOM("groupe", " de champignons"),
-        FISH("poisson", ""),
-        LAKE("lac", ""),
-        TILE("tuile", "");
-
-        private final String name;
-        private final String appendix;
-
-        /**
-         * Return the name of the object
-         *
-         * @return the name of the object
-         */
-        public String getName() {
-            return name;
-        }
-
-        /**
-         * Return the appendix of the object
-         *
-         * @return the appendix of the object
-         */
-        public String getAppendix() {
-            return appendix;
-        }
-
-        MiscObjects(String name, String appendix) {
-            this.name = name;
-            this.appendix = appendix;
-        }
-    }
-
-    /**
-     * Enum representing the different types of message for the scorers
-     */
-    private enum ScorersType {
-        SIMPLE,
-        POINTS,
-        MAJORITY
-    }
-
-    /**
-     * Enum representing the different types of pluralization
-     */
-    private enum PluralizationType {
-        SIMPLE("s"),
-        MEDIAN_POINT("·s");
-
-        private final String pluralization;
-
-        /**
-         * Return the pluralization
-         *
-         * @return the pluralization
-         */
-        public String pluralization() {
-            return pluralization;
-        }
-
-        PluralizationType(String pluralization) {
-            this.pluralization = pluralization;
-        }
     }
 
     /**
@@ -276,7 +285,7 @@ public final class TextMakerFr implements TextMaker {
     @Override
     public String playersWon(Set<PlayerColor> winners, int points) {
         String scorersString = getScorersString(winners, points, ScorersType.SIMPLE);
-        return STR."\{scorersString} la partie avec \{points(points)} !";
+        return STR."\{scorersString} la partie avec \{points(points)} !";
     }
 
     /**
@@ -306,7 +315,7 @@ public final class TextMakerFr implements TextMaker {
      * @param type   the type of pluralization
      * @return the string to pluralize a word with possibly a median point
      */
-    private String pluralize(int number, PluralizationType type) {
+    private static String pluralize(int number, PluralizationType type) {
         return number > 1 ? type.pluralization() : "";
     }
 
@@ -316,7 +325,7 @@ public final class TextMakerFr implements TextMaker {
      * @param array the array of strings
      * @return the string representation with correct comas and conjunctive words of an array of strings
      */
-    private String arrayToString(String[] array) {
+    private static String arrayToString(String[] array) {
         StringBuilder string = new StringBuilder(array[0]);
         for (int i = 1; i < array.length; i++) {
             string.append(i + 1 == array.length ? " et " : ", ");
@@ -324,6 +333,39 @@ public final class TextMakerFr implements TextMaker {
         }
 
         return string.toString();
+    }
+
+    /**
+     * Return a string representation of miscellaneous objects and their number, with possibly a string to prepend
+     *
+     * @param objectNumber the number of objects
+     * @param object       the type of object
+     * @param prepend      the string to prepend
+     * @return the string representation of miscellaneous objects and their number, with possibly a string to prepend
+     */
+    private static String getMiscString(int objectNumber, MiscObjects object, String prepend) {
+        String objectString = STR."\{object.getName()}\{pluralize(objectNumber, PluralizationType.SIMPLE)}\{object.getAppendix()}";
+
+        return objectNumber > 0 ? STR."\{prepend}\{objectNumber} \{objectString}" : "";
+    }
+
+    /**
+     * Return a string representation of the animals and their number
+     *
+     * @param animals the animals and their number
+     * @return the string representation of the animals and their number
+     */
+    private static String getAnimalString(Map<Animal.Kind, Integer> animals) {
+        //EnumMap will sort the animals by their order in the enum
+        Map<Animal.Kind, Integer> sortedAnimals = new EnumMap<>(animals);
+        String[] animalsArray = sortedAnimals.entrySet().stream().filter(entry -> entry.getKey() != Animal.Kind.TIGER)
+                .map(entry -> {
+                    int count = entry.getValue();
+
+                    return STR."\{count} \{animalNames.get(entry.getKey())}\{pluralize(count, PluralizationType.SIMPLE)}";
+                }).toArray(String[]::new);
+
+        return arrayToString(animalsArray);
     }
 
     /**
@@ -337,7 +379,7 @@ public final class TextMakerFr implements TextMaker {
         String[] scorersNameArray = scorers.stream().sorted().map(playerNames::get).toArray(String[]::new);
         StringBuilder scorersString = new StringBuilder(arrayToString(scorersNameArray));
         scorersString.append(scorers.size() > 1 ? " ont remporté" : " a remporté");
-        if (type == ScorersType.POINTS || type == ScorersType.MAJORITY) {
+        if (type != ScorersType.SIMPLE) {
             scorersString.append(STR." \{points(points)}");
             if (type == ScorersType.MAJORITY) {
                 scorersString.append(STR." en tant qu'occupant·e\{pluralize(scorers.size(), PluralizationType.MEDIAN_POINT)}");
@@ -346,47 +388,5 @@ public final class TextMakerFr implements TextMaker {
         }
 
         return scorersString.toString();
-    }
-
-    /**
-     * Return a string representation of miscellaneous objects and their number, with possibly a string to prepend
-     *
-     * @param objectNumber the number of objects
-     * @param object       the type of object
-     * @param prepend      the string to prepend
-     * @return the string representation of miscellaneous objects and their number, with possibly a string to prepend
-     */
-    private String getMiscString(int objectNumber, MiscObjects object, String prepend) {
-        String objectString = STR."\{object.getName()}\{pluralize(objectNumber, PluralizationType.SIMPLE)}\{object.getAppendix()}";
-
-        return objectNumber > 0 ? STR."\{prepend}\{objectNumber} \{objectString}" : "";
-    }
-
-    /**
-     * Map of the association between the animal kind and its name
-     */
-    private static final Map<Animal.Kind, String> animalNames = Map.of(
-            Animal.Kind.MAMMOTH, "mammouth",
-            Animal.Kind.AUROCHS, "auroch",
-            Animal.Kind.DEER, "cerf"
-    );
-
-    /**
-     * Return a string representation of the animals and their number
-     *
-     * @param animals the animals and their number
-     * @return the string representation of the animals and their number
-     */
-    private String getAnimalString(Map<Animal.Kind, Integer> animals) {
-        //EnumMap will sort the animals by their order in the enum
-        Map<Animal.Kind, Integer> sortedAnimals = new EnumMap<>(animals);
-        String[] animalsArray = sortedAnimals.entrySet().stream().filter(entry -> entry.getKey() != Animal.Kind.TIGER)
-                .map(entry -> {
-                    int count = entry.getValue();
-
-                    return STR."\{count} \{animalNames.get(entry.getKey())}\{pluralize(count, PluralizationType.SIMPLE)}";
-                }).toArray(String[]::new);
-
-        return arrayToString(animalsArray);
     }
 }

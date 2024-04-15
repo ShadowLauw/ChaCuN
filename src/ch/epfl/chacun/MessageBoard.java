@@ -12,6 +12,15 @@ import java.util.*;
  */
 public record MessageBoard(TextMaker textMaker, List<Message> messages) {
     /**
+     * Type of scoring for Meadows
+     */
+    private enum MeadowType {
+        PIT_TRAP,
+        HUNTING_TRAP,
+        MEADOW
+    }
+
+    /**
      * Constructs a message board with the given text maker and messages
      *
      * @param textMaker the text maker of the game
@@ -94,15 +103,6 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
     }
 
     /**
-     * Type of scoring for Meadows
-     */
-    private enum MeadowType {
-        PIT_TRAP,
-        HUNTING_TRAP,
-        MEADOW
-    }
-
-    /**
      * Return the message board with possibly the message when the player scored a hunting trap
      *
      * @param scorer         the player who scored the hunting trap
@@ -174,6 +174,41 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
     }
 
     /**
+     * Return a message board with possibly the message when a player scored a raft
+     *
+     * @param riverSystem the river system where the raft is placed
+     * @return the message board with possibly the message when a player scored a raft
+     */
+    public MessageBoard withScoredRaft(Area<Zone.Water> riverSystem) {
+        int lakeCount = Area.lakeCount(riverSystem);
+        int points = Points.forRaft(Area.lakeCount(riverSystem));
+
+        if (!(riverSystem.isOccupied() && points > 0))
+            return this;
+
+        List<Message> newMessages = new ArrayList<>(messages);
+        Set<PlayerColor> majorityOccupants = riverSystem.majorityOccupants();
+        String text = textMaker.playersScoredRaft(majorityOccupants, points, lakeCount);
+        newMessages.add(new Message(text, points, majorityOccupants, riverSystem.tileIds()));
+
+        return new MessageBoard(textMaker, newMessages);
+    }
+
+    /**
+     * Return a message board with the message when it is the end of the game
+     *
+     * @param winners the winners of the game
+     * @param points  the points of the winners
+     * @return the message board with the message when it is the end of the game
+     */
+    public MessageBoard withWinners(Set<PlayerColor> winners, int points) {
+        List<Message> newMessages = new ArrayList<>(messages);
+        newMessages.add(new Message(textMaker.playersWon(winners, points), 0, Set.of(), Set.of()));
+
+        return new MessageBoard(textMaker, newMessages);
+    }
+
+    /**
      * Return a message board that depend on meadows (pit trap, hunting trap, meadow)
      *
      * @param adjacentMeadow   the meadow
@@ -209,73 +244,38 @@ public record MessageBoard(TextMaker textMaker, List<Message> messages) {
             case MEADOW -> {
                 if (adjacentMeadow.isOccupied()) {
                     newMessages.add(
-                        new Message(
-                            textMaker.playersScoredMeadow(adjacentMeadow.majorityOccupants(), points, animalsCount),
-                            points,
-                            adjacentMeadow.majorityOccupants(),
-                            adjacentMeadow.tileIds()
-                        )
+                            new Message(
+                                    textMaker.playersScoredMeadow(adjacentMeadow.majorityOccupants(), points, animalsCount),
+                                    points,
+                                    adjacentMeadow.majorityOccupants(),
+                                    adjacentMeadow.tileIds()
+                            )
                     );
                 }
             }
             case PIT_TRAP -> {
                 if (adjacentMeadow.isOccupied()) {
                     newMessages.add(
-                        new Message(
-                            textMaker.playersScoredPitTrap(adjacentMeadow.majorityOccupants(), points, animalsCount),
-                            points,
-                            adjacentMeadow.majorityOccupants(),
-                            adjacentMeadow.tileIds()
-                        )
+                            new Message(
+                                    textMaker.playersScoredPitTrap(adjacentMeadow.majorityOccupants(), points, animalsCount),
+                                    points,
+                                    adjacentMeadow.majorityOccupants(),
+                                    adjacentMeadow.tileIds()
+                            )
                     );
                 }
             }
             case HUNTING_TRAP -> {
                 newMessages.add(
-                    new Message(
-                        textMaker.playerScoredHuntingTrap(scorer, points, animalsCount),
-                        points,
-                        Set.of(scorer),
-                        adjacentMeadow.tileIds()
-                    )
+                        new Message(
+                                textMaker.playerScoredHuntingTrap(scorer, points, animalsCount),
+                                points,
+                                Set.of(scorer),
+                                adjacentMeadow.tileIds()
+                        )
                 );
             }
         }
-
-        return new MessageBoard(textMaker, newMessages);
-    }
-
-    /**
-     * Return a message board with possibly the message when a player scored a raft
-     *
-     * @param riverSystem the river system where the raft is placed
-     * @return the message board with possibly the message when a player scored a raft
-     */
-    public MessageBoard withScoredRaft(Area<Zone.Water> riverSystem) {
-        int lakeCount = Area.lakeCount(riverSystem);
-        int points = Points.forRaft(Area.lakeCount(riverSystem));
-
-        if (!(riverSystem.isOccupied() && points > 0))
-            return this;
-
-        List<Message> newMessages = new ArrayList<>(messages);
-        Set<PlayerColor> majorityOccupants = riverSystem.majorityOccupants();
-        String text = textMaker.playersScoredRaft(majorityOccupants, points, lakeCount);
-        newMessages.add(new Message(text, points, majorityOccupants, riverSystem.tileIds()));
-
-        return new MessageBoard(textMaker, newMessages);
-    }
-
-    /**
-     * Return a message board with the message when it is the end of the game
-     *
-     * @param winners the winners of the game
-     * @param points  the points of the winners
-     * @return the message board with the message when it is the end of the game
-     */
-    public MessageBoard withWinners(Set<PlayerColor> winners, int points) {
-        List<Message> newMessages = new ArrayList<>(messages);
-        newMessages.add(new Message(textMaker.playersWon(winners, points), 0, Set.of(), Set.of()));
 
         return new MessageBoard(textMaker, newMessages);
     }

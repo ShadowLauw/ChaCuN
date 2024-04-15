@@ -12,7 +12,6 @@ public class BoardTestEmmanuel {
     @Test
     void javafixisInstalled () {
         Color c = Color.RED;
-        System.out.println(c.getRed());
     }
     @Test
     void canAddTileTestEmmanuel () {
@@ -87,7 +86,6 @@ public class BoardTestEmmanuel {
 
         PlacedTile placedTile38 = new PlacedTile(tile38, PlayerColor.RED, Rotation.NONE, new Pos(1, 0));
         board = board.withNewTile(placedTile38);
-        System.out.println(board.lastPlacedTile());
         Zone.Forest zoneForest = (Zone.Forest) board.lastPlacedTile().tile().e().zones().getFirst();
         Occupant pawn1 = new Occupant(Occupant.Kind.PAWN, zoneForest.id());
         board = board.withOccupant(pawn1);

@@ -15,11 +15,6 @@ public enum Rotation {
     LEFT;
 
     /**
-     * The number of degrees in a quarter turn.
-     */
-    private static final int QUARTER_TURN_DEGREES = 90;
-
-    /**
      * The list of all possible rotations.
      */
     public static final List<Rotation> ALL = List.of(values());
@@ -28,6 +23,11 @@ public enum Rotation {
      * The number of possible rotations.
      */
     public static final int COUNT = ALL.size();
+
+    /**
+     * The number of degrees in a quarter turn.
+     */
+    private static final int QUARTER_TURN_DEGREES = 90;
 
     /**
      * Returns the rotation obtained by adding the given rotation to the current one.

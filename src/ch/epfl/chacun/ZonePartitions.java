@@ -22,17 +22,17 @@ public record ZonePartitions(
     /**
      * Number of sides of a tile
      */
-    private final static int NUMBER_OF_SIDES = 4;
+    private static final int NUMBER_OF_SIDES = 4;
 
     /**
      * Max number of zones of a tile
      */
-    private final static int NUMBER_OF_ZONES = 10;
+    private static final int NUMBER_OF_ZONES = 10;
 
     /**
      * Represents the empty zone partitions
      */
-    public final static ZonePartitions EMPTY = new ZonePartitions(
+    public static final ZonePartitions EMPTY = new ZonePartitions(
             new ZonePartition<>(Set.of()),
             new ZonePartition<>(Set.of()),
             new ZonePartition<>(Set.of()),

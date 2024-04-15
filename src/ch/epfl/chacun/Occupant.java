@@ -11,6 +11,10 @@ import static java.util.Objects.requireNonNull;
  * @author Emmanuel Omont (372632)
  */
 public record Occupant(Kind kind, int zoneId) {
+    /**
+     * Represents the different kinds of occupants
+     */
+    public enum Kind {PAWN, HUT}
 
     /**
      * The count of the pawn a player has at the start of the game
@@ -21,11 +25,6 @@ public record Occupant(Kind kind, int zoneId) {
      * The count of the hut a player has at the start of the game
      */
     private static final int HUT_COUNT = 3;
-
-    /**
-     * Represents the different kinds of occupants
-     */
-    public enum Kind {PAWN, HUT}
 
     /**
      * Creates a new occupant with the given kind and zoneID

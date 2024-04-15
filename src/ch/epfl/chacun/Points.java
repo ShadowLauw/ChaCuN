@@ -10,23 +10,23 @@ public final class Points {
     /**
      * The number of points for each tile in a closed forest
      */
-    private final static int TILE_POINTS = 2;
+    private static final int TILE_POINTS = 2;
     /**
      * The number of points for each mushroom group in a closed forest
      */
-    private final static int MUSHROOM_GROUP_POINTS = 3;
+    private static final int MUSHROOM_GROUP_POINTS = 3;
     /**
      * The number of points for each tile in a closed river
      */
-    private final static int MAMMOTH_POINTS = 3;
+    private static final int MAMMOTH_POINTS = 3;
     /**
      * The number of points for each mammoth in a meadow
      */
-    private final static int AUROCHS_POINTS = 2;
+    private static final int AUROCHS_POINTS = 2;
     /**
      * The number of points for each aurochs in a meadow
      */
-    private final static int LAKE_POINTS = 2;
+    private static final int LAKE_POINTS = 2;
 
     /**
      * Private constructor to prevent instantiation.

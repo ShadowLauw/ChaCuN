@@ -118,8 +118,8 @@ public class LauraTextMakerFrTest {
 
     @Test
     void playersWonTest() {
-        assertEquals("Bachir a remporté la partie avec 111 points !", textMaker.playersWon(Set.of(PlayerColor.GREEN), 111));
-        assertEquals("Dalia et Alice ont remporté la partie avec 123 points !", textMaker.playersWon(Set.of(PlayerColor.YELLOW, PlayerColor.RED), 123));
+        assertEquals("Bachir a remporté la partie avec 111 points !", textMaker.playersWon(Set.of(PlayerColor.GREEN), 111));
+        assertEquals("Dalia et Alice ont remporté la partie avec 123 points !", textMaker.playersWon(Set.of(PlayerColor.YELLOW, PlayerColor.RED), 123));
     }
 
     @Test

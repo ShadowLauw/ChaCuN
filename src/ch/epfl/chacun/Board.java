@@ -12,24 +12,14 @@ import java.util.stream.Collectors;
 
 public final class Board {
     /**
-     * The maximum size of the board
-     */
-    private final static int BOARD_MAX_SIZE = 625;
-
-    /**
-     * The index of the origin (0,0) tile
-     */
-    private final static int INDEX_ORIGIN_TILE = 312;
-
-    /**
      * The reach of the board
      */
-    public final static int REACH = 12;
+    public static final int REACH = 12;
 
     /**
-     * The width of the board
+     * The maximum size of the board
      */
-    private static final int WIDTH = 25;
+    private static final int BOARD_MAX_SIZE = 625;
 
     /**
      * The empty board
@@ -40,6 +30,16 @@ public final class Board {
             ZonePartitions.EMPTY,
             Set.of()
     );
+
+    /**
+     * The index of the origin (0,0) tile
+     */
+    private static final int INDEX_ORIGIN_TILE = 312;
+
+    /**
+     * The width of the board
+     */
+    private static final int WIDTH = 25;
 
     /**
      * The Array of the placed tiles
@@ -85,26 +85,6 @@ public final class Board {
      */
     public PlacedTile tileAt(Pos pos) {
         return isPosInBoard(pos) ? placedTiles[getIndexOfTile(pos)] : null;
-    }
-
-    /**
-     * Verify if the given position is in the board perimeter
-     *
-     * @param pos the position to test
-     * @return true if the position is in the board perimeter, false otherwise
-     */
-    private boolean isPosInBoard(Pos pos) {
-        return Math.abs(pos.x()) <= REACH && Math.abs(pos.y()) <= REACH;
-    }
-
-    /**
-     * Gives the index of the tile in placedTiles at the given position
-     *
-     * @param pos the position of the tile
-     * @return the index of the tile in placedTiles at the given position
-     */
-    private int getIndexOfTile(Pos pos) {
-        return INDEX_ORIGIN_TILE + pos.x() + pos.y() * WIDTH;
     }
 
     /**
@@ -246,16 +226,6 @@ public final class Board {
     }
 
     /**
-     * Returns the tile which the occupant is on
-     *
-     * @param occupant the occupant
-     * @return the tile which the occupant is on
-     */
-    private PlacedTile tileFromOccupant(Occupant occupant) {
-        return tileWithId(Zone.tileId(occupant.zoneId()));
-    }
-
-    /**
      * Gives the set of the positions where a tile can be placed
      *
      * @return the set of the positions where a tile can be placed
@@ -390,7 +360,7 @@ public final class Board {
         newPlacedTiles[getIndexOfTile(tile.pos())] = tile.withOccupant(occupant);
 
         ZonePartitions.Builder newZonePartitionsBuilder = new ZonePartitions.Builder(zonePartitions);
-        newZonePartitionsBuilder.addInitialOccupant(tile.placer(), occupant.kind(), tile.zoneWithId(occupant.zoneId()));
+        newZonePartitionsBuilder.addInitialOccupant(tile.placer(), occupant.kind(), zoneFromOccupant(tile, occupant));
 
         return new Board(newPlacedTiles, tileIndex, newZonePartitionsBuilder.build(), cancelledAnimals);
     }
@@ -408,7 +378,7 @@ public final class Board {
         newPlacedTiles[getIndexOfTile(tile.pos())] = tile.withNoOccupant();
 
         ZonePartitions.Builder newZonePartitionsBuilder = new ZonePartitions.Builder(zonePartitions);
-        newZonePartitionsBuilder.removePawn(tile.placer(), tile.zoneWithId(occupant.zoneId()));
+        newZonePartitionsBuilder.removePawn(tile.placer(), zoneFromOccupant(tile, occupant));
 
         return new Board(newPlacedTiles, tileIndex, newZonePartitionsBuilder.build(), cancelledAnimals);
     }
@@ -482,5 +452,46 @@ public final class Board {
     @Override
     public int hashCode() {
         return Objects.hash(Arrays.hashCode(placedTiles), Arrays.hashCode(tileIndex), zonePartitions, cancelledAnimals);
+    }
+
+    /**
+     * Verify if the given position is in the board perimeter
+     *
+     * @param pos the position to test
+     * @return true if the position is in the board perimeter, false otherwise
+     */
+    private static boolean isPosInBoard(Pos pos) {
+        return Math.abs(pos.x()) <= REACH && Math.abs(pos.y()) <= REACH;
+    }
+
+    /**
+     * Gives the index of the tile in placedTiles at the given position
+     *
+     * @param pos the position of the tile
+     * @return the index of the tile in placedTiles at the given position
+     */
+    private static int getIndexOfTile(Pos pos) {
+        return INDEX_ORIGIN_TILE + pos.x() + pos.y() * WIDTH;
+    }
+
+    /**
+     * Returns the zone which the occupant is on
+     *
+     * @param tile     the tile which the occupant is on
+     * @param occupant the occupant
+     * @return the zone which the occupant is on
+     */
+    private static Zone zoneFromOccupant(PlacedTile tile, Occupant occupant) {
+        return tile.zoneWithId(occupant.zoneId());
+    }
+
+    /**
+     * Returns the tile which the occupant is on
+     *
+     * @param occupant the occupant
+     * @return the tile which the occupant is on
+     */
+    private PlacedTile tileFromOccupant(Occupant occupant) {
+        return tileWithId(Zone.tileId(occupant.zoneId()));
     }
 }

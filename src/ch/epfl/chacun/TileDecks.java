@@ -97,7 +97,7 @@ public record TileDecks(List<Tile> startTiles, List<Tile> normalTiles, List<Tile
      * @param predicate the predicate to satisfy
      * @return whether the top tile of the deck of the given kind matches the given predicate
      */
-    private boolean topTileMatches(TileDecks td, Tile.Kind kind, Predicate<Tile> predicate) {
+    private static boolean topTileMatches(TileDecks td, Tile.Kind kind, Predicate<Tile> predicate) {
         Tile topTile = td.topTile(kind);
         return topTile != null && !predicate.test(topTile);
     }

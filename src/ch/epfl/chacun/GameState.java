@@ -113,12 +113,12 @@ public record GameState(
         potentialOccupants.removeIf(occupant ->
                 freeOccupantsCount(currentPlayer(), occupant.kind()) == 0
                         || switch (lastPlacedTile.zoneWithId(occupant.zoneId())) {
-                                case Zone.Forest forest -> board.forestArea(forest).isOccupied();
-                                case Zone.Meadow meadow -> board.meadowArea(meadow).isOccupied();
-                                case Zone.River river when occupant.kind() == Occupant.Kind.PAWN ->
-                                        board.riverArea(river).isOccupied();
-                                case Zone.Water water -> board.riverSystemArea(water).isOccupied();
-                        }
+                    case Zone.Forest forest -> board.forestArea(forest).isOccupied();
+                    case Zone.Meadow meadow -> board.meadowArea(meadow).isOccupied();
+                    case Zone.River river when occupant.kind() == Occupant.Kind.PAWN ->
+                            board.riverArea(river).isOccupied();
+                    case Zone.Water water -> board.riverSystemArea(water).isOccupied();
+                }
         );
 
         return potentialOccupants;
@@ -139,10 +139,10 @@ public record GameState(
                 tileDecks.topTile(Tile.Kind.NORMAL),
                 board.withNewTile(
                         new PlacedTile(
-                            tileDecks.topTile(Tile.Kind.START),
-                            null,
-                            Rotation.NONE,
-                            new Pos(0, 0)
+                                tileDecks.topTile(Tile.Kind.START),
+                                null,
+                                Rotation.NONE,
+                                new Pos(0, 0)
                         )
                 ),
                 Action.PLACE_TILE,
@@ -192,7 +192,8 @@ public record GameState(
                 newMessageBoard = newMessageBoard.withScoredHuntingTrap(currentPlayer(), adjacentMeadow);
                 newBoard = newBoard.withMoreCancelledAnimals(Area.animals(adjacentMeadow, Set.of()));
             }
-            case null, default -> {}
+            case null, default -> {
+            }
         }
 
         return new GameState(
@@ -425,7 +426,7 @@ public record GameState(
      * @param kind    the kind of the animals
      * @return the set of the animals of the given kind in the given set of animals
      */
-    private Set<Animal> getAnimalSet(Set<Animal> animals, Animal.Kind kind) {
+    private static Set<Animal> getAnimalSet(Set<Animal> animals, Animal.Kind kind) {
         return animals.stream().filter(animal -> animal.kind() == kind).collect(Collectors.toSet());
     }
 }

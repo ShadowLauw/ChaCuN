@@ -13,7 +13,7 @@ public final class ColorMap {
     /**
      * The brightness of the stroke color compared to the fill color.
      */
-    private final static double REDUCED_BRIGHTNESS = 0.60; // 40% lighter is 60% of the brightness.
+    private static final double REDUCED_BRIGHTNESS = 0.60; // 40% lighter is 60% of the brightness.
 
     /**
      * Private constructor to prevent instantiation.
