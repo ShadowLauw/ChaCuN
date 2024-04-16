@@ -44,8 +44,8 @@ public final class MessageBoardUI {
                 text.setOnMouseExited(e -> tilesId.setValue(Set.of()));
                 text.setWrappingWidth(ImageLoader.LARGE_TILE_FIT_SIZE);
                 messagesBox.getChildren().add(text);
-                runLater(() -> scrollPane.setVvalue(1));
             }
+            runLater(() -> scrollPane.setVvalue(1));
         });
 
         VBox vBox = new VBox(scrollPane);
