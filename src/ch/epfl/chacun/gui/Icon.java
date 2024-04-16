@@ -35,7 +35,7 @@ public final class Icon {
      * @param occupant the occupant kind
      * @return the new node
      */
-    public Node newFor (PlayerColor color, Occupant.Kind occupant) {
+    public static Node newFor (PlayerColor color, Occupant.Kind occupant) {
         SVGPath svg = new SVGPath();
         svg.setFill(fillColor(color));
         svg.setStroke(strokeColor(color));
