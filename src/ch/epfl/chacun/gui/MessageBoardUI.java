@@ -15,25 +15,34 @@ import java.util.Set;
 import static javafx.application.Platform.runLater;
 
 /**
- * Represents the message board of the game with JavaFX
+ * Displays the message board part of the interface of the game
  *
  * @author Laura Paraboschi (364161)
  * @author Emmanuel Omont (372632)
  */
 public final class MessageBoardUI {
 
+    /**
+     * The path to the CSS file for the message board UI.
+     */
     private static final String MESSAGE_BOARD_CSS = "message-board.css";
+    /**
+     * ID of the base node of the message board UI.
+     */
     private static final String UI_ID = "message-board";
+
     /**
      * Private constructor to prevent instantiation.
      */
-    private MessageBoardUI(){}
+    private MessageBoardUI() {
+    }
 
     /**
-     * A static method to create a Node for the message board
-     * @param messages the list of messages to display
-     * @param tilesId the id of the tiles to display
-     * @return a Node representing the message board
+     * Creates a Node for the message board display
+     *
+     * @param messages the messages to display
+     * @param tilesId  the ids of the tiles to highlight
+     * @return a node displaying the message board
      */
     public static Node create(ObservableValue<List<MessageBoard.Message>> messages, ObjectProperty<Set<Integer>> tilesId) {
         ScrollPane scrollPane = new ScrollPane();

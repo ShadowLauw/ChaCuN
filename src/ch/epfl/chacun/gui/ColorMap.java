@@ -18,14 +18,16 @@ public final class ColorMap {
     /**
      * Private constructor to prevent instantiation.
      */
-    private ColorMap() {}
+    private ColorMap() {
+    }
 
     /**
      * Returns the fill color for a given player color.
+     *
      * @param color the player color
      * @return the fill color
      */
-    public static Color fillColor (PlayerColor color) {
+    public static Color fillColor(PlayerColor color) {
         return switch (color) {
             case RED -> Color.RED;
             case BLUE -> Color.BLUE;
@@ -37,10 +39,11 @@ public final class ColorMap {
 
     /**
      * Returns the stroke color for a given player color.
+     *
      * @param color the player color
      * @return the stroke color
      */
-    public static Color strokeColor (PlayerColor color) {
+    public static Color strokeColor(PlayerColor color) {
         return switch (color) {
             case RED, BLUE, PURPLE -> Color.WHITE;
             case GREEN, YELLOW -> fillColor(color).deriveColor(1, 1, REDUCED_BRIGHTNESS, 1);

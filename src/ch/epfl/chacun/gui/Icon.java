@@ -10,6 +10,7 @@ import static ch.epfl.chacun.gui.ColorMap.strokeColor;
 
 /**
  * A utility class for creating icons for the board.
+ *
  * @author Laura Paraboschi (364161)
  * @author Emmanuel Omont (372632)
  */
@@ -27,22 +28,25 @@ public final class Icon {
     /**
      * Private constructor to prevent instantiation.
      */
-    private Icon() {}
+    private Icon() {
+    }
 
     /**
      * Creates a new node for the given player color and occupant kind.
-     * @param color the player color
+     *
+     * @param color    the player color
      * @param occupant the occupant kind
      * @return the new node
      */
-    public static Node newFor (PlayerColor color, Occupant.Kind occupant) {
+    public static Node newFor(PlayerColor color, Occupant.Kind occupant) {
         SVGPath svg = new SVGPath();
         svg.setFill(fillColor(color));
         svg.setStroke(strokeColor(color));
         switch (occupant) {
             case PAWN -> svg.setContent(PATH_PAWN);
             case HUT -> svg.setContent(PATH_HUT);
-        };
+        }
+        ;
         return svg;
     }
 }
