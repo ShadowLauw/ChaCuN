@@ -93,6 +93,7 @@ public final class DecksUI {
         stackPane.setId(deckId);
 
         ImageView imageViewNormal = new ImageView();
+        imageViewNormal.setId(deckId);
         /**imageViewNormal.setImage(deckId.equals(NORMAL_DECK_ID)
                 ? ImageLoader.NORMAL_NORMAL_TILE_BACK
                 : ImageLoader.NORMAL_MENHIR_TILE_BACK);**/
