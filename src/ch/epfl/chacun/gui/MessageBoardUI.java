@@ -36,14 +36,15 @@ public final class MessageBoardUI {
         VBox messagesBox = new VBox();
         ScrollPane scrollPane = new ScrollPane(messagesBox);
 
+        //potentiellement pas utile, ne sert que si la liste de message n'est pas vide au début.
+        for (MessageBoard.Message message : messages.getValue()) {
+            createText(message, tilesId, messagesBox);
+        }
+
         messages.addListener((obs, oldV, newV) -> {
             newV.removeAll(oldV);
             for (MessageBoard.Message message : newV) {
-                Text text = new Text(message.toString());
-                text.setOnMouseEntered(e -> tilesId.setValue(message.tileIds()));
-                text.setOnMouseExited(e -> tilesId.setValue(Set.of()));
-                text.setWrappingWidth(ImageLoader.LARGE_TILE_FIT_SIZE);
-                messagesBox.getChildren().add(text);
+                createText(message, tilesId, messagesBox);
             }
             runLater(() -> scrollPane.setVvalue(1));
         });
@@ -54,6 +55,14 @@ public final class MessageBoardUI {
         vBox.setId("message-board");
 
         return vBox;
+    }
+
+    private static void createText(MessageBoard.Message message, ObjectProperty<Set<Integer>> tilesId, VBox messagesBox) {
+        Text text = new Text(message.text());
+        text.setOnMouseEntered(e -> tilesId.setValue(message.tileIds()));
+        text.setOnMouseExited(e -> tilesId.setValue(Set.of()));
+        text.setWrappingWidth(ImageLoader.LARGE_TILE_FIT_SIZE);
+        messagesBox.getChildren().add(text);
     }
 
 
