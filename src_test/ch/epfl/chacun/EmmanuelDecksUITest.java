@@ -31,7 +31,7 @@ public class EmmanuelDecksUITest extends Application {
         var tile = new SimpleObjectProperty<>(TileReader.readTileFromCSV(56));
         var deckSize = new SimpleObjectProperty<>(60);
         var menhirSize = new SimpleObjectProperty<>(5);
-        var text = new SimpleObjectProperty<>("Hello World!");
+        var text = new SimpleObjectProperty<>("test");
         var messageNode = DecksUI.create(tile, deckSize, menhirSize, text, (e) -> System.out.println("Hello World!"));
 
         var rootNode = new BorderPane(messageNode);

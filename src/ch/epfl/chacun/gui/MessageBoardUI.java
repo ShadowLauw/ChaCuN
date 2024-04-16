@@ -3,6 +3,7 @@ package ch.epfl.chacun.gui;
 import ch.epfl.chacun.MessageBoard;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
@@ -20,10 +21,13 @@ import static javafx.application.Platform.runLater;
  * @author Emmanuel Omont (372632)
  */
 public final class MessageBoardUI {
+
+    private static final String MESSAGE_BOARD_CSS = "message-board.css";
+    private static final String UI_ID = "message-board";
     /**
      * Private constructor to prevent instantiation.
      */
-    private MessageBoardUI(){};
+    private MessageBoardUI(){}
 
     /**
      * A static method to create a Node for the message board
@@ -32,38 +36,27 @@ public final class MessageBoardUI {
      * @return a Node representing the message board
      */
     public static Node create(ObservableValue<List<MessageBoard.Message>> messages, ObjectProperty<Set<Integer>> tilesId) {
-        //je sais pas si c vrm autorisé de faire ça, mais autrement je vois vrm pas comment faire pour ajouter dynamiquement les messages
-        VBox messagesBox = new VBox();
-        ScrollPane scrollPane = new ScrollPane(messagesBox);
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setId(UI_ID);
+        scrollPane.getStylesheets().add(MESSAGE_BOARD_CSS);
 
-        //potentiellement pas utile, ne sert que si la liste de message n'est pas vide au début.
-        for (MessageBoard.Message message : messages.getValue()) {
-            createText(message, tilesId, messagesBox);
-        }
+        VBox messagesBox = new VBox();
+        messagesBox.setAlignment(Pos.CENTER);
+        scrollPane.setContent(messagesBox);
 
         messages.addListener((obs, oldV, newV) -> {
-            newV.removeAll(oldV);
-            for (MessageBoard.Message message : newV) {
-                createText(message, tilesId, messagesBox);
+            for (int i = oldV.size(); i < newV.size(); ++i) {
+                MessageBoard.Message message = newV.get(i);
+                Text text = new Text(message.text());
+                text.setOnMouseEntered(e -> tilesId.setValue(message.tileIds()));
+                text.setOnMouseExited(e -> tilesId.setValue(Set.of()));
+                text.setWrappingWidth(ImageLoader.LARGE_TILE_FIT_SIZE);
+                messagesBox.getChildren().add(text);
             }
             runLater(() -> scrollPane.setVvalue(1));
         });
 
-        VBox vBox = new VBox(scrollPane);
-
-        vBox.getStylesheets().add("message-board.css");
-        vBox.setId("message-board");
-
-        return vBox;
+        return scrollPane;
     }
-
-    private static void createText(MessageBoard.Message message, ObjectProperty<Set<Integer>> tilesId, VBox messagesBox) {
-        Text text = new Text(message.text());
-        text.setOnMouseEntered(e -> tilesId.setValue(message.tileIds()));
-        text.setOnMouseExited(e -> tilesId.setValue(Set.of()));
-        text.setWrappingWidth(ImageLoader.LARGE_TILE_FIT_SIZE);
-        messagesBox.getChildren().add(text);
-    }
-
 
 }

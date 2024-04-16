@@ -19,12 +19,12 @@ import static ch.epfl.chacun.gui.Icon.newFor;
 
 public final class PlayersUI {
 
-    private final static double NORMAL_OPACITY = 1.0;
-    private final static double LOW_OPACITY = 0.1;
-    private final static String UI_ID = "players";
-    private final static String PLAYERS_CSS = "players.css";
-    private final static String PLAYER_STYLE_CLASS = "player";
-    private final static String CURRENT_PLAYER_STYLE_CLASS = "current";
+    private static final double NORMAL_OPACITY = 1.0;
+    private static final double LOW_OPACITY = 0.1;
+    private static final String UI_ID = "players";
+    private static final String PLAYERS_CSS = "players.css";
+    private static final String PLAYER_STYLE_CLASS = "player";
+    private static final String CURRENT_PLAYER_STYLE_CLASS = "current";
 
     private PlayersUI() {}
 
@@ -32,9 +32,10 @@ public final class PlayersUI {
         VBox playersUI = new VBox();
         playersUI.setId(UI_ID);
         playersUI.getStylesheets().add(PLAYERS_CSS);
-        playersUI.setAlignment(Pos.CENTER_LEFT);
+        playersUI.setAlignment(Pos.CENTER);
 
         ObservableValue<Map<PlayerColor, Integer>> points = gameState.map(g -> g.messageBoard().points());
+        ObservableValue<PlayerColor> currentPlayer = gameState.map(GameState::currentPlayer);
 
         for (PlayerColor player : PlayerColor.ALL) {
             String playerName = textMaker.playerName(player);
@@ -74,19 +75,17 @@ public final class PlayersUI {
                 playerUI.getChildren().add(new Text("   "));
                 playerUI.getChildren().addAll(pawns);
 
+                currentPlayer.addListener((o, oldPlayer, newPlayer) -> {
+                    if (newPlayer == player) {
+                        playerUI.getStyleClass().add(CURRENT_PLAYER_STYLE_CLASS);
+                    } else if (oldPlayer == player) {
+                        playerUI.getStyleClass().remove(CURRENT_PLAYER_STYLE_CLASS);
+                    }
+                });
+
                 playersUI.getChildren().add(playerUI);
             }
         }
-
-        ObservableValue<PlayerColor> currentPlayer = gameState.map(GameState::currentPlayer);
-        currentPlayer.addListener((o, oldPlayer, newPlayer) -> {
-            if (oldPlayer != null) {
-                playersUI.lookup(STR."#\{oldPlayer}").getStyleClass().remove(CURRENT_PLAYER_STYLE_CLASS);
-            }
-            if (newPlayer != null) {
-                playersUI.lookup(STR."#\{newPlayer}").getStyleClass().add(CURRENT_PLAYER_STYLE_CLASS);
-            }
-        });
 
         return playersUI;
     }
