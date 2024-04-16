@@ -27,27 +27,29 @@ public final class MessageBoardUI {
 
     /**
      * A static method to create a Node for the message board
-     * @param observers the list of messages to display
-     * @param tuilesId the id of the tiles to display
+     * @param messages the list of messages to display
+     * @param tilesId the id of the tiles to display
      * @return a Node representing the message board
      */
-    public static Node create(ObservableValue<List<MessageBoard.Message>> observers, ObjectProperty<Set<Integer>> tuilesId) {
+    public static Node create(ObservableValue<List<MessageBoard.Message>> messages, ObjectProperty<Set<Integer>> tilesId) {
         //je sais pas si c vrm autorisé de faire ça, mais autrement je vois vrm pas comment faire pour ajouter dynamiquement les messages
         VBox messagesBox = new VBox();
         ScrollPane scrollPane = new ScrollPane(messagesBox);
 
-        observers.addListener((obs, oldV, newV) -> {
+        messages.addListener((obs, oldV, newV) -> {
+            newV.removeAll(oldV);
             for (MessageBoard.Message message : newV) {
                 Text text = new Text(message.toString());
-                text.setOnMouseEntered(e -> tuilesId.setValue(message.tileIds()));
-                text.setOnMouseExited(e -> tuilesId.setValue(Set.of()));
-                text.setWrappingWidth(LARGE_TILE_FIT_SIZE);
+                text.setOnMouseEntered(e -> tilesId.setValue(message.tileIds()));
+                text.setOnMouseExited(e -> tilesId.setValue(Set.of()));
+                text.setWrappingWidth(ImageLoader.LARGE_TILE_FIT_SIZE);
                 messagesBox.getChildren().add(text);
                 runLater(() -> scrollPane.setVvalue(1));
             }
         });
 
         VBox vBox = new VBox(scrollPane);
+
         vBox.getStylesheets().add("message-board.css");
         vBox.setId("message-board");
 

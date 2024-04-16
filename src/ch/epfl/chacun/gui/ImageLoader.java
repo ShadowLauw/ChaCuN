@@ -21,4 +21,7 @@ public final class ImageLoader {
     public static Image largeImageForTile(int tileId) {
         return new Image(STR."/\{LARGE_TILE_PIXEL_SIZE}/\{tileId}.jpg");
     }
+    public static Image stringImage(String taille, String name) {
+        return new Image(STR."/\{taille}/\{name}.jpg");
+    }
 }

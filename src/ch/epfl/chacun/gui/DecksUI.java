@@ -51,9 +51,9 @@ public final class DecksUI {
         StackPane stackPaneNormal = new StackPane();
         ImageView imageViewNormal = new ImageView();
         Text textNormal = new Text();
-        imageViewNormal.imageProperty().bind(tile.map(t -> ImageLoader.largeImageForTile("normal")));
-        imageViewNormal.setFitWidth(NORMAL_TILE_FIT_SIZE);
-        imageViewNormal.setFitHeight(NORMAL_TILE_FIT_SIZE);
+        imageViewNormal.imageProperty().bind(tile.map(t -> ImageLoader.stringImage("512", "normal")));
+        imageViewNormal.setFitWidth(ImageLoader.NORMAL_TILE_FIT_SIZE);
+        imageViewNormal.setFitHeight(ImageLoader.NORMAL_TILE_FIT_SIZE);
         textNormal.textProperty().bind(deckSize.map(Object::toString));
 
         stackPaneNormal.getChildren().add(imageViewNormal);
@@ -65,9 +65,9 @@ public final class DecksUI {
         StackPane stackPaneMenhir = new StackPane();
         ImageView imageViewMenhir = new ImageView();
         Text textMenhir = new Text();
-        imageViewMenhir.imageProperty().bind(tile.map(t -> ImageLoader.largeImageForTile("menhir")));
-        imageViewMenhir.setFitWidth(NORMAL_TILE_FIT_SIZE);
-        imageViewMenhir.setFitHeight(NORMAL_TILE_FIT_SIZE);
+        imageViewMenhir.imageProperty().bind(tile.map(t -> ImageLoader.stringImage("512", "menhir")));
+        imageViewMenhir.setFitWidth(ImageLoader.NORMAL_TILE_FIT_SIZE);
+        imageViewMenhir.setFitHeight(ImageLoader.NORMAL_TILE_FIT_SIZE);
         textMenhir.textProperty().bind(menhirDeckSize.map(Object::toString));
 
         stackPaneMenhir.getChildren().add(imageViewMenhir);
@@ -85,11 +85,11 @@ public final class DecksUI {
         ImageView imageViewNextTile = new ImageView();
         Text textNextTile = new Text();
         imageViewNextTile.imageProperty().bind(tile.map(t -> ImageLoader.largeImageForTile(t.id())));
-        imageViewNextTile.setFitWidth(LARGE_TILE_FIT_SIZE);
-        imageViewNextTile.setFitHeight(LARGE_TILE_FIT_SIZE);
+        imageViewNextTile.setFitWidth(ImageLoader.LARGE_TILE_FIT_SIZE);
+        imageViewNextTile.setFitHeight(ImageLoader.LARGE_TILE_FIT_SIZE);
         textNextTile.textProperty().bind(textToDisplay);
         textNextTile.visibleProperty().bind(textToDisplay.map(s -> !s.isEmpty()));
-        textNextTile.setWrappingWidth(LARGE_TILE_FIT_SIZE*TEXT_PERCENT);
+        textNextTile.setWrappingWidth(ImageLoader.LARGE_TILE_FIT_SIZE*TEXT_PERCENT);
         textNextTile.setOnMouseClicked(e -> {if (textNextTile.isVisible()) eventHandler.accept(null);});
 
 
