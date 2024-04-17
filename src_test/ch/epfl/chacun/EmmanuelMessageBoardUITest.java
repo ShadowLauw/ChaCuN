@@ -26,8 +26,9 @@ public class EmmanuelMessageBoardUITest extends Application {
         MessageBoard messageBoard = new MessageBoard(new TextMakerFr(Map.of(PlayerColor.PURPLE, "Rose", PlayerColor.GREEN, "Bernard")), List.of());
         Area<Zone.Forest> forest = new Area<>(Set.of((Zone.Forest)TileReader.readTileFromCSV(56).e().zones().getFirst(), (Zone.Forest)TileReader.readTileFromCSV(20).s().zones().getFirst(), (Zone.Forest)TileReader.readTileFromCSV(87).e().zones().getFirst()), List.of(PlayerColor.GREEN, PlayerColor.PURPLE, PlayerColor.PURPLE), 0);
         messageBoard = messageBoard.withScoredForest(forest);
+        List<MessageBoard.Message> listeVide = List.of();
 
-        var messages = new SimpleObjectProperty<>(messageBoard.messages());
+        var messages = new SimpleObjectProperty<>(listeVide);
         var tilesId = new SimpleObjectProperty<>(Set.of(56, 20, 87));
         var messageNode = MessageBoardUI.create(messages, tilesId);
 
@@ -35,6 +36,8 @@ public class EmmanuelMessageBoardUITest extends Application {
         primaryStage.setScene(new Scene(rootNode));
         primaryStage.setTitle("Message Board UI");
         primaryStage.show();
+
+        messages.setValue(messageBoard.messages());
 
     }
 }
