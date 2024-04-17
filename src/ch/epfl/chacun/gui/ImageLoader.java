@@ -49,7 +49,7 @@ public final class ImageLoader {
      * @return the image for the given tile id in normal size
      */
     public static Image normalImageForTile(int tileId) {
-        return new Image(FMT."/\{NORMAL_TILE_PIXEL_SIZE}/%02\{tileId}.jpg");
+        return getTileImage(NORMAL_TILE_PIXEL_SIZE, tileId);
     }
 
     /**
@@ -59,6 +59,17 @@ public final class ImageLoader {
      * @return the image for the given tile id in large size
      */
     public static Image largeImageForTile(int tileId) {
-        return new Image(FMT."/\{LARGE_TILE_PIXEL_SIZE}/%02\{tileId}.jpg");
+        return getTileImage(LARGE_TILE_PIXEL_SIZE, tileId);
+    }
+
+    /**
+     * Returns the tile image for the given id in the given size.
+     *
+     * @param size the size in pixel of the image wanted
+     * @param id   the id of the tile wanted
+     * @return the image for the given tile id in the given size
+     */
+    private static Image getTileImage(int size, int id) {
+        return new Image(FMT."/\{size}/%02d\{id}.jpg");
     }
 }
