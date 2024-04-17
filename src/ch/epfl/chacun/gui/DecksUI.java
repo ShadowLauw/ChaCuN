@@ -76,7 +76,6 @@ public final class DecksUI {
         decks.setId(DECKS_ID);
         decks.getChildren().add(constructImageStackPane(NORMAL_DECK_ID, normalDeckSize));
         decks.getChildren().add(constructImageStackPane(MENHIR_DECK_ID, menhirDeckSize));
-        decksUi.getChildren().add(decks);
 
         //------------Constructing the view of the tile to place--------------------
         StackPane stackPaneNextTile = new StackPane();
@@ -96,10 +95,8 @@ public final class DecksUI {
             if (textNextTile.isVisible()) eventHandler.accept(null);
         });
 
-        stackPaneNextTile.getChildren().add(imageViewNextTile);
-        stackPaneNextTile.getChildren().add(textNextTile);
-
-        decksUi.getChildren().add(stackPaneNextTile);
+        stackPaneNextTile.getChildren().addAll(imageViewNextTile, textNextTile);
+        decksUi.getChildren().addAll(decks, stackPaneNextTile);
 
         return decksUi;
     }
@@ -113,17 +110,13 @@ public final class DecksUI {
      */
     private static StackPane constructImageStackPane(String deckId, ObservableValue<Integer> deckSize) {
         StackPane stackPane = new StackPane();
-        stackPane.setId(deckId);
-
-        ImageView imageViewNormal = new ImageView();
-        imageViewNormal.setId(deckId);
-        imageViewNormal.setFitHeight(ImageLoader.NORMAL_TILE_FIT_SIZE);
-        imageViewNormal.setFitWidth(ImageLoader.NORMAL_TILE_FIT_SIZE);
-        stackPane.getChildren().add(imageViewNormal);
-
+        ImageView imageView = new ImageView();
+        imageView.setId(deckId);
+        imageView.setFitHeight(ImageLoader.NORMAL_TILE_FIT_SIZE);
+        imageView.setFitWidth(ImageLoader.NORMAL_TILE_FIT_SIZE);
         Text deckText = new Text();
         deckText.textProperty().bind(deckSize.map(Objects::toString));
-        stackPane.getChildren().add(deckText);
+        stackPane.getChildren().addAll(imageView, deckText);
 
         return stackPane;
     }

@@ -77,9 +77,9 @@ public final class PlayersUI {
             String playerName = textMaker.playerName(player);
             if (playerName != null) {
                 //Player node
-                TextFlow playerUI = new TextFlow();
-                playerUI.getStyleClass().add(PLAYER_STYLE_CLASS);
-                playerUI.setId(player.toString());
+                TextFlow playerInfos = new TextFlow();
+                playerInfos.getStyleClass().add(PLAYER_STYLE_CLASS);
+                playerInfos.setId(player.toString());
 
                 //Player's color circle
                 Circle circle = new Circle(5, fillColor(player));
@@ -110,21 +110,21 @@ public final class PlayersUI {
                     huts.add(hut);
                 }
 
-                playerUI.getChildren().addAll(circle, pointsText);
-                playerUI.getChildren().addAll(huts);
-                playerUI.getChildren().add(new Text("   "));
-                playerUI.getChildren().addAll(pawns);
+                playerInfos.getChildren().addAll(circle, pointsText);
+                playerInfos.getChildren().addAll(huts);
+                playerInfos.getChildren().add(new Text("   "));
+                playerInfos.getChildren().addAll(pawns);
 
                 //Current player style management
                 currentPlayer.addListener((o, oldPlayer, newPlayer) -> {
                     if (newPlayer == player) {
-                        playerUI.getStyleClass().add(CURRENT_PLAYER_STYLE_CLASS);
+                        playerInfos.getStyleClass().add(CURRENT_PLAYER_STYLE_CLASS);
                     } else if (oldPlayer == player) {
-                        playerUI.getStyleClass().remove(CURRENT_PLAYER_STYLE_CLASS);
+                        playerInfos.getStyleClass().remove(CURRENT_PLAYER_STYLE_CLASS);
                     }
                 });
 
-                playersUI.getChildren().add(playerUI);
+                playersUI.getChildren().add(playerInfos);
             }
         }
 
