@@ -46,7 +46,7 @@ public final class Icon {
             case PAWN -> svg.setContent(PATH_PAWN);
             case HUT -> svg.setContent(PATH_HUT);
         }
-        ;
+
         return svg;
     }
 }
