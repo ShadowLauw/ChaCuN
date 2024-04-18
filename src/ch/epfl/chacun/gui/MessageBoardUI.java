@@ -9,6 +9,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -54,8 +55,7 @@ public final class MessageBoardUI {
         scrollPane.setContent(messagesBox);
 
         messages.addListener((obs, oldV, newV) -> {
-            for (int i = oldV.size(); i < newV.size(); ++i) {
-                MessageBoard.Message message = newV.get(i);
+            for (MessageBoard.Message message : newV.subList(oldV.size(), newV.size())) {
                 Text text = new Text(message.text());
                 text.setOnMouseEntered(e -> tilesId.setValue(message.tileIds()));
                 text.setOnMouseExited(e -> tilesId.setValue(Set.of()));

@@ -4,6 +4,7 @@ import javafx.scene.image.Image;
 
 import static java.util.FormatProcessor.FMT;
 
+
 /**
  * A utility class that loads images from the resources.
  *

@@ -33,30 +33,9 @@ public class LauraPlayersUITest extends Application {
 
         var textMaker = new TextMakerFr(playerNames);
 
-        PlacedTile startTile = new PlacedTile(Tiles.TILES.get(56), PlayerColor.YELLOW, Rotation.NONE, new Pos(0, 0));
-        Board board = Board.EMPTY.withNewTile(startTile);
-        PlacedTile tile38 = new PlacedTile(Tiles.TILES.get(38), PlayerColor.YELLOW, Rotation.NONE, new Pos(1, 0));
-        board = board.withNewTile(tile38);
-        PlacedTile tile41 = new PlacedTile(Tiles.TILES.get(41), PlayerColor.GREEN, Rotation.NONE, new Pos(2, 0));
-        board = board.withNewTile(tile41);
-        PlacedTile tile35 = new PlacedTile(Tiles.TILES.get(35), PlayerColor.GREEN, Rotation.HALF_TURN, new Pos(3, 0));
-        board = board.withNewTile(tile35);
-        PlacedTile tile67 = new PlacedTile(Tiles.TILES.get(67), PlayerColor.YELLOW, Rotation.NONE, new Pos(0, 1));
-        board = board.withNewTile(tile67);
-        PlacedTile tile51 = new PlacedTile(Tiles.TILES.get(51), PlayerColor.YELLOW, Rotation.NONE, new Pos(-1, 0));
-        board = board.withNewTile(tile51);
-
-        board = board.withOccupant(new Occupant(Occupant.Kind.PAWN, 410));
-        board = board.withOccupant(new Occupant(Occupant.Kind.HUT, 568));
-
         MessageBoard messageBoard = new MessageBoard(new TextMakerFr(playerNames), List.of());
 
-        GameState gameState = new GameState(playerColors, tileDecks, null, board, GameState.Action.OCCUPY_TILE, messageBoard);
-
-        /**var gameState =
-                GameState.initial(playerColors,
-                        tileDecks,
-                        textMaker).withStartingTilePlaced();**/
+        GameState gameState = GameState.initial(playerColors, tileDecks, textMaker);
 
         var gameStateO = new SimpleObjectProperty<>(gameState);
 
@@ -66,5 +45,7 @@ public class LauraPlayersUITest extends Application {
 
         primaryStage.setTitle("ChaCuN test");
         primaryStage.show();
+
+        gameStateO.setValue(gameStateO.get().withStartingTilePlaced());
     }
 }
