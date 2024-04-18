@@ -52,14 +52,14 @@ public final class DecksUI {
     }
 
     /**
-     * A static method to create a Node for the decks display
+     * Creates a Node of the decks and next action display
      *
      * @param tileToPlace    the tile to place
      * @param normalDeckSize the size of the normal deck
      * @param menhirDeckSize the size of the menhir deck
      * @param textToDisplay  the text to display
      * @param eventHandler   the event handler for the next tile
-     * @return a Node displaying the decks
+     * @return a Node displaying the decks and next action
      */
     public static Node create(
             ObservableValue<Tile> tileToPlace,
@@ -94,8 +94,8 @@ public final class DecksUI {
         textNextTile.setOnMouseClicked(e -> {
             if (textNextTile.isVisible()) eventHandler.accept(null);
         });
-
         stackPaneNextTile.getChildren().addAll(imageViewNextTile, textNextTile);
+
         decksUi.getChildren().addAll(decks, stackPaneNextTile);
 
         return decksUi;

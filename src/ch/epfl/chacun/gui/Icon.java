@@ -32,11 +32,11 @@ public final class Icon {
     }
 
     /**
-     * Creates a new node for the given player color and occupant kind.
+     * Creates a Node of the icon of the given player color and occupant kind.
      *
      * @param color    the player color
      * @param occupant the occupant kind
-     * @return the new node
+     * @return the node representing the icon
      */
     public static Node newFor(PlayerColor color, Occupant.Kind occupant) {
         SVGPath svg = new SVGPath();

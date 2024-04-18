@@ -57,14 +57,14 @@ public final class PlayersUI {
     }
 
     /**
-     * Creates a Node for the players infos display
+     * Creates a Node of the players infos display
      *
      * @param gameState the game state
      * @param textMaker the text maker
      * @return a node displaying the players infos
      */
     public static Node create(ObservableValue<GameState> gameState, TextMaker textMaker) {
-        //Base node
+        //Root node
         VBox playersUI = new VBox();
         playersUI.setId(UI_ID);
         playersUI.getStylesheets().add(PLAYERS_CSS);

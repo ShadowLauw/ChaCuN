@@ -38,7 +38,7 @@ public final class MessageBoardUI {
     }
 
     /**
-     * Creates a Node for the message board display
+     * Creates a Node of the message board display
      *
      * @param messages the messages to display
      * @param tilesId  the ids of the tiles to highlight
