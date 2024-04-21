@@ -1,20 +1,16 @@
 package ch.epfl.chacun;
 
 import ch.epfl.chacun.gui.DecksUI;
-import ch.epfl.chacun.gui.MessageBoardUI;
 import javafx.application.Application;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static javafx.application.Application.launch;
 
 public class EmmanuelDecksUITest extends Application {
 
