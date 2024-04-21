@@ -91,7 +91,7 @@ public final class DecksUI {
         textNextTile.textProperty().bind(textToDisplay);
         textNextTile.visibleProperty().bind(textToDisplay.map(s -> !s.isEmpty()));
         textNextTile.setWrappingWidth(ImageLoader.LARGE_TILE_FIT_SIZE * TEXT_PERCENT);
-        textNextTile.setOnMouseClicked(e -> {
+        textNextTile.setOnMouseClicked( _ -> {
             if (textNextTile.isVisible()) eventHandler.accept(null);
         });
         stackPaneNextTile.getChildren().addAll(imageViewNextTile, textNextTile);

@@ -116,7 +116,7 @@ public final class PlayersUI {
                 playerInfos.getChildren().addAll(pawns);
 
                 //Current player style management
-                currentPlayer.addListener((o, oldPlayer, newPlayer) -> {
+                currentPlayer.addListener((_, oldPlayer, newPlayer) -> {
                     if (newPlayer == player) {
                         playerInfos.getStyleClass().add(CURRENT_PLAYER_STYLE_CLASS);
                     } else if (oldPlayer == player) {

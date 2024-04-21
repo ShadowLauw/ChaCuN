@@ -54,11 +54,11 @@ public final class MessageBoardUI {
         messagesBox.setAlignment(Pos.CENTER);
         scrollPane.setContent(messagesBox);
 
-        messages.addListener((obs, oldV, newV) -> {
+        messages.addListener((_, oldV, newV) -> {
             for (MessageBoard.Message message : newV.subList(oldV.size(), newV.size())) {
                 Text text = new Text(message.text());
-                text.setOnMouseEntered(e -> tilesId.setValue(message.tileIds()));
-                text.setOnMouseExited(e -> tilesId.setValue(Set.of()));
+                text.setOnMouseEntered(_ -> tilesId.setValue(message.tileIds()));
+                text.setOnMouseExited(_ -> tilesId.setValue(Set.of()));
                 text.setWrappingWidth(ImageLoader.LARGE_TILE_FIT_SIZE);
                 messagesBox.getChildren().add(text);
             }
