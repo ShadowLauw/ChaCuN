@@ -182,7 +182,7 @@ public final class BoardUI {
                                         t.veilColor.deriveColor(0,
                                                 1,
                                                 1,
-                                                0.5)
+                                                OPACITY_VEIL)
                                 )
                         )
                 ));
@@ -192,7 +192,7 @@ public final class BoardUI {
         }
 
         return baseNode;
-    };
+    }
 
     private record CellData(Image tileImage,
                             Rotation rotation,
