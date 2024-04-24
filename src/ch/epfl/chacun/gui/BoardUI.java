@@ -1,12 +1,10 @@
 package ch.epfl.chacun.gui;
 
 import ch.epfl.chacun.*;
-import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.effect.Blend;
 import javafx.scene.effect.BlendMode;
@@ -33,6 +31,8 @@ public final class BoardUI {
     private static final String HUT_PREFIX = "hut_";
     private static final String MARKER_PREFIX = "marker_";
     private static final String MARKER_CLASS = "marker";
+
+    private static final double OPACITY_VEIL = 0.5;
 
     private static final WritableImage emptyTileImage = new WritableImage(1, 1);
 
@@ -70,41 +70,50 @@ public final class BoardUI {
                 Group tileGroup = new Group();
 
                 Pos posOfTile = new Pos(x, y);
+                ObservableValue<Boolean> isMouseHover = tileGroup.hoverProperty();
+                ObservableValue<Boolean> isInsertionPosition = insertionPositions.map(s -> s.contains(posOfTile));
+
                 ObservableValue<PlacedTile> tileAtPos = board.map(b -> b.tileAt(posOfTile));
-                ObservableValue<Image> tileImage = tileAtPos.map(
-                        t -> t == null
-                                ? emptyTileImage
-                                : cachedImages.computeIfAbsent(t.id(), ImageLoader::normalImageForTile)
-                );
+                ObservableValue<Image> tileImage = Bindings.createObjectBinding(() -> {
+                    PlacedTile tile = tileAtPos.getValue();
+                    if (tile != null) {
+                        return cachedImages.computeIfAbsent(tile.id(), ImageLoader::normalImageForTile);
+                    } else if (isInsertionPosition.getValue()
+                            && currentAction.getValue() == GameState.Action.PLACE_TILE
+                            && isMouseHover.getValue()) {
+                        int id = gameState.getValue().tileToPlace().id();
+                        return cachedImages.computeIfAbsent(id, ImageLoader::normalImageForTile);
+                    } else {
+                        return emptyTileImage;
+                    }
+                }, tileAtPos, isMouseHover, isInsertionPosition, currentAction, gameState);
 
                 ImageView tileImageView = new ImageView();
                 tileImageView.setFitHeight(ImageLoader.NORMAL_TILE_FIT_SIZE);
                 tileImageView.setFitWidth(ImageLoader.NORMAL_TILE_FIT_SIZE);
                 tileImageView.imageProperty().bind(tileImage);
-                tileGroup.getChildren().add(tileImageView);
 
-                ObservableValue<Boolean> isMouseHover = tileGroup.hoverProperty();
-                ObservableValue<Boolean> isInsertionPosition = insertionPositions.map(s -> s.contains(posOfTile));
+                tileGroup.getChildren().add(tileImageView);
 
                 ObservableValue<Color> veilColor = Bindings.createObjectBinding(
                         () -> {
                             PlacedTile tile = tileAtPos.getValue();
-                            Set<Integer> hightlightedTilesValue = highlightedTiles.getValue();
-                            if (tile != null && !hightlightedTilesValue.isEmpty() && !hightlightedTilesValue.contains(tile.id())) {
+                            Set<Integer> highlightedTilesValue = highlightedTiles.getValue();
+                            if (tile != null && !highlightedTilesValue.isEmpty() && !highlightedTilesValue.contains(tile.id())) {
                                 return Color.BLACK;
                             } else if (currentAction.getValue() == GameState.Action.PLACE_TILE
                                     && isInsertionPosition.getValue()) {
-                                    if (!isMouseHover.getValue())
-                                        return ColorMap.fillColor(currentPlayer.getValue());
-                                    PlacedTile tileToPlace = new PlacedTile(gameState.getValue().tileToPlace(),
-                                            currentPlayer.getValue(),
-                                            rotationOfTile.getValue(),
-                                            posOfTile
-                                    );
-                                    if (!board.getValue().canAddTile(tileToPlace))
-                                        return Color.WHITE;
-                                    else
-                                        return null;
+                                if (!isMouseHover.getValue())
+                                    return ColorMap.fillColor(currentPlayer.getValue());
+                                PlacedTile tileToPlace = new PlacedTile(gameState.getValue().tileToPlace(),
+                                        currentPlayer.getValue(),
+                                        rotationOfTile.getValue(),
+                                        posOfTile
+                                );
+                                if (isMouseHover.getValue() && !board.getValue().canAddTile(tileToPlace))
+                                    return Color.WHITE;
+                                else
+                                    return null;
                             } else
                                 return null;
                         },
@@ -161,13 +170,23 @@ public final class BoardUI {
 
 
                 tileGroup.rotateProperty().bind(observableTile.map(t -> t.rotation.degreesCW()));
-                tileGroup.effectProperty().bind(observableTile.map(t -> t.veilColor == null
-                        ? null :
-                        new Blend(BlendMode.SRC_OVER,
+                tileGroup.effectProperty().bind(observableTile.map(
+                        t -> t.veilColor == null
+                        ? null
+                        : new Blend(BlendMode.SRC_OVER,
                                 tileImageView.getEffect(),
-                                new ColorInput(0, 0, ImageLoader.NORMAL_TILE_FIT_SIZE, ImageLoader.NORMAL_TILE_FIT_SIZE, t.veilColor.deriveColor(0, 1, 1, 0.5))
+                                new ColorInput(0,
+                                        0,
+                                        ImageLoader.NORMAL_TILE_FIT_SIZE,
+                                        ImageLoader.NORMAL_TILE_FIT_SIZE,
+                                        t.veilColor.deriveColor(0,
+                                                1,
+                                                1,
+                                                0.5)
+                                )
                         )
                 ));
+                tileGroup.setMouseTransparent(false);
                 grid.add(tileGroup, x + range, y + range);
             }
         }
