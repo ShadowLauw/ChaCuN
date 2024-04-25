@@ -70,7 +70,7 @@ public final class BoardUI {
                 Group tileGroup = new Group();
 
                 Pos posOfTile = new Pos(x, y);
-                ObservableValue<Boolean> isMouseHover = tileGroup.hoverProperty();
+                ObservableValue<Boolean> isMouseOver = tileGroup.hoverProperty();
                 ObservableValue<Boolean> isInsertionPosition = insertionPositions.map(s -> s.contains(posOfTile));
 
                 ObservableValue<PlacedTile> tileAtPos = board.map(b -> b.tileAt(posOfTile));
@@ -80,13 +80,14 @@ public final class BoardUI {
                         return cachedImages.computeIfAbsent(tile.id(), ImageLoader::normalImageForTile);
                     } else if (isInsertionPosition.getValue()
                             && currentAction.getValue() == GameState.Action.PLACE_TILE
-                            && isMouseHover.getValue()) {
+                            && isMouseOver.getValue()
+                    ) {
                         int id = gameState.getValue().tileToPlace().id();
                         return cachedImages.computeIfAbsent(id, ImageLoader::normalImageForTile);
                     } else {
                         return emptyTileImage;
                     }
-                }, tileAtPos, isMouseHover, isInsertionPosition, currentAction, gameState);
+                }, tileAtPos, isMouseOver, isInsertionPosition, currentAction, gameState);
 
                 ImageView tileImageView = new ImageView();
                 tileImageView.setFitHeight(ImageLoader.NORMAL_TILE_FIT_SIZE);
@@ -99,25 +100,38 @@ public final class BoardUI {
                         () -> {
                             PlacedTile tile = tileAtPos.getValue();
                             Set<Integer> highlightedTilesValue = highlightedTiles.getValue();
-                            if (tile != null && !highlightedTilesValue.isEmpty() && !highlightedTilesValue.contains(tile.id())) {
+                            if (tile != null
+                                    && !highlightedTilesValue.isEmpty()
+                                    && !highlightedTilesValue.contains(tile.id())
+                            ) {
                                 return Color.BLACK;
                             } else if (currentAction.getValue() == GameState.Action.PLACE_TILE
-                                    && isInsertionPosition.getValue()) {
-                                if (!isMouseHover.getValue())
+                                    && isInsertionPosition.getValue()
+                            ) {
+                                if (!isMouseOver.getValue())
                                     return ColorMap.fillColor(currentPlayer.getValue());
-                                PlacedTile tileToPlace = new PlacedTile(gameState.getValue().tileToPlace(),
-                                        currentPlayer.getValue(),
-                                        rotationOfTile.getValue(),
-                                        posOfTile
-                                );
-                                if (isMouseHover.getValue() && !board.getValue().canAddTile(tileToPlace))
-                                    return Color.WHITE;
-                                else
+                                else {
+                                    PlacedTile tileToPlace = new PlacedTile(gameState.getValue().tileToPlace(),
+                                            null,
+                                            rotationOfTile.getValue(),
+                                            posOfTile
+                                    );
+                                    if (!board.getValue().canAddTile(tileToPlace))
+                                        return Color.WHITE;
+
                                     return null;
+                                }
                             } else
                                 return null;
                         },
-                        insertionPositions, highlightedTiles, tileAtPos, board, gameState
+                        isInsertionPosition,
+                        highlightedTiles,
+                        tileAtPos,
+                        isMouseOver,
+                        rotationOfTile,
+                        currentPlayer,
+                        gameState,
+                        board
                 );
 
                 ObservableValue<CellData> observableTile = Bindings.createObjectBinding(
@@ -186,7 +200,6 @@ public final class BoardUI {
                                 )
                         )
                 ));
-                tileGroup.setMouseTransparent(false);
                 grid.add(tileGroup, x + range, y + range);
             }
         }
