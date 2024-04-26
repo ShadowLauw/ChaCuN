@@ -165,6 +165,7 @@ public final class BoardUI {
 
 
                 tileGroup.rotateProperty().bind(observableTile.map(t -> t.rotation));
+                //à refaire pour juste bind la color de l'effet
                 tileGroup.effectProperty().bind(observableTile.map(
                         t -> t.veilColor == null
                         ? null
@@ -189,7 +190,7 @@ public final class BoardUI {
 
         return baseNode;
     }
-
+    //faire des constructeurs compacts "spécalisés"
     private record CellData(Image tileImage,
                             int rotation,
                             Color veilColor
