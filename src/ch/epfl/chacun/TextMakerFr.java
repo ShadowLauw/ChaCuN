@@ -51,6 +51,11 @@ public final class TextMakerFr implements TextMaker {
             return pluralization;
         }
 
+        /**
+         * Creates a new pluralization type with the given pluralization
+         *
+         * @param pluralization the pluralization
+         */
         PluralizationType(String pluralization) {
             this.pluralization = pluralization;
         }
@@ -86,6 +91,12 @@ public final class TextMakerFr implements TextMaker {
             return appendix;
         }
 
+        /**
+         * Creates a new object with the given name and appendix
+         *
+         * @param name     the name of the object
+         * @param appendix the appendix of the object
+         */
         MiscObjects(String name, String appendix) {
             this.name = name;
             this.appendix = appendix;
@@ -320,10 +331,10 @@ public final class TextMakerFr implements TextMaker {
     }
 
     /**
-     * Return a string representation with correct comas and conjunctive words of an array of strings
+     * Return a string representation with correct commas and conjunctive words of an array of strings
      *
      * @param array the array of strings
-     * @return the string representation with correct comas and conjunctive words of an array of strings
+     * @return the string representation with correct commas and conjunctive words of an array of strings
      */
     private static String arrayToString(String[] array) {
         StringBuilder string = new StringBuilder(array[0]);
