@@ -82,32 +82,32 @@ public final class BoardUI {
                 ObservableValue<CellData> observableTile = Bindings.createObjectBinding(() -> {
                     PlacedTile tile = tileAtPos.getValue();
                     Set<Integer> highlightedTilesValue = highlightedTiles.getValue();
-                    Image tileImage = emptyTileImage;
-                    Color veilColor = null;
+
                     if (tile != null) {
-                         tileImage = cachedImages.computeIfAbsent(tile.id(), ImageLoader::normalImageForTile);
+                         Image tileImage = cachedImages.computeIfAbsent(tile.id(), ImageLoader::normalImageForTile);
                          if (!highlightedTilesValue.isEmpty() && !highlightedTilesValue.contains(tile.id()))
-                             veilColor = Color.BLACK;
+                            return new CellData(tileImage, tile.rotation().degreesCW(), Color.BLACK);
+                         return new CellData(tileImage, tile.rotation().degreesCW());
                     } else if (isInsertionPosition.getValue()
                             && currentAction.getValue() == GameState.Action.PLACE_TILE
                     ) {
                         if (isMouseOver.getValue()) {
                             int id = nextTileToPlace.getValue().id();
-                            tileImage = cachedImages.computeIfAbsent(id, ImageLoader::normalImageForTile);
+                            Image tileImage = cachedImages.computeIfAbsent(id, ImageLoader::normalImageForTile);
                             PlacedTile tileToPlace = new PlacedTile(nextTileToPlace.getValue(),
                                     null,
                                     rotationOfTile.getValue(),
                                     posOfTile
                             );
                             if (!board.getValue().canAddTile(tileToPlace)) {
-                                veilColor = Color.WHITE;
+                                return new CellData(tileImage, rotationOfTile.getValue().degreesCW(), Color.WHITE);
                             }
+                            return new CellData(tileImage, rotationOfTile.getValue().degreesCW());
                         } else if (currentPlayer.getValue() != null) {
-                            veilColor = ColorMap.fillColor(currentPlayer.getValue());
+                            return new CellData(rotationOfTile.getValue().degreesCW(), ColorMap.fillColor(currentPlayer.getValue()));
                         }
                     }
-
-                    return new CellData(tileImage, rotationOfTile.getValue().degreesCW(), veilColor);
+                    return new CellData();
                     },
                         tileAtPos,
                         rotationOfTile,
@@ -165,24 +165,20 @@ public final class BoardUI {
 
 
                 tileGroup.rotateProperty().bind(observableTile.map(t -> t.rotation));
-                //à refaire pour juste bind la color de l'effet
-                tileGroup.effectProperty().bind(observableTile.map(
-                        t -> t.veilColor == null
-                        ? null
-                        : new Blend(BlendMode.SRC_OVER,
-                                null,
-                                new ColorInput(0,
-                                        0,
-                                        ImageLoader.NORMAL_TILE_FIT_SIZE,
-                                        ImageLoader.NORMAL_TILE_FIT_SIZE,
-                                        t.veilColor.deriveColor(0,
-                                                1,
-                                                1,
-                                                OPACITY_VEIL
-                                        )
-                                )
-                        )
-                ));
+                ColorInput color = new ColorInput(
+                        0,
+                        0,
+                        ImageLoader.NORMAL_TILE_FIT_SIZE,
+                        ImageLoader.NORMAL_TILE_FIT_SIZE,
+                        new Color(0, 0, 0, 0)
+                );
+                color.paintProperty().bind(observableTile.map(t ->
+                        t.veilColor != null
+                                ? t.veilColor.deriveColor(0, 1, 1, OPACITY_VEIL)
+                                : new Color(0, 0, 0, 0))
+                );
+
+                tileGroup.setEffect(new Blend(BlendMode.SRC_OVER, null, color));
 
                 grid.add(tileGroup, x + range, y + range);
             }
@@ -190,9 +186,19 @@ public final class BoardUI {
 
         return baseNode;
     }
-    //faire des constructeurs compacts "spécalisés"
+    //TODO faire des constructeurs compacts "spécalisés"
     private record CellData(Image tileImage,
                             int rotation,
                             Color veilColor
-    ) {}
+    ) {
+        public CellData (Image tileImage, int rotation) {
+            this(tileImage, rotation, null);
+        }
+        public CellData () {
+            this(emptyTileImage, 0, null);
+        }
+        public CellData (int rotation, Color veilColor) {
+            this(emptyTileImage, rotation, veilColor);
+        }
+    }
 }
