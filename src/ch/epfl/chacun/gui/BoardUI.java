@@ -87,6 +87,7 @@ public final class BoardUI {
                          Image tileImage = cachedImages.computeIfAbsent(tile.id(), ImageLoader::normalImageForTile);
                          if (!highlightedTilesValue.isEmpty() && !highlightedTilesValue.contains(tile.id()))
                             return new CellData(tileImage, tile.rotation().degreesCW(), Color.BLACK);
+
                          return new CellData(tileImage, tile.rotation().degreesCW());
                     } else if (isInsertionPosition.getValue()
                             && currentAction.getValue() == GameState.Action.PLACE_TILE
@@ -102,11 +103,15 @@ public final class BoardUI {
                             if (!board.getValue().canAddTile(tileToPlace)) {
                                 return new CellData(tileImage, rotationOfTile.getValue().degreesCW(), Color.WHITE);
                             }
+
                             return new CellData(tileImage, rotationOfTile.getValue().degreesCW());
                         } else if (currentPlayer.getValue() != null) {
-                            return new CellData(rotationOfTile.getValue().degreesCW(), ColorMap.fillColor(currentPlayer.getValue()));
+                            return new CellData(rotationOfTile.getValue().degreesCW(),
+                                    ColorMap.fillColor(currentPlayer.getValue())
+                            );
                         }
                     }
+
                     return new CellData();
                     },
                         tileAtPos,
@@ -165,20 +170,20 @@ public final class BoardUI {
 
 
                 tileGroup.rotateProperty().bind(observableTile.map(t -> t.rotation));
-                ColorInput color = new ColorInput(
+                ColorInput veilInput = new ColorInput(
                         0,
                         0,
                         ImageLoader.NORMAL_TILE_FIT_SIZE,
                         ImageLoader.NORMAL_TILE_FIT_SIZE,
-                        new Color(0, 0, 0, 0)
+                        Color.TRANSPARENT
                 );
-                color.paintProperty().bind(observableTile.map(t ->
+                veilInput.paintProperty().bind(observableTile.map(t ->
                         t.veilColor != null
                                 ? t.veilColor.deriveColor(0, 1, 1, OPACITY_VEIL)
-                                : new Color(0, 0, 0, 0))
-                );
+                                : Color.TRANSPARENT
+                ));
 
-                tileGroup.setEffect(new Blend(BlendMode.SRC_OVER, null, color));
+                tileGroup.setEffect(new Blend(BlendMode.SRC_OVER, null, veilInput));
 
                 grid.add(tileGroup, x + range, y + range);
             }
@@ -186,17 +191,19 @@ public final class BoardUI {
 
         return baseNode;
     }
-    //TODO faire des constructeurs compacts "spécalisés"
+
     private record CellData(Image tileImage,
                             int rotation,
                             Color veilColor
     ) {
-        public CellData (Image tileImage, int rotation) {
-            this(tileImage, rotation, null);
-        }
         public CellData () {
             this(emptyTileImage, 0, null);
         }
+
+        public CellData (Image tileImage, int rotation) {
+            this(tileImage, rotation, null);
+        }
+
         public CellData (int rotation, Color veilColor) {
             this(emptyTileImage, rotation, veilColor);
         }
