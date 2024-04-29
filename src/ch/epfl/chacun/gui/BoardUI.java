@@ -95,7 +95,8 @@ public final class BoardUI {
                         if (isMouseOver.getValue()) {
                             int id = nextTileToPlace.getValue().id();
                             Image tileImage = cachedImages.computeIfAbsent(id, ImageLoader::normalImageForTile);
-                            PlacedTile tileToPlace = new PlacedTile(nextTileToPlace.getValue(),
+                            PlacedTile tileToPlace = new PlacedTile(
+                                    nextTileToPlace.getValue(),
                                     null,
                                     rotationOfTile.getValue(),
                                     posOfTile
