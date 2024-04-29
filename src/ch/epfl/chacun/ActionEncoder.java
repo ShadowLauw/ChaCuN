@@ -12,7 +12,6 @@ public final class ActionEncoder {
     private static final int LENGTH_PLACE_TILE = 2;
     private static final int LENGTH_OCCUPY_TILE = 1;
     private static final int LENGTH_RETAKE_PAWN = 1;
-    private static final int ZONE_LOCAL_ID_DIVIDER = 10;
 
     private ActionEncoder() {}
 
@@ -25,7 +24,7 @@ public final class ActionEncoder {
     public static StateAction withNewOccupant(GameState state, Occupant occupant) {
         int encodedAction = occupant == null
                 ? NO_OCCUPANT
-                : occupant.kind().ordinal() << OCCUPANT_KIND_SHIFT | occupant.zoneId() % ZONE_LOCAL_ID_DIVIDER;
+                : occupant.kind().ordinal() << OCCUPANT_KIND_SHIFT | Zone.localId(occupant.zoneId());
 
         return new StateAction(state.withNewOccupant(occupant), Base32.encodeBits5(encodedAction));
     }
@@ -79,7 +78,7 @@ public final class ActionEncoder {
 
                 Occupant occupant = state.lastTilePotentialOccupants().stream()
                         .filter(o -> o.kind().ordinal() == kind)
-                        .filter(o -> o.zoneId() % ZONE_LOCAL_ID_DIVIDER == zoneLocalId)
+                        .filter(o -> Zone.localId(o.zoneId()) == zoneLocalId)
                         .findFirst()
                         .orElseThrow(IllegalArgumentException::new);
 
