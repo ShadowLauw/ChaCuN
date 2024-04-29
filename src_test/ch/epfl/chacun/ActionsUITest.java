@@ -1,7 +1,6 @@
 package ch.epfl.chacun;
 
 import ch.epfl.chacun.gui.ActionsUI;
-import ch.epfl.chacun.gui.DecksUI;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;

@@ -32,42 +32,57 @@ public final class BoardUI {
      * The path to the CSS file for the board UI.
      */
     private static final String BOARD_CSS = "board.css";
+
     /**
      * ID of the scroll pane of the board UI.
      */
     private static final String SCROLL_PANE_ID = "board-scroll-pane";
+
     /**
      * ID of the grid pane of the board UI.
      */
     private static final String GRID_ID = "board-grid";
+
     /**
      * Prefix for the pawns IDs.
      */
     private static final String PAWN_PREFIX = "pawn_";
+
     /**
      * Prefix for the huts IDs.
      */
     private static final String HUT_PREFIX = "hut_";
+
     /**
      * Prefix for the markers IDs.
      */
     private static final String MARKER_PREFIX = "marker_";
+
     /**
      * The style class for the markers.
      */
     private static final String MARKER_CLASS = "marker";
+
     /**
      * The opacity of the veil.
      */
     private static final double OPACITY_VEIL = 0.5;
+
     /**
      * The empty tile image.
      */
     private static final WritableImage emptyTileImage = new WritableImage(1, 1);
+
+    /**
+     * The gray color of the empty tile.
+     */
+    private static final double EMPTY_GRAY_COLOR = 0.98;
+
     /**
      * The cached images.
      */
     private static final Map<Integer, Image> cachedImages = new HashMap<>();
+
     /**
      * Private constructor to prevent instantiation.
      */
@@ -76,26 +91,26 @@ public final class BoardUI {
     /**
      * Creates a Node of the board display
      *
-     * @param range the range of the board
-     * @param gameState the observable value of the game state
-     * @param rotationOfTile the observable value of the rotation of the tile
+     * @param range            the range of the board
+     * @param gameState        the observable value of the game state
+     * @param rotationOfTile   the observable value of the rotation of the tile
      * @param visibleOccupants the observable value of the visible occupants
      * @param highlightedTiles the observable value of the highlighted tiles
-     * @param rotationOnClick the consumer to call when a rotation is clicked
-     * @param posOfTileChosen the consumer to call when a tile is chosen
-     * @param occupantChosen the consumer to call when an occupant is chosen
+     * @param rotationOnClick  the consumer to call when a rotation is clicked
+     * @param posOfTileChosen  the consumer to call when a tile is chosen
+     * @param occupantChosen   the consumer to call when an occupant is chosen
      * @return a node displaying the board
      */
     public static Node create(int range,
-                       ObservableValue<GameState> gameState,
-                       ObservableValue<Rotation> rotationOfTile,
-                       ObservableValue<Set<Occupant>> visibleOccupants,
-                       ObservableValue<Set<Integer>> highlightedTiles,
-                       Consumer<Rotation> rotationOnClick,
-                       Consumer<Pos> posOfTileChosen,
-                       Consumer<Occupant> occupantChosen
-                       ) {
-
+                              ObservableValue<GameState> gameState,
+                              ObservableValue<Rotation> rotationOfTile,
+                              ObservableValue<Set<Occupant>> visibleOccupants,
+                              ObservableValue<Set<Integer>> highlightedTiles,
+                              Consumer<Rotation> rotationOnClick,
+                              Consumer<Pos> posOfTileChosen,
+                              Consumer<Occupant> occupantChosen
+    ) {
+        // Create the base node
         ScrollPane baseNode = new ScrollPane();
         baseNode.setId(SCROLL_PANE_ID);
         baseNode.getStylesheets().add(BOARD_CSS);
@@ -103,79 +118,92 @@ public final class BoardUI {
         grid.setId(GRID_ID);
         baseNode.setContent(grid);
 
-        emptyTileImage.getPixelWriter().setColor(0, 0, Color.gray(0.98));
+        emptyTileImage.getPixelWriter().setColor(0, 0, Color.gray(EMPTY_GRAY_COLOR));
 
+        // Create observable values of the gameState components
         ObservableValue<Board> board = gameState.map(GameState::board);
         ObservableValue<Set<Animal>> cancelledAnimals = board.map(Board::cancelledAnimals);
-        ObservableValue<PlayerColor> currentPlayer = gameState.map(GameState::currentPlayer);
         ObservableValue<GameState.Action> currentAction = gameState.map(GameState::nextAction);
-        ObservableValue<Tile> nextTileToPlace = gameState.map(GameState::tileToPlace);
 
         for (int x = -range; x <= range; ++x) {
             for (int y = -range; y <= range; ++y) {
                 Group tileGroup = new Group();
 
+                // Create the observable values of the tile components
                 Pos posOfTile = new Pos(x, y);
                 ObservableValue<Boolean> isMouseOver = tileGroup.hoverProperty();
                 ObservableValue<Boolean> isInsertionPosition = board.map(b -> b.insertionPositions().contains(posOfTile));
                 ObservableValue<PlacedTile> tileAtPos = board.map(b -> b.tileAt(posOfTile));
+                ObservableValue<Boolean> isInsertionAndDisplayed = Bindings.createObjectBinding(
+                        () -> isInsertionPosition.getValue() && currentAction.getValue() == GameState.Action.PLACE_TILE,
+                        isInsertionPosition,
+                        currentAction
+                );
 
+                // Create the tile image view
                 ImageView tileImageView = new ImageView();
                 tileImageView.setFitHeight(ImageLoader.NORMAL_TILE_FIT_SIZE);
                 tileImageView.setFitWidth(ImageLoader.NORMAL_TILE_FIT_SIZE);
                 tileGroup.getChildren().add(tileImageView);
 
+                // Create the observable value of the cell data
                 ObservableValue<CellData> observableTile = Bindings.createObjectBinding(() -> {
-                    PlacedTile tile = tileAtPos.getValue();
-                    Set<Integer> highlightedTilesValue = highlightedTiles.getValue();
+                            PlacedTile tile = tileAtPos.getValue();
+                            Set<Integer> highlightedTilesValue = highlightedTiles.getValue();
+                            //A tile is placed
+                            if (tile != null) {
+                                Image tileImage = cachedImages.computeIfAbsent(tile.id(), ImageLoader::normalImageForTile);
+                                //Check if it has to be not highlighted -> Black veil if it has
+                                if (!highlightedTilesValue.isEmpty() && !highlightedTilesValue.contains(tile.id()))
+                                    return new CellData(tileImage, tile.rotation().degreesCW(), Color.BLACK);
 
-                    if (tile != null) {
-                         Image tileImage = cachedImages.computeIfAbsent(tile.id(), ImageLoader::normalImageForTile);
-                         if (!highlightedTilesValue.isEmpty() && !highlightedTilesValue.contains(tile.id()))
-                            return new CellData(tileImage, tile.rotation().degreesCW(), Color.BLACK);
+                                //No veil otherwise, the image of the tile is displayed
+                                return new CellData(tileImage, tile.rotation().degreesCW());
+                            } else if (isInsertionAndDisplayed.getValue()) {
+                                PlayerColor currentPlayer = gameState.getValue().currentPlayer();
+                                //If the mouse is over the cell
+                                if (isMouseOver.getValue()) {
+                                    Tile nextTileToPlace = gameState.getValue().tileToPlace();
+                                    int id = nextTileToPlace.id();
+                                    Image tileImage = cachedImages.computeIfAbsent(id, ImageLoader::normalImageForTile);
+                                    PlacedTile tileToPlace = new PlacedTile(
+                                            nextTileToPlace,
+                                            null,
+                                            rotationOfTile.getValue(),
+                                            posOfTile
+                                    );
+                                    //Check if the tile can be placed on the board or not -> White veil if it can't
+                                    if (!board.getValue().canAddTile(tileToPlace)) {
+                                        return new CellData(tileImage, rotationOfTile.getValue().degreesCW(), Color.WHITE);
+                                    }
 
-                         return new CellData(tileImage, tile.rotation().degreesCW());
-                    } else if (isInsertionPosition.getValue()
-                            && currentAction.getValue() == GameState.Action.PLACE_TILE
-                    ) {
-                        if (isMouseOver.getValue()) {
-                            int id = nextTileToPlace.getValue().id();
-                            Image tileImage = cachedImages.computeIfAbsent(id, ImageLoader::normalImageForTile);
-                            PlacedTile tileToPlace = new PlacedTile(
-                                    nextTileToPlace.getValue(),
-                                    null,
-                                    rotationOfTile.getValue(),
-                                    posOfTile
-                            );
-                            if (!board.getValue().canAddTile(tileToPlace)) {
-                                return new CellData(tileImage, rotationOfTile.getValue().degreesCW(), Color.WHITE);
+                                    //No veil otherwise, the image of the tile to place is displayed
+                                    return new CellData(tileImage, rotationOfTile.getValue().degreesCW());
+                                }/* If the mouse is not over the cell, but it is part of the insertion positions
+                                     and the action is to place a tile -> Player color veil, empty image */
+                                else if (currentPlayer != null) {
+                                    return new CellData(rotationOfTile.getValue().degreesCW(),
+                                            ColorMap.fillColor(currentPlayer)
+                                    );
+                                }
                             }
 
-                            return new CellData(tileImage, rotationOfTile.getValue().degreesCW());
-                        } else if (currentPlayer.getValue() != null) {
-                            return new CellData(rotationOfTile.getValue().degreesCW(),
-                                    ColorMap.fillColor(currentPlayer.getValue())
-                            );
-                        }
-                    }
-
-                    return new CellData();
-                    },
+                            return new CellData();
+                        },
                         tileAtPos,
                         rotationOfTile,
                         isMouseOver,
-                        isInsertionPosition,
-                        currentAction,
+                        isInsertionAndDisplayed,
                         highlightedTiles,
-                        nextTileToPlace,
-                        board,
-                        currentPlayer
+                        gameState,
+                        board
                 );
 
                 tileImageView.imageProperty().bind(observableTile.map(t -> t.tileImage));
 
+                //Click effect management
                 tileGroup.setOnMouseClicked(e -> {
-                    if (currentAction.getValue() == GameState.Action.PLACE_TILE && isInsertionPosition.getValue()) {
+                    if (isInsertionAndDisplayed.getValue()) {
                         MouseButton button = e.getButton();
                         if (button == MouseButton.PRIMARY) {
                             posOfTileChosen.accept(posOfTile);
@@ -189,6 +217,7 @@ public final class BoardUI {
                     }
                 });
 
+                //Add the markers if the tile is placed
                 tileAtPos.addListener((_, _, newTile) -> {
                     if (newTile != null) {
                         for (Zone.Meadow meadow : newTile.meadowZones()) {
@@ -216,7 +245,7 @@ public final class BoardUI {
                     }
                 });
 
-
+                //Others effects management
                 tileGroup.rotateProperty().bind(observableTile.map(t -> t.rotation));
                 ColorInput veilInput = new ColorInput(
                         0,
@@ -240,19 +269,41 @@ public final class BoardUI {
         return baseNode;
     }
 
+    /**
+     * Represents the data of a cell of the board
+     *
+     * @param tileImage the image of the tile
+     * @param rotation the rotation of the tile in degrees
+     * @param veilColor the color of the veil
+     */
     private record CellData(Image tileImage,
                             int rotation,
                             Color veilColor
     ) {
-        public CellData () {
+        /**
+         * Creates a cell data with the empty tile image, no rotation and no veil color
+         */
+        public CellData() {
             this(emptyTileImage, 0, null);
         }
 
-        public CellData (Image tileImage, int rotation) {
+        /**
+         * Creates a cell data with the given tile image, rotation and no veil color
+         *
+         * @param tileImage the image of the tile
+         * @param rotation the rotation of the tile in degrees
+         */
+        public CellData(Image tileImage, int rotation) {
             this(tileImage, rotation, null);
         }
 
-        public CellData (int rotation, Color veilColor) {
+        /**
+         * Creates a cell data with the empty tile image, the given rotation and veil color
+         *
+         * @param rotation the rotation of the tile in degrees
+         * @param veilColor the color of the veil
+         */
+        public CellData(int rotation, Color veilColor) {
             this(emptyTileImage, rotation, veilColor);
         }
     }

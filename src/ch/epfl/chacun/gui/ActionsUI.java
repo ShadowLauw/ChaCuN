@@ -12,31 +12,37 @@ import javafx.scene.text.Text;
 import java.util.List;
 import java.util.function.Consumer;
 
-
 /**
- * Displays the actions part of the interface of the game, and allow to have multiplayer mode
+ * Displays the actions part of the interface of the game
  *
  * @author Laura Paraboschi (364161)
  * @author Emmanuel Omont (372632)
  */
-public class ActionsUI {
+public final class ActionsUI {
     /**
      * The path to the CSS file for the actions UI.
      */
     private static final String ACTIONS_CSS = "actions.css";
+
     /**
      * ID of the base node of the actions UI.
      */
     private static final String ACTIONS_ID = "actions";
+
     /**
      * ID of the text field of the actions UI.
      */
     private static final String FIELD_ID = "action-field";
 
     /**
+     * Number of actions to display.
+     */
+    private static final int NUMBER_OF_ACTIONS_TO_DISPLAY = 4;
+
+    /**
      * Private constructor to prevent instantiation.
      */
-    private ActionsUI() {};
+    private ActionsUI() {}
 
     /**
      * Creates a Node of the actions display
@@ -56,12 +62,12 @@ public class ActionsUI {
         text.textProperty().bind(
                 actions.map(list -> {
                     StringBuilder sb = new StringBuilder();
-                    for (int i = list.size() - 1; i >= 0; --i) {
+                    int lastIndex = list.size() - 1;
+                    int firstIndex = Math.max(0, lastIndex - NUMBER_OF_ACTIONS_TO_DISPLAY);
+                    for (int i = firstIndex; i <= lastIndex; ++i) {
                         sb.append(i).append(':').append(list.get(i));
-                        if (i != 0 || i != list.size() - 4) {
+                        if (i != lastIndex) {
                             sb.append(", ");
-                        } else {
-                            return sb.toString();
                         }
                     }
                     return sb.toString();
@@ -69,7 +75,7 @@ public class ActionsUI {
         );
 
         textField.setOnKeyPressed(e -> {
-            if(e.getCode() == KeyCode.ENTER) {
+            if (e.getCode() == KeyCode.ENTER) {
                 consumer.accept(textField.getText());
                 textField.clear();
             }
@@ -77,7 +83,8 @@ public class ActionsUI {
 
         textField.setTextFormatter(new TextFormatter<>(change -> {
             String fieldText = change.getText().chars()
-                    .filter(c -> Base32.ALPHABET.contains(String.valueOf((char) Character.toUpperCase(c))))
+                    .map(Character::toUpperCase)
+                    .filter(c -> Base32.isValid(String.valueOf((char) c)))
                     .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
                     .toString();
 
