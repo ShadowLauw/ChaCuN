@@ -76,8 +76,8 @@ public class ActionsUI {
         });
 
         textField.setTextFormatter(new TextFormatter<>(change -> {
-            String fieldText = change.getText().toUpperCase().chars()
-                    .filter(c -> Base32.ALPHABET.contains(String.valueOf((char) c)))
+            String fieldText = change.getText().chars()
+                    .filter(c -> Base32.ALPHABET.contains(String.valueOf((char) Character.toUpperCase(c))))
                     .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
                     .toString();
 

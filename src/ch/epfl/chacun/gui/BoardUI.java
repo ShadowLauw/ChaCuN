@@ -21,25 +21,71 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
+/**
+ * Displays the board part of the interface of the game
+ *
+ * @author Laura Paraboschi (364161)
+ * @author Emmanuel Omont (372632)
+ */
 public final class BoardUI {
-
+    /**
+     * The path to the CSS file for the board UI.
+     */
     private static final String BOARD_CSS = "board.css";
+    /**
+     * ID of the scroll pane of the board UI.
+     */
     private static final String SCROLL_PANE_ID = "board-scroll-pane";
+    /**
+     * ID of the grid pane of the board UI.
+     */
     private static final String GRID_ID = "board-grid";
-
+    /**
+     * Prefix for the pawns IDs.
+     */
     private static final String PAWN_PREFIX = "pawn_";
+    /**
+     * Prefix for the huts IDs.
+     */
     private static final String HUT_PREFIX = "hut_";
+    /**
+     * Prefix for the markers IDs.
+     */
     private static final String MARKER_PREFIX = "marker_";
+    /**
+     * The style class for the markers.
+     */
     private static final String MARKER_CLASS = "marker";
-
+    /**
+     * The opacity of the veil.
+     */
     private static final double OPACITY_VEIL = 0.5;
-
+    /**
+     * The empty tile image.
+     */
     private static final WritableImage emptyTileImage = new WritableImage(1, 1);
-
+    /**
+     * The cached images.
+     */
     private static final Map<Integer, Image> cachedImages = new HashMap<>();
-
+    /**
+     * Private constructor to prevent instantiation.
+     */
     private BoardUI() {}
 
+    /**
+     * Creates a Node of the board display
+     *
+     * @param range the range of the board
+     * @param gameState the observable value of the game state
+     * @param rotationOfTile the observable value of the rotation of the tile
+     * @param visibleOccupants the observable value of the visible occupants
+     * @param highlightedTiles the observable value of the highlighted tiles
+     * @param rotationOnClick the consumer to call when a rotation is clicked
+     * @param posOfTileChosen the consumer to call when a tile is chosen
+     * @param occupantChosen the consumer to call when an occupant is chosen
+     * @return a node displaying the board
+     */
     public static Node create(int range,
                        ObservableValue<GameState> gameState,
                        ObservableValue<Rotation> rotationOfTile,
