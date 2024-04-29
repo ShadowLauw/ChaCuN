@@ -130,9 +130,10 @@ public final class BoardUI {
 
                 tileGroup.setOnMouseClicked(e -> {
                     if (currentAction.getValue() == GameState.Action.PLACE_TILE && isInsertionPosition.getValue()) {
-                        if (e.getButton() == MouseButton.PRIMARY) {
+                        MouseButton button = e.getButton();
+                        if (button == MouseButton.PRIMARY) {
                             posOfTileChosen.accept(posOfTile);
-                        } else if (e.getButton() == MouseButton.SECONDARY) {
+                        } else if (button == MouseButton.SECONDARY) {
                             if (e.isAltDown()) {
                                 rotationOnClick.accept(Rotation.RIGHT);
                             } else {
