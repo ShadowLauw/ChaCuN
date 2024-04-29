@@ -25,7 +25,7 @@ public final class ActionEncoder {
     public static StateAction withNewOccupant(GameState state, Occupant occupant) {
         int encodedAction = occupant == null
                 ? NO_OCCUPANT
-                : occupant.kind().ordinal() << OCCUPANT_KIND_SHIFT | occupant.zoneId();
+                : occupant.kind().ordinal() << OCCUPANT_KIND_SHIFT | occupant.zoneId() % ZONE_LOCAL_ID_DIVIDER;
 
         return new StateAction(state.withNewOccupant(occupant), Base32.encodeBits5(encodedAction));
     }
