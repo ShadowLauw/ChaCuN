@@ -59,20 +59,7 @@ public final class ActionsUI {
         Text text = new Text();
         TextField textField = new TextField();
         textField.setId(FIELD_ID);
-        text.textProperty().bind(
-                actions.map(list -> {
-                    StringBuilder sb = new StringBuilder();
-                    int lastIndex = list.size() - 1;
-                    int firstIndex = Math.max(0, lastIndex - NUMBER_OF_ACTIONS_TO_DISPLAY);
-                    for (int i = firstIndex; i <= lastIndex; ++i) {
-                        sb.append(i).append(':').append(list.get(i));
-                        if (i != lastIndex) {
-                            sb.append(", ");
-                        }
-                    }
-                    return sb.toString();
-                })
-        );
+        text.textProperty().bind(actions.map(ActionsUI::actionListLastFourBuilder));
 
         textField.setOnKeyPressed(e -> {
             if (e.getCode() == KeyCode.ENTER) {
@@ -82,18 +69,37 @@ public final class ActionsUI {
         });
 
         textField.setTextFormatter(new TextFormatter<>(change -> {
-            String fieldText = change.getText().chars()
-                    .map(Character::toUpperCase)
-                    .filter(c -> Base32.isValid(String.valueOf((char) c)))
-                    .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
-                    .toString();
-
-            change.setText(fieldText);
+            change.setText(textFormatter(change.getText()));
             return change;
         }));
 
         hbox.getChildren().addAll(text, textField);
 
         return hbox;
+    }
+
+    private static String actionListLastFourBuilder(List<String> list) {
+        if (list.isEmpty()) {
+            return "";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        int lastIndex = list.size() - 1;
+        int firstIndex = Math.max(0, lastIndex - NUMBER_OF_ACTIONS_TO_DISPLAY);
+        for (int i = firstIndex; i <= lastIndex; ++i) {
+            sb.append(i + 1).append(':').append(list.get(i));
+            if (i != lastIndex) {
+                sb.append(", ");
+            }
+        }
+        return sb.toString();
+    }
+
+    private static String textFormatter(String text) {
+        return text.toUpperCase()
+                .chars()
+                .filter(c -> Base32.isValid(Character.toString(c)))
+                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+                .toString();
     }
 }

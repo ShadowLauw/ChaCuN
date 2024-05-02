@@ -45,7 +45,8 @@ public final class ActionEncoder {
     /**
      * Private constructor to prevent instantiation.
      */
-    private ActionEncoder() {}
+    private ActionEncoder() {
+    }
 
     /**
      * Encodes the action of placing a tile, and updates the game state accordingly.
@@ -133,10 +134,9 @@ public final class ActionEncoder {
                         Rotation.ALL.get(rotation),
                         insertionPositions.get(indexTile)
                 );
-                if (state.board().canAddTile(tile))
-                    yield new StateAction(state.withPlacedTile(tile), action);
+                checkCanAddTile(state, tile);
 
-                throw new IllegalArgumentException();
+                yield new StateAction(state.withPlacedTile(tile), action);
             }
             case OCCUPY_TILE -> {
                 if (decoded == NO_OCCUPANT) {
@@ -165,6 +165,8 @@ public final class ActionEncoder {
                 checkListSize(occupants, decoded);
 
                 Occupant occupant = occupants.get(decoded);
+                checkOccupantIsOwnedByCurrentPlayer(state, occupant);
+
                 yield new StateAction(state.withOccupantRemoved(occupant), action);
             }
             default -> throw new IllegalArgumentException();
@@ -191,6 +193,29 @@ public final class ActionEncoder {
      */
     private static void checkListSize(List<?> list, int index) {
         if (index >= list.size()) throw new IllegalArgumentException();
+    }
+
+    /**
+     * Checks if the occupant is owned by the current player.
+     *
+     * @param state    the game state
+     * @param occupant the occupant to check
+     * @throws IllegalArgumentException if the occupant is not owned by the current player
+     */
+    private static void checkOccupantIsOwnedByCurrentPlayer(GameState state, Occupant occupant) {
+        if (state.currentPlayer() != state.board().tileWithId(Zone.tileId(occupant.zoneId())).placer())
+            throw new IllegalArgumentException();
+    }
+
+    /**
+     * Checks if a tile can be added to the board.
+     *
+     * @param state the game state
+     * @param tile  the tile to add
+     * @throws IllegalArgumentException if the tile cannot be added
+     */
+    private static void checkCanAddTile(GameState state, PlacedTile tile) {
+        if (!state.board().canAddTile(tile)) throw new IllegalArgumentException();
     }
 
     /**
@@ -226,6 +251,7 @@ public final class ActionEncoder {
      * @param state  the game state
      * @param action the Base32 encoded action
      */
-    public record StateAction(GameState state, String action) {}
+    public record StateAction(GameState state, String action) {
+    }
 }
 

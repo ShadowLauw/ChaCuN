@@ -84,7 +84,6 @@ public final class DecksUI {
         ImageView imageViewNextTile = new ImageView();
         Text textNextTile = new Text();
         imageViewNextTile.imageProperty().bind(tileToPlace.map(t -> ImageLoader.largeImageForTile(t.id())));
-        imageViewNextTile.visibleProperty().bind(textToDisplay.map(String::isEmpty));
         imageViewNextTile.setFitWidth(ImageLoader.LARGE_TILE_FIT_SIZE);
         imageViewNextTile.setFitHeight(ImageLoader.LARGE_TILE_FIT_SIZE);
 

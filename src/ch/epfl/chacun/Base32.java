@@ -37,7 +37,7 @@ public final class Base32 {
      * @return true if the string is a valid Base32 string, false otherwise
      */
     public static boolean isValid(String stringToTest) {
-        return stringToTest.chars().allMatch(c -> ALPHABET.indexOf((char) c) != -1);
+        return stringToTest.chars().allMatch(c -> ALPHABET.indexOf(c) != -1);
     }
 
     /**
