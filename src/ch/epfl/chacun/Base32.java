@@ -68,12 +68,28 @@ public final class Base32 {
      * @throws IllegalArgumentException if the string is empty or has more than 2 characters
      */
     public static int decode(String encoded) {
-        Preconditions.checkArgument(!encoded.isEmpty() && encoded.length() <= MAX_NUMBER_OF_CHAR);
-        int decoded = 0;
-        for (int i = 0; i < encoded.length(); ++i) {
-            decoded = (decoded << BITS_PER_CHAR) | ALPHABET.indexOf(encoded.charAt(i));
-        }
+        Preconditions.checkArgument(!encoded.isEmpty() && encoded.length() <= MAX_NUMBER_OF_CHAR && isValid(encoded));
 
-        return decoded;
+        return encoded.length() == MAX_NUMBER_OF_CHAR ? decodeTwoChars(encoded) : decodeOneChar(encoded.charAt(0));
+    }
+
+    /**
+     * Decodes a Base32 character into a number
+     *
+     * @param c the Base32 character to decode
+     * @return the number represented by the Base32 character
+     */
+    private static int decodeOneChar(char c) {
+        return ALPHABET.indexOf(c);
+    }
+
+    /**
+     * Decodes a Base32 string of length 2 into a number
+     *
+     * @param encoded the Base32 string to decode
+     * @return the number represented by the Base32 string
+     */
+    private static int decodeTwoChars(String encoded) {
+        return decodeOneChar(encoded.charAt(0)) + (decodeOneChar(encoded.charAt(1)) << BITS_PER_CHAR);
     }
 }
