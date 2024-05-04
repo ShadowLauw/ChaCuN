@@ -71,7 +71,7 @@ public final class BoardUI {
     /**
      * The empty tile image.
      */
-    private static final WritableImage emptyTileImage = new WritableImage(1, 1);
+    private static final WritableImage EMPTY_TILE_IMAGE = createEmptyTileImage();
 
     /**
      * The gray color of the empty tile.
@@ -118,8 +118,6 @@ public final class BoardUI {
         grid.setId(GRID_ID);
         baseNode.setContent(grid);
 
-        emptyTileImage.getPixelWriter().setColor(0, 0, Color.gray(EMPTY_GRAY_COLOR));
-
         // Create observable values of the gameState components
         ObservableValue<Board> board = gameState.map(GameState::board);
         ObservableValue<Set<Animal>> cancelledAnimals = board.map(Board::cancelledAnimals);
@@ -131,12 +129,11 @@ public final class BoardUI {
 
                 // Create the observable values of the tile components
                 Pos posOfTile = new Pos(x, y);
-                ObservableValue<Boolean> isMouseOver = tileGroup.hoverProperty();
-                ObservableValue<Boolean> isInsertionPosition = board.map(b -> b.insertionPositions().contains(posOfTile));
                 ObservableValue<PlacedTile> tileAtPos = board.map(b -> b.tileAt(posOfTile));
                 ObservableValue<Boolean> isInsertionAndDisplayed = Bindings.createObjectBinding(
-                        () -> isInsertionPosition.getValue() && currentAction.getValue() == GameState.Action.PLACE_TILE,
-                        isInsertionPosition,
+                        () -> board.getValue().insertionPositions().contains(posOfTile)
+                                && currentAction.getValue() == GameState.Action.PLACE_TILE,
+                        board,
                         currentAction
                 );
 
@@ -149,10 +146,10 @@ public final class BoardUI {
                 // Create the observable value of the cell data
                 ObservableValue<CellData> observableTile = Bindings.createObjectBinding(() -> {
                             PlacedTile tile = tileAtPos.getValue();
-                            Set<Integer> highlightedTilesValue = highlightedTiles.getValue();
                             //A tile is placed
                             if (tile != null) {
                                 Image tileImage = cachedImages.computeIfAbsent(tile.id(), ImageLoader::normalImageForTile);
+                                Set<Integer> highlightedTilesValue = highlightedTiles.getValue();
                                 //Check if it has to be not highlighted -> Black veil if it has
                                 if (!highlightedTilesValue.isEmpty() && !highlightedTilesValue.contains(tile.id()))
                                     return new CellData(tileImage, tile.rotation().degreesCW(), Color.BLACK);
@@ -162,7 +159,7 @@ public final class BoardUI {
                             } else if (isInsertionAndDisplayed.getValue()) {
                                 PlayerColor currentPlayer = gameState.getValue().currentPlayer();
                                 //If the mouse is over the cell
-                                if (isMouseOver.getValue()) {
+                                if (tileGroup.hoverProperty().getValue()) {
                                     Tile nextTileToPlace = gameState.getValue().tileToPlace();
                                     int id = nextTileToPlace.id();
                                     Image tileImage = cachedImages.computeIfAbsent(id, ImageLoader::normalImageForTile);
@@ -192,7 +189,7 @@ public final class BoardUI {
                         },
                         tileAtPos,
                         rotationOfTile,
-                        isMouseOver,
+                        tileGroup.hoverProperty(),
                         isInsertionAndDisplayed,
                         highlightedTiles,
                         gameState,
@@ -284,7 +281,7 @@ public final class BoardUI {
          * Creates a cell data with the empty tile image, no rotation and no veil color
          */
         public CellData() {
-            this(emptyTileImage, 0, null);
+            this(EMPTY_TILE_IMAGE, 0, null);
         }
 
         /**
@@ -304,7 +301,13 @@ public final class BoardUI {
          * @param veilColor the color of the veil
          */
         public CellData(int rotation, Color veilColor) {
-            this(emptyTileImage, rotation, veilColor);
+            this(EMPTY_TILE_IMAGE, rotation, veilColor);
         }
+    }
+
+    private static WritableImage createEmptyTileImage() {
+        WritableImage image = new WritableImage(1, 1);
+        image.getPixelWriter().setColor(0, 0, Color.gray(EMPTY_GRAY_COLOR));
+        return image;
     }
 }

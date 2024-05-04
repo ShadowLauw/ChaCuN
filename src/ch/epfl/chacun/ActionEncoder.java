@@ -101,7 +101,7 @@ public final class ActionEncoder {
     public static StateAction decodeAndApply(GameState state, String action) {
         try {
             return dAAHandler(state, action);
-        } catch (IllegalArgumentException e) {
+        } catch (ActionException e) {
             return null;
         }
     }
@@ -114,8 +114,8 @@ public final class ActionEncoder {
      * @return a StateAction containing the new game state and the decoded action
      * @throws IllegalArgumentException if the action is invalid
      */
-    private static StateAction dAAHandler(GameState state, String action) {
-        if (!Base32.isValid(action)) throw new IllegalArgumentException();
+    private static StateAction dAAHandler(GameState state, String action) throws ActionException {
+        if (!Base32.isValid(action)) throw new ActionException();
 
         int decoded = Base32.decode(action);
 
@@ -151,7 +151,7 @@ public final class ActionEncoder {
                         .filter(o -> o.kind().ordinal() == kind)
                         .filter(o -> Zone.localId(o.zoneId()) == zoneLocalId)
                         .findFirst()
-                        .orElseThrow(IllegalArgumentException::new);
+                        .orElseThrow(ActionException::new);
 
                 yield new StateAction(state.withNewOccupant(occupant), action);
             }
@@ -169,7 +169,7 @@ public final class ActionEncoder {
 
                 yield new StateAction(state.withOccupantRemoved(occupant), action);
             }
-            default -> throw new IllegalArgumentException();
+            default -> throw new ActionException();
         };
     }
 
@@ -178,10 +178,10 @@ public final class ActionEncoder {
      *
      * @param action the string to check
      * @param length the length to compare
-     * @throws IllegalArgumentException if the length of the string is different from the given length
+     * @throws ActionException if the length is not equal to the given length
      */
-    private static void checkStringLength(String action, int length) {
-        if (action.length() != length) throw new IllegalArgumentException();
+    private static void checkStringLength(String action, int length) throws ActionException {
+        if (action.length() != length) throw new ActionException();
     }
 
     /**
@@ -189,10 +189,10 @@ public final class ActionEncoder {
      *
      * @param list  the list to check
      * @param index the index to check
-     * @throws IllegalArgumentException if the index is out of bounds
+     * @throws ActionException if the index is out of bounds
      */
-    private static void checkListSize(List<?> list, int index) {
-        if (index >= list.size()) throw new IllegalArgumentException();
+    private static void checkListSize(List<?> list, int index) throws ActionException {
+        if (index >= list.size()) throw new ActionException();
     }
 
     /**
@@ -200,11 +200,11 @@ public final class ActionEncoder {
      *
      * @param state    the game state
      * @param occupant the occupant to check
-     * @throws IllegalArgumentException if the occupant is not owned by the current player
+     * @throws ActionException if the occupant is not owned by the current player
      */
-    private static void checkOccupantIsOwnedByCurrentPlayer(GameState state, Occupant occupant) {
+    private static void checkOccupantIsOwnedByCurrentPlayer(GameState state, Occupant occupant) throws ActionException {
         if (state.currentPlayer() != state.board().tileWithId(Zone.tileId(occupant.zoneId())).placer())
-            throw new IllegalArgumentException();
+            throw new ActionException();
     }
 
     /**
@@ -214,8 +214,8 @@ public final class ActionEncoder {
      * @param tile  the tile to add
      * @throws IllegalArgumentException if the tile cannot be added
      */
-    private static void checkCanAddTile(GameState state, PlacedTile tile) {
-        if (!state.board().canAddTile(tile)) throw new IllegalArgumentException();
+    private static void checkCanAddTile(GameState state, PlacedTile tile) throws ActionException {
+        if (!state.board().canAddTile(tile)) throw new ActionException();
     }
 
     /**
@@ -253,5 +253,7 @@ public final class ActionEncoder {
      */
     public record StateAction(GameState state, String action) {
     }
+
+    private static class ActionException extends Exception {}
 }
 
