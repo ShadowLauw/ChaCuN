@@ -1,6 +1,6 @@
 package ch.epfl.chacun;
 
-import ch.epfl.chacun.tile.Tiles;
+
 import javafx.application.Application;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Scene;
@@ -24,7 +24,7 @@ public final class BoardUITest extends Application {
                 .sorted()
                 .toList();
 
-        var tilesByKind = Tiles.TILES.stream()
+        var tilesByKind = ch.epfl.chacun.Tiles.TILES.stream()
                 .collect(Collectors.groupingBy(Tile::kind));
         var tileDecks =
                 new TileDecks(tilesByKind.get(Tile.Kind.START),

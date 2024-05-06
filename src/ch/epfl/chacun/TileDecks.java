@@ -82,7 +82,7 @@ public record TileDecks(List<Tile> startTiles, List<Tile> normalTiles, List<Tile
     public TileDecks withTopTileDrawnUntil(Tile.Kind kind, Predicate<Tile> predicate) {
         TileDecks newTileDeck = this;
 
-        while (topTileMatches(newTileDeck, kind, predicate)) {
+        while (topTileDoesntMatch(newTileDeck, kind, predicate)) {
             newTileDeck = newTileDeck.withTopTileDrawn(kind);
         }
 
@@ -97,7 +97,7 @@ public record TileDecks(List<Tile> startTiles, List<Tile> normalTiles, List<Tile
      * @param predicate the predicate to satisfy
      * @return whether the top tile of the deck of the given kind matches the given predicate
      */
-    private static boolean topTileMatches(TileDecks td, Tile.Kind kind, Predicate<Tile> predicate) {
+    private static boolean topTileDoesntMatch(TileDecks td, Tile.Kind kind, Predicate<Tile> predicate) {
         Tile topTile = td.topTile(kind);
         return topTile != null && !predicate.test(topTile);
     }

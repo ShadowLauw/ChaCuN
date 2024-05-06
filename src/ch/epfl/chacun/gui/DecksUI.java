@@ -58,7 +58,7 @@ public final class DecksUI {
      * @param normalDeckSize the size of the normal deck
      * @param menhirDeckSize the size of the menhir deck
      * @param textToDisplay  the text to display
-     * @param eventHandler   the event handler for the next tile
+     * @param noPawnEventHandler   the event handler for the next tile
      * @return a Node displaying the decks and next action
      */
     public static Node create(
@@ -66,7 +66,7 @@ public final class DecksUI {
             ObservableValue<Integer> normalDeckSize,
             ObservableValue<Integer> menhirDeckSize,
             ObservableValue<String> textToDisplay,
-            Consumer<Occupant> eventHandler
+            Consumer<Occupant> noPawnEventHandler
     ) {
         VBox decksUi = new VBox();
         decksUi.getStylesheets().add(DECKS_CSS);
@@ -90,8 +90,8 @@ public final class DecksUI {
         textNextTile.textProperty().bind(textToDisplay);
         textNextTile.visibleProperty().bind(textToDisplay.map(s -> !s.isEmpty()));
         textNextTile.setWrappingWidth(ImageLoader.LARGE_TILE_FIT_SIZE * TEXT_PERCENT);
-        textNextTile.setOnMouseClicked( _ -> {
-            if (textNextTile.isVisible()) eventHandler.accept(null);
+        textNextTile.setOnMouseClicked(_ -> {
+            if (textNextTile.isVisible()) noPawnEventHandler.accept(null);
         });
         stackPaneNextTile.getChildren().addAll(imageViewNextTile, textNextTile);
 

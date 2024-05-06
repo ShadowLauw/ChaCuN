@@ -1,6 +1,5 @@
 package ch.epfl.chacun;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -20,11 +19,6 @@ public record ZonePartitions(
         ZonePartition<Zone.Water> riverSystems
 ) {
     /**
-     * Number of sides of a tile
-     */
-    private static final int NUMBER_OF_SIDES = 4;
-
-    /**
      * Max number of zones of a tile
      */
     private static final int NUMBER_OF_ZONES = 10;
@@ -33,10 +27,10 @@ public record ZonePartitions(
      * Represents the empty zone partitions
      */
     public static final ZonePartitions EMPTY = new ZonePartitions(
-            new ZonePartition<>(Set.of()),
-            new ZonePartition<>(Set.of()),
-            new ZonePartition<>(Set.of()),
-            new ZonePartition<>(Set.of())
+            new ZonePartition<>(),
+            new ZonePartition<>(),
+            new ZonePartition<>(),
+            new ZonePartition<>()
     );
 
     /**
@@ -67,9 +61,8 @@ public record ZonePartitions(
          */
         public void addTile(Tile tile) {
             int[] openConnections = new int[NUMBER_OF_ZONES];
-            List<TileSide> sides = tile.sides();
-            for (int i = 0; i < NUMBER_OF_SIDES; i++) {
-                for (Zone zone : sides.get(i).zones()) {
+            for (TileSide side : tile.sides()) {
+                for (Zone zone : side.zones()) {
                     openConnections[zone.localId()]++;
                     if (zone instanceof Zone.River river && river.hasLake()) {
                         openConnections[river.lake().localId()]++;
@@ -77,6 +70,7 @@ public record ZonePartitions(
                     }
                 }
             }
+
             Set<Zone> zones = tile.zones();
             for (Zone zone : zones) {
                 int openConnectionsCount = openConnections[zone.localId()];
@@ -134,13 +128,13 @@ public record ZonePartitions(
          */
         public void addInitialOccupant(PlayerColor player, Occupant.Kind occupantKind, Zone occupiedZone) {
             switch (occupiedZone) {
-                case Zone.Forest forest when occupantKind.equals(Occupant.Kind.PAWN) ->
+                case Zone.Forest forest when occupantKind == Occupant.Kind.PAWN ->
                         forests.addInitialOccupant(forest, player);
-                case Zone.Meadow meadow when occupantKind.equals(Occupant.Kind.PAWN) ->
+                case Zone.Meadow meadow when occupantKind == Occupant.Kind.PAWN ->
                         meadows.addInitialOccupant(meadow, player);
-                case Zone.River river when occupantKind.equals(Occupant.Kind.PAWN) ->
+                case Zone.River river when occupantKind == Occupant.Kind.PAWN ->
                         rivers.addInitialOccupant(river, player);
-                case Zone.Water water when occupantKind.equals(Occupant.Kind.HUT) ->
+                case Zone.Water water when occupantKind == Occupant.Kind.HUT ->
                         riverSystems.addInitialOccupant(water, player);
                 default -> throw new IllegalArgumentException();
             }

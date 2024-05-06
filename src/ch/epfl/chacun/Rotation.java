@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Represents the four possible rotations of a tile.
  *
- * @author Emmanuel Omont  (372632
+ * @author Emmanuel Omont  (372632)
  * @author Laura Paraboschi (364161)
  */
 public enum Rotation {
@@ -65,8 +65,6 @@ public enum Rotation {
      * @return the number of degrees required to obtain the current rotation
      */
     public int degreesCW() {
-        return ordinal() * QUARTER_TURN_DEGREES;
+        return quarterTurnsCW() * QUARTER_TURN_DEGREES;
     }
-
-    ;
 }

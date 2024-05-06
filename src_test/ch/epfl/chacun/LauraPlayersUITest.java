@@ -1,10 +1,8 @@
 package ch.epfl.chacun;
 
 import ch.epfl.chacun.gui.PlayersUI;
-import ch.epfl.chacun.tile.Tiles;
 import javafx.application.Application;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
@@ -24,7 +22,7 @@ public class LauraPlayersUITest extends Application {
                 .sorted()
                 .toList();
 
-        var tilesByKind = Tiles.TILES.stream()
+        var tilesByKind = ch.epfl.chacun.Tiles.TILES.stream()
                 .collect(Collectors.groupingBy(Tile::kind));
         var tileDecks =
                 new TileDecks(tilesByKind.get(Tile.Kind.START),
@@ -32,8 +30,6 @@ public class LauraPlayersUITest extends Application {
                         tilesByKind.get(Tile.Kind.MENHIR));
 
         var textMaker = new TextMakerFr(playerNames);
-
-        MessageBoard messageBoard = new MessageBoard(new TextMakerFr(playerNames), List.of());
 
         GameState gameState = GameState.initial(playerColors, tileDecks, textMaker);
 

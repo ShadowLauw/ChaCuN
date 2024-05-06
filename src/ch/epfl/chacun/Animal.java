@@ -9,11 +9,10 @@ package ch.epfl.chacun;
  * @author Emmanuel Omont (372632)
  */
 public record Animal(int id, Kind kind) {
-
     /**
-     * Constant to get the tileID from the animal ID
+     *  The divider to get the zone ID from the animal ID
      */
-    private static final int TILE_ID_DIVIDER = 100;
+    private static final int ZONE_ID_DIVIDER = 10;
 
     /**
      * Represents the different kinds of animals
@@ -26,6 +25,6 @@ public record Animal(int id, Kind kind) {
      * @return the tileID the animal is on
      */
     public int tileId() {
-        return id / TILE_ID_DIVIDER;
+        return Zone.tileId(id / ZONE_ID_DIVIDER);
     }
 }

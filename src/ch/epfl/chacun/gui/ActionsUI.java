@@ -48,22 +48,22 @@ public final class ActionsUI {
      * Creates a Node of the actions display
      *
      * @param actions the actions to display
-     * @param consumer the consumer to call when an action is entered
+     * @param actionConsumer the consumer to call when an action is entered
      * @return a node displaying the actions
      */
-    public static Node create(ObservableValue<List<String>> actions, Consumer<String> consumer) {
+    public static Node create(ObservableValue<List<String>> actions, Consumer<String> actionConsumer) {
         HBox hbox = new HBox();
         hbox.setId(ACTIONS_ID);
         hbox.getStylesheets().add(ACTIONS_CSS);
 
         Text text = new Text();
+        text.textProperty().bind(actions.map(ActionsUI::actionListLastFourBuilder));
         TextField textField = new TextField();
         textField.setId(FIELD_ID);
-        text.textProperty().bind(actions.map(ActionsUI::actionListLastFourBuilder));
 
         textField.setOnKeyPressed(e -> {
             if (e.getCode() == KeyCode.ENTER) {
-                consumer.accept(textField.getText());
+                actionConsumer.accept(textField.getText());
                 textField.clear();
             }
         });
@@ -92,6 +92,7 @@ public final class ActionsUI {
                 sb.append(", ");
             }
         }
+
         return sb.toString();
     }
 

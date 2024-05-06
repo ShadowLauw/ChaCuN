@@ -21,6 +21,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import static ch.epfl.chacun.gui.Icon.newFor;
+
 /**
  * Displays the board part of the interface of the game
  *
@@ -69,6 +71,11 @@ public final class BoardUI {
     private static final double OPACITY_VEIL = 0.5;
 
     /**
+     * The position of the middle of the window.
+     */
+    private static final double MID_WINDOW = 0.5;
+
+    /**
      * The empty tile image.
      */
     private static final WritableImage EMPTY_TILE_IMAGE = createEmptyTileImage();
@@ -114,6 +121,8 @@ public final class BoardUI {
         ScrollPane baseNode = new ScrollPane();
         baseNode.setId(SCROLL_PANE_ID);
         baseNode.getStylesheets().add(BOARD_CSS);
+        baseNode.setVvalue(MID_WINDOW);
+        baseNode.setHvalue(MID_WINDOW);
         GridPane grid = new GridPane();
         grid.setId(GRID_ID);
         baseNode.setContent(grid);
@@ -228,7 +237,7 @@ public final class BoardUI {
                         }
 
                         for (Occupant occupant : newTile.potentialOccupants()) {
-                            ImageView markerOccupant = new ImageView();
+                            Node markerOccupant = newFor(newTile.placer(), occupant.kind());
                             if (occupant.kind() == Occupant.Kind.HUT)
                                 markerOccupant.setId(HUT_PREFIX + occupant.zoneId());
                             else

@@ -32,11 +32,6 @@ public final class Board {
     );
 
     /**
-     * The index of the origin (0,0) tile
-     */
-    private static final int INDEX_ORIGIN_TILE = 312;
-
-    /**
      * The width of the board
      */
     private static final int WIDTH = 25;
@@ -47,7 +42,7 @@ public final class Board {
     private final PlacedTile[] placedTiles;
 
     /**
-     * The Array of the index of the tiles (in the order there were placed)
+     * The Array of the index of the tiles (in the order they were placed)
      */
     private final int[] tileIndex;
 
@@ -95,11 +90,14 @@ public final class Board {
      * @throws IllegalArgumentException if there is no tile with the given id
      */
     public PlacedTile tileWithId(int tileId) {
-        return Arrays.stream(tileIndex)
-                .mapToObj(i -> placedTiles[i])
-                .filter(tile -> tile.id() == tileId)
-                .findFirst()
-                .orElseThrow(IllegalArgumentException::new);
+        for (int i : tileIndex) {
+            PlacedTile tile = placedTiles[i];
+            if (tile.id() == tileId) {
+                return tile;
+            }
+        }
+
+        throw new IllegalArgumentException();
     }
 
     /**
@@ -117,10 +115,14 @@ public final class Board {
      * @return the set of occupants on the board
      */
     public Set<Occupant> occupants() {
-        return Arrays.stream(tileIndex)
-                .mapToObj(i -> placedTiles[i].occupant())
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+        Set<Occupant> occupants = new HashSet<>();
+        for (int i : tileIndex) {
+            Occupant occupant = placedTiles[i].occupant();
+            if (occupant != null) {
+                occupants.add(occupant);
+            }
+        }
+        return occupants;
     }
 
     /**
@@ -234,7 +236,7 @@ public final class Board {
         Set<Pos> positions = new HashSet<>();
         for (int index : tileIndex) {
             Pos pos = placedTiles[index].pos();
-            for (Direction direction : Direction.values()) {
+            for (Direction direction : Direction.ALL) {
                 Pos posToTest = pos.neighbor(direction);
                 if (isPosInBoard(posToTest) && tileAt(posToTest) == null) {
                     positions.add(posToTest);
@@ -292,7 +294,7 @@ public final class Board {
      */
     public boolean canAddTile(PlacedTile tile) {
         return insertionPositions().contains(tile.pos())
-                && Arrays.stream(Direction.values())
+                && Direction.ALL.stream()
                 .allMatch(direction -> {
                     PlacedTile neighborTile = tileAt(tile.pos().neighbor(direction));
                     return neighborTile == null
@@ -308,7 +310,7 @@ public final class Board {
      */
     public boolean couldPlaceTile(Tile tile) {
         for (Pos pos : insertionPositions()) {
-            for (Rotation rotation : Rotation.values()) {
+            for (Rotation rotation : Rotation.ALL) {
                 if (canAddTile(new PlacedTile(tile, null, rotation, pos))) {
                     return true;
                 }
@@ -336,7 +338,7 @@ public final class Board {
 
         ZonePartitions.Builder newZonePartitionsBuilder = new ZonePartitions.Builder(zonePartitions);
         newZonePartitionsBuilder.addTile(tile.tile());
-        for (Direction direction : Direction.values()) {
+        for (Direction direction : Direction.ALL) {
             PlacedTile neighborTile = tileAt(tile.pos().neighbor(direction));
             if (neighborTile != null) {
                 newZonePartitionsBuilder.connectSides(tile.side(direction), neighborTile.side(direction.opposite()));
@@ -438,8 +440,7 @@ public final class Board {
 
     @Override
     public boolean equals(Object that) {
-        if (that != null && that.getClass() == getClass()) {
-            Board thatBoard = (Board) that;
+        if (that instanceof Board thatBoard) {
             return Arrays.equals(placedTiles, thatBoard.placedTiles)
                     && Arrays.equals(tileIndex, thatBoard.tileIndex)
                     && zonePartitions.equals(thatBoard.zonePartitions)
@@ -471,7 +472,7 @@ public final class Board {
      * @return the index of the tile in placedTiles at the given position
      */
     private static int getIndexOfTile(Pos pos) {
-        return INDEX_ORIGIN_TILE + pos.x() + pos.y() * WIDTH;
+        return pos.x() + REACH + (pos.y() + REACH) * WIDTH;
     }
 
     /**

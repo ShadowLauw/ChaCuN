@@ -142,7 +142,7 @@ public record GameState(
                                 tileDecks.topTile(Tile.Kind.START),
                                 null,
                                 Rotation.NONE,
-                                new Pos(0, 0)
+                                Pos.ORIGIN
                         )
                 ),
                 Action.PLACE_TILE,
@@ -187,9 +187,8 @@ public record GameState(
                         placedTile.pos(),
                         (Zone.Meadow) specialPowerZone
                 );
-                //To add when huntingtrap is corrected
                 Set<Animal> deersToCancel = getSimpleCancelledDeers(adjacentMeadow);
-                newMessageBoard = newMessageBoard.withScoredHuntingTrap(currentPlayer(), adjacentMeadow);
+                newMessageBoard = newMessageBoard.withScoredHuntingTrap(currentPlayer(), adjacentMeadow, deersToCancel);
                 newBoard = newBoard.withMoreCancelledAnimals(Area.animals(adjacentMeadow, Set.of()));
             }
             case null, default -> {
