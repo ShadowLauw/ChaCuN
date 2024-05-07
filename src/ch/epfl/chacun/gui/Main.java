@@ -89,9 +89,9 @@ public class Main extends Application {
                 rotationTileToPlace,
                 visibleOccupants,
                 highlightedTiles,
-                rotationTileToPlace(rotationTileToPlace),
-                posOfTileChosen(gameStateO, actions,rotationTileToPlace),
-                occupantChosen(gameStateO, actions)
+                rotationConsumer(rotationTileToPlace, gameStateO),
+                posConsumer(gameStateO, actions, rotationTileToPlace),
+                occcupantConsumer(gameStateO, actions)
         );
         BorderPane rightPane = new BorderPane();
         rootNode.setCenter(board);
@@ -100,7 +100,7 @@ public class Main extends Application {
         Node playersNode = PlayersUI.create(gameStateO, textMaker);
         Node messageBoardNode = MessageBoardUI.create(messages, highlightedTiles);
         VBox deckBox = new VBox();
-        Node actionsNode = ActionsUI.create(actions, actionEntered(gameStateO, actions));
+        Node actionsNode = ActionsUI.create(actions, actionConsumer(gameStateO, actions));
         Node deckNode = DecksUI.create(
                 tileToPlace,
                 normalDeckSize,
@@ -120,7 +120,6 @@ public class Main extends Application {
         primaryStage.show();
 
         gameStateO.setValue(gameStateO.getValue().withStartingTilePlaced());
-
     }
 
     private static Map<PlayerColor, String> getPlayers(List<String> playerNames) {
@@ -154,6 +153,10 @@ public class Main extends Application {
         return state.board().tileWithId(Zone.tileId(zoneId)).placer() == state.currentPlayer();
     }
 
+    private static boolean isPlaceTileMode(GameState state) {
+        return state.nextAction() == GameState.Action.PLACE_TILE;
+    }
+
     private static void updateGameAndActions(SimpleObjectProperty<GameState> gameState,
                                              SimpleObjectProperty<List<String>> actions,
                                              ActionEncoder.StateAction stateAction
@@ -166,31 +169,36 @@ public class Main extends Application {
         }
     }
 
-    private Consumer<Rotation> rotationTileToPlace(SimpleObjectProperty<Rotation> rotationTileToPlace) {
-        return rotation -> rotationTileToPlace.setValue(rotationTileToPlace.getValue().add(rotation));
+    private Consumer<Rotation> rotationConsumer(SimpleObjectProperty<Rotation> rotationTileToPlace, SimpleObjectProperty<GameState> gameState) {
+        return rotation -> {
+            if (isPlaceTileMode(gameState.getValue()))
+                rotationTileToPlace.setValue(rotationTileToPlace.getValue().add(rotation));
+        };
     }
 
-    private Consumer<Pos> posOfTileChosen(SimpleObjectProperty<GameState> gameState,
-                                          SimpleObjectProperty<List<String>> actions,
-                                          SimpleObjectProperty<Rotation> rotationTileToPlace
+    private Consumer<Pos> posConsumer(SimpleObjectProperty<GameState> gameState,
+                                      SimpleObjectProperty<List<String>> actions,
+                                      SimpleObjectProperty<Rotation> rotationTileToPlace
     ) {
         return pos -> {
             GameState currentGameState = gameState.getValue();
-            PlacedTile tileToAdd = new PlacedTile(
-                    currentGameState.tileToPlace(),
-                    currentGameState.currentPlayer(),
-                    rotationTileToPlace.getValue(),
-                    pos
-            );
-            if (currentGameState.board().canAddTile(tileToAdd)) {
-                ActionEncoder.StateAction stateAction = ActionEncoder.withPlacedTile(currentGameState, tileToAdd);
-                updateGameAndActions(gameState, actions, stateAction);
-                rotationTileToPlace.setValue(Rotation.NONE);
+            if (isPlaceTileMode(currentGameState)) {
+                PlacedTile tileToAdd = new PlacedTile(
+                        currentGameState.tileToPlace(),
+                        currentGameState.currentPlayer(),
+                        rotationTileToPlace.getValue(),
+                        pos
+                );
+                if (currentGameState.board().canAddTile(tileToAdd)) {
+                    ActionEncoder.StateAction stateAction = ActionEncoder.withPlacedTile(currentGameState, tileToAdd);
+                    updateGameAndActions(gameState, actions, stateAction);
+                    rotationTileToPlace.setValue(Rotation.NONE);
+                }
             }
         };
     }
 
-    private Consumer<Occupant> occupantChosen(SimpleObjectProperty<GameState> gameState,  SimpleObjectProperty<List<String >> actions) {
+    private Consumer<Occupant> occcupantConsumer(SimpleObjectProperty<GameState> gameState, SimpleObjectProperty<List<String>> actions) {
         return occupant -> {
             GameState currentGameState = gameState.getValue();
             if (currentGameState.nextAction() == GameState.Action.OCCUPY_TILE
@@ -208,7 +216,7 @@ public class Main extends Application {
         };
     }
 
-    private Consumer<String> actionEntered(SimpleObjectProperty<GameState> gameState, SimpleObjectProperty<List<String >> actions) {
+    private Consumer<String> actionConsumer(SimpleObjectProperty<GameState> gameState, SimpleObjectProperty<List<String>> actions) {
         return action -> {
             if (Base32.isValid(action)) {
                 ActionEncoder.StateAction stateAction = ActionEncoder.decodeAndApply(gameState.getValue(), action);
@@ -217,7 +225,7 @@ public class Main extends Application {
         };
     }
 
-    private Consumer<Occupant> noPawnEventHandler(SimpleObjectProperty<GameState> gameState, SimpleObjectProperty<List<String >> actions) {
+    private Consumer<Occupant> noPawnEventHandler(SimpleObjectProperty<GameState> gameState, SimpleObjectProperty<List<String>> actions) {
         return occupant -> {
             GameState currentGameState = gameState.getValue();
             ActionEncoder.StateAction stateAction = switch (currentGameState.nextAction()) {

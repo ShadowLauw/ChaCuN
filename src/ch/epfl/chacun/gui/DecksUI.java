@@ -74,6 +74,7 @@ public final class DecksUI {
         //------------Constructing the tile decks--------------------
         HBox decks = new HBox();
         decks.setId(DECKS_ID);
+        decks.setAlignment(javafx.geometry.Pos.CENTER);
         decks.getChildren().add(constructImageStackPane(NORMAL_DECK_ID, normalDeckSize));
         decks.getChildren().add(constructImageStackPane(MENHIR_DECK_ID, menhirDeckSize));
 

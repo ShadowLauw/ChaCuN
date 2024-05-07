@@ -16,26 +16,31 @@ public final class ImageLoader {
      * Tile large image pixel size
      */
     public static final int LARGE_TILE_PIXEL_SIZE = 512;
+
     /**
      * Tile large image display pixel size
      */
-    public static final int LARGE_TILE_FIT_SIZE = 256;
+    public static final int LARGE_TILE_FIT_SIZE = LARGE_TILE_PIXEL_SIZE / 2;
+
     /**
      * Tile normal image pixel size
      */
     public static final int NORMAL_TILE_PIXEL_SIZE = 256;
+
     /**
      * Tile normal image display pixel size
      */
-    public static final int NORMAL_TILE_FIT_SIZE = 128;
+    public static final int NORMAL_TILE_FIT_SIZE = NORMAL_TILE_PIXEL_SIZE / 2;
+
     /**
      * Marker image pixel size
      */
     public static final int MARKER_PIXEL_SIZE = 96;
+
     /**
      * Marker image display pixel size
      */
-    public static final int MARKER_FIT_SIZE = 48;
+    public static final int MARKER_FIT_SIZE = MARKER_PIXEL_SIZE / 2;
 
     /**
      * Private constructor to prevent instantiation.

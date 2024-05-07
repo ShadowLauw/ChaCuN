@@ -93,7 +93,8 @@ public final class BoardUI {
     /**
      * Private constructor to prevent instantiation.
      */
-    private BoardUI() {}
+    private BoardUI() {
+    }
 
     /**
      * Creates a Node of the board display
@@ -103,9 +104,9 @@ public final class BoardUI {
      * @param rotationOfTile   the observable value of the rotation of the tile
      * @param visibleOccupants the observable value of the visible occupants
      * @param highlightedTiles the observable value of the highlighted tiles
-     * @param rotationOnClick  the consumer to call when a rotation is clicked
-     * @param posOfTileChosen  the consumer to call when a tile is chosen
-     * @param occupantChosen   the consumer to call when an occupant is chosen
+     * @param rotationConsumer  the consumer to call when a rotation is clicked
+     * @param posConsumer  the consumer to call when a tile is chosen
+     * @param occupantConsumer   the consumer to call when an occupant is chosen
      * @return a node displaying the board
      */
     public static Node create(int range,
@@ -113,9 +114,9 @@ public final class BoardUI {
                               ObservableValue<Rotation> rotationOfTile,
                               ObservableValue<Set<Occupant>> visibleOccupants,
                               ObservableValue<Set<Integer>> highlightedTiles,
-                              Consumer<Rotation> rotationOnClick,
-                              Consumer<Pos> posOfTileChosen,
-                              Consumer<Occupant> occupantChosen
+                              Consumer<Rotation> rotationConsumer,
+                              Consumer<Pos> posConsumer,
+                              Consumer<Occupant> occupantConsumer
     ) {
         // Create the base node
         ScrollPane baseNode = new ScrollPane();
@@ -186,8 +187,7 @@ public final class BoardUI {
                                     //No veil otherwise, the image of the tile to place is displayed
                                     return new CellData(tileImage, rotationOfTile.getValue().degreesCW());
                                 }/* If the mouse is not over the cell, but it is part of the insertion positions
-                                     and the action is to place a tile -> Player color veil, empty image */
-                                else if (currentPlayer != null) {
+                                     and the action is to place a tile -> Player color veil, empty image */ else if (currentPlayer != null) {
                                     return new CellData(rotationOfTile.getValue().degreesCW(),
                                             ColorMap.fillColor(currentPlayer)
                                     );
@@ -209,16 +209,14 @@ public final class BoardUI {
 
                 //Click effect management
                 tileGroup.setOnMouseClicked(e -> {
-                    if (isInsertionAndDisplayed.getValue()) {
-                        MouseButton button = e.getButton();
-                        if (button == MouseButton.PRIMARY) {
-                            posOfTileChosen.accept(posOfTile);
-                        } else if (button == MouseButton.SECONDARY) {
-                            if (e.isAltDown()) {
-                                rotationOnClick.accept(Rotation.RIGHT);
-                            } else {
-                                rotationOnClick.accept(Rotation.LEFT);
-                            }
+                    MouseButton button = e.getButton();
+                    if (button == MouseButton.PRIMARY) {
+                        posConsumer.accept(posOfTile);
+                    } else if (button == MouseButton.SECONDARY) {
+                        if (e.isAltDown()) {
+                            rotationConsumer.accept(Rotation.RIGHT);
+                        } else {
+                            rotationConsumer.accept(Rotation.LEFT);
                         }
                     }
                 });
@@ -230,6 +228,8 @@ public final class BoardUI {
                             for (Animal animal : meadow.animals()) {
                                 ImageView markerAnimal = new ImageView();
                                 markerAnimal.setId(MARKER_PREFIX + animal.id());
+                                markerAnimal.setFitHeight(ImageLoader.MARKER_FIT_SIZE);
+                                markerAnimal.setFitWidth(ImageLoader.MARKER_FIT_SIZE);
                                 markerAnimal.getStyleClass().add(MARKER_CLASS);
                                 markerAnimal.visibleProperty().bind(cancelledAnimals.map(s -> s.contains(animal)));
                                 tileGroup.getChildren().add(markerAnimal);
@@ -245,7 +245,7 @@ public final class BoardUI {
 
                             markerOccupant.visibleProperty().bind(visibleOccupants.map(s -> s.contains(occupant)));
                             markerOccupant.rotateProperty().bind(observableTile.map(t -> -t.rotation));
-                            markerOccupant.setOnMouseClicked(_ -> occupantChosen.accept(occupant));
+                            markerOccupant.setOnMouseClicked(_ -> occupantConsumer.accept(occupant));
                             tileGroup.getChildren().add(markerOccupant);
                         }
                     }
@@ -279,7 +279,7 @@ public final class BoardUI {
      * Represents the data of a cell of the board
      *
      * @param tileImage the image of the tile
-     * @param rotation the rotation of the tile in degrees
+     * @param rotation  the rotation of the tile in degrees
      * @param veilColor the color of the veil
      */
     private record CellData(Image tileImage,
@@ -297,7 +297,7 @@ public final class BoardUI {
          * Creates a cell data with the given tile image, rotation and no veil color
          *
          * @param tileImage the image of the tile
-         * @param rotation the rotation of the tile in degrees
+         * @param rotation  the rotation of the tile in degrees
          */
         public CellData(Image tileImage, int rotation) {
             this(tileImage, rotation, null);
@@ -306,7 +306,7 @@ public final class BoardUI {
         /**
          * Creates a cell data with the empty tile image, the given rotation and veil color
          *
-         * @param rotation the rotation of the tile in degrees
+         * @param rotation  the rotation of the tile in degrees
          * @param veilColor the color of the veil
          */
         public CellData(int rotation, Color veilColor) {
