@@ -46,16 +46,6 @@ public final class BoardUI {
     private static final String GRID_ID = "board-grid";
 
     /**
-     * Prefix for the pawns IDs.
-     */
-    private static final String PAWN_PREFIX = "pawn_";
-
-    /**
-     * Prefix for the huts IDs.
-     */
-    private static final String HUT_PREFIX = "hut_";
-
-    /**
      * Prefix for the markers IDs.
      */
     private static final String MARKER_PREFIX = "marker_";
@@ -238,11 +228,7 @@ public final class BoardUI {
 
                         for (Occupant occupant : newTile.potentialOccupants()) {
                             Node markerOccupant = newFor(newTile.placer(), occupant.kind());
-                            if (occupant.kind() == Occupant.Kind.HUT)
-                                markerOccupant.setId(HUT_PREFIX + occupant.zoneId());
-                            else
-                                markerOccupant.setId(PAWN_PREFIX + occupant.zoneId());
-
+                            markerOccupant.setId(STR."\{occupant.kind().toString().toLowerCase()}_\{occupant.zoneId()}");
                             markerOccupant.visibleProperty().bind(visibleOccupants.map(s -> s.contains(occupant)));
                             markerOccupant.rotateProperty().bind(observableTile.map(t -> -t.rotation));
                             markerOccupant.setOnMouseClicked(_ -> occupantConsumer.accept(occupant));

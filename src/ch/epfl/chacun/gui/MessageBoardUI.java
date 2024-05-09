@@ -61,7 +61,10 @@ public final class MessageBoardUI {
                 text.setWrappingWidth(ImageLoader.LARGE_TILE_FIT_SIZE);
                 messagesBox.getChildren().add(text);
             }
-            runLater(() -> scrollPane.setVvalue(1));
+            runLater(() -> {
+                scrollPane.layout();
+                scrollPane.setVvalue(1);
+            });
         });
 
         return scrollPane;
