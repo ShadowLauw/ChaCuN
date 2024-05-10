@@ -35,9 +35,9 @@ public final class ActionsUI {
     private static final String FIELD_ID = "action-field";
 
     /**
-     * Number of actions to display.
+     * The number of actions to display.
      */
-    private static final int NUMBER_OF_ACTIONS_TO_DISPLAY = 4;
+    private static final int NUMBER_OF_ACTION_TO_DISPLAY = 4;
 
     /**
      * Private constructor to prevent instantiation.
@@ -85,7 +85,7 @@ public final class ActionsUI {
 
         StringBuilder sb = new StringBuilder();
         int lastIndex = list.size() - 1;
-        int firstIndex = Math.max(0, lastIndex - NUMBER_OF_ACTIONS_TO_DISPLAY);
+        int firstIndex = Math.max(0, list.size() - NUMBER_OF_ACTION_TO_DISPLAY);
         for (int i = firstIndex; i <= lastIndex; ++i) {
             sb.append(i + 1).append(':').append(list.get(i));
             if (i != lastIndex) {

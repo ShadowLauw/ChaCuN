@@ -86,7 +86,7 @@ public final class ActionEncoder {
      * @return a StateAction containing the new game state and the encoded action
      */
     public static StateAction withOccupantRemoved(GameState state, Occupant occupant) {
-        int encodedAction = occupant == null ? NO_OCCUPANT : occupantsSorter(state).indexOf(occupant);
+        int encodedAction = occupant == null ? NO_OCCUPANT : pawnsSorter(state).indexOf(occupant);
 
         return new StateAction(state.withOccupantRemoved(occupant), Base32.encodeBits5(encodedAction));
     }
@@ -140,7 +140,7 @@ public final class ActionEncoder {
             }
             case OCCUPY_TILE -> {
                 if (decoded == NO_OCCUPANT) {
-                    yield new StateAction(state.withOccupantRemoved(null), action);
+                    yield new StateAction(state.withNewOccupant(null), action);
                 }
                 int zoneLocalId = decoded & MASK_ZONE_OCCUPANT;
                 int kind = decoded >> OCCUPANT_KIND_SHIFT;
@@ -159,15 +159,15 @@ public final class ActionEncoder {
                 if (decoded == NO_OCCUPANT) {
                     yield new StateAction(state.withOccupantRemoved(null), action);
                 }
-                List<Occupant> occupants = occupantsSorter(state);
+                List<Occupant> pawns = pawnsSorter(state);
 
                 checkStringLength(action, LENGTH_RETAKE_PAWN);
-                checkListSize(occupants, decoded);
+                checkListSize(pawns, decoded);
 
-                Occupant occupant = occupants.get(decoded);
-                checkOccupantIsOwnedByCurrentPlayer(state, occupant);
+                Occupant pawn = pawns.get(decoded);
+                checkOccupantIsOwnedByCurrentPlayer(state, pawn);
 
-                yield new StateAction(state.withOccupantRemoved(occupant), action);
+                yield new StateAction(state.withOccupantRemoved(pawn), action);
             }
             default -> throw new ActionException();
         };
@@ -234,15 +234,17 @@ public final class ActionEncoder {
     }
 
     /**
-     * Sorts the occupants of a game state by zone ID in ascending order.
+     * Sorts the pawns of a game state by zone ID in ascending order.
      *
      * @param state the game state
-     * @return a sorted list of occupants
+     * @return a sorted list of pawn occupants
      */
-    private static List<Occupant> occupantsSorter(GameState state) {
+    private static List<Occupant> pawnsSorter(GameState state) {
         List<Occupant> occupants = new ArrayList<>(state.board().occupants());
-        occupants.sort(Comparator.comparingInt(Occupant::zoneId));
-        return occupants;
+        return occupants.stream()
+                .filter(o -> o.kind() == Occupant.Kind.PAWN)
+                .sorted(Comparator.comparingInt(Occupant::zoneId))
+                .toList();
     }
 
     /**
@@ -254,6 +256,9 @@ public final class ActionEncoder {
     public record StateAction(GameState state, String action) {
     }
 
+    /**
+     * Represents an exception thrown when an action is invalid.
+     */
     private static class ActionException extends Exception {}
 }
 

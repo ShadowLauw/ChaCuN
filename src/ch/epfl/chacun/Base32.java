@@ -90,6 +90,6 @@ public final class Base32 {
      * @return the number represented by the Base32 string
      */
     private static int decodeTwoChars(String encoded) {
-        return decodeOneChar(encoded.charAt(0)) + (decodeOneChar(encoded.charAt(1)) << BITS_PER_CHAR);
+        return (decodeOneChar(encoded.charAt(0)) << BITS_PER_CHAR) + decodeOneChar(encoded.charAt(1));
     }
 }

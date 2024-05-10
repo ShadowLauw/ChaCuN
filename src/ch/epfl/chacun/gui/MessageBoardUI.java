@@ -50,7 +50,6 @@ public final class MessageBoardUI {
         scrollPane.getStylesheets().add(MESSAGE_BOARD_CSS);
 
         VBox messagesBox = new VBox();
-        messagesBox.setAlignment(Pos.CENTER);
         scrollPane.setContent(messagesBox);
 
         messages.addListener((_, oldV, newV) -> {
