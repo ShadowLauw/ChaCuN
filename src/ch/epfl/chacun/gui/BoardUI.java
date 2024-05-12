@@ -61,6 +61,17 @@ public final class BoardUI {
     private static final double OPACITY_VEIL = 0.5;
 
     /**
+     * A basic color input for a veil.
+     */
+    private static final ColorInput BASE_COLOR_INPUT_VEIL =  new ColorInput(
+            0,
+            0,
+            ImageLoader.NORMAL_TILE_FIT_SIZE,
+            ImageLoader.NORMAL_TILE_FIT_SIZE,
+            Color.TRANSPARENT
+    );
+
+    /**
      * The position of the middle of the window.
      */
     private static final double MID_WINDOW = 0.5;
@@ -152,7 +163,11 @@ public final class BoardUI {
                                 Set<Integer> highlightedTilesValue = highlightedTiles.getValue();
                                 //Check if it has to be not highlighted -> Black veil if it has
                                 if (!highlightedTilesValue.isEmpty() && !highlightedTilesValue.contains(tile.id()))
-                                    return new CellData(tileImage, tile.rotation().degreesCW(), Color.BLACK);
+                                    return new CellData(
+                                            tileImage,
+                                            tile.rotation().degreesCW(),
+                                            deriveColorMidOpacity(Color.BLACK)
+                                    );
 
                                 //No veil otherwise, the image of the tile is displayed
                                 return new CellData(tileImage, tile.rotation().degreesCW());
@@ -171,15 +186,21 @@ public final class BoardUI {
                                     );
                                     //Check if the tile can be placed on the board or not -> White veil if it can't
                                     if (!board.getValue().canAddTile(tileToPlace)) {
-                                        return new CellData(tileImage, rotationOfTile.getValue().degreesCW(), Color.WHITE);
+                                        return new CellData(
+                                                tileImage,
+                                                rotationOfTile.getValue().degreesCW(),
+                                                deriveColorMidOpacity(Color.WHITE)
+                                        );
                                     }
 
                                     //No veil otherwise, the image of the tile to place is displayed
                                     return new CellData(tileImage, rotationOfTile.getValue().degreesCW());
                                 }/* If the mouse is not over the cell, but it is part of the insertion positions
-                                     and the action is to place a tile -> Player color veil, empty image */ else if (currentPlayer != null) {
-                                    return new CellData(rotationOfTile.getValue().degreesCW(),
-                                            ColorMap.fillColor(currentPlayer)
+                                     and the action is to place a tile -> Player color veil, empty image */
+                                else if (currentPlayer != null) {
+                                    return new CellData(
+                                            rotationOfTile.getValue().degreesCW(),
+                                            deriveColorMidOpacity(ColorMap.fillColor(currentPlayer))
                                     );
                                 }
                             }
@@ -239,18 +260,8 @@ public final class BoardUI {
 
                 //Others effects management
                 tileGroup.rotateProperty().bind(observableTile.map(t -> t.rotation));
-                ColorInput veilInput = new ColorInput(
-                        0,
-                        0,
-                        ImageLoader.NORMAL_TILE_FIT_SIZE,
-                        ImageLoader.NORMAL_TILE_FIT_SIZE,
-                        Color.TRANSPARENT
-                );
-                veilInput.paintProperty().bind(observableTile.map(t ->
-                        t.veilColor != null
-                                ? t.veilColor.deriveColor(0, 1, 1, OPACITY_VEIL)
-                                : Color.TRANSPARENT
-                ));
+                ColorInput veilInput = BASE_COLOR_INPUT_VEIL;
+                veilInput.paintProperty().bind(observableTile.map(t -> t.veilColor));
 
                 tileGroup.setEffect(new Blend(BlendMode.SRC_OVER, null, veilInput));
 
@@ -276,7 +287,7 @@ public final class BoardUI {
          * Creates a cell data with the empty tile image, no rotation and no veil color
          */
         public CellData() {
-            this(EMPTY_TILE_IMAGE, 0, null);
+            this(EMPTY_TILE_IMAGE, 0, Color.TRANSPARENT);
         }
 
         /**
@@ -286,7 +297,7 @@ public final class BoardUI {
          * @param rotation  the rotation of the tile in degrees
          */
         public CellData(Image tileImage, int rotation) {
-            this(tileImage, rotation, null);
+            this(tileImage, rotation, Color.TRANSPARENT);
         }
 
         /**
@@ -300,9 +311,25 @@ public final class BoardUI {
         }
     }
 
+    /**
+     * Create an empty tileImage (Off-White Background)
+     *
+     * @return an empty tileImage (Off-White Background)
+     */
     private static WritableImage createEmptyTileImage() {
         WritableImage image = new WritableImage(1, 1);
         image.getPixelWriter().setColor(0, 0, Color.gray(EMPTY_GRAY_COLOR));
+
         return image;
+    }
+
+    /**
+     * Return a color with its opacity at 0.5
+     *
+     * @param color The color to derive
+     * @return a color with its opacity at 0.5
+     */
+    private static Color deriveColorMidOpacity(Color color) {
+        return color.deriveColor(0, 1, 1, OPACITY_VEIL);
     }
 }
