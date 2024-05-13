@@ -26,10 +26,24 @@ import static java.lang.Long.parseUnsignedLong;
  * @author Emmanuel Omont (372632)
  */
 public class Main extends Application {
+    /**
+     * The key for the seed parameter.
+     */
     private static final String SEED_KEY = "seed";
+    /**
+     * The height of the window.
+     */
     private static final double WINDOW_HEIGHT = 1080;
+    /**
+     * The width of the window.
+     */
     private static final double WINDOW_WIDTH = 1440;
 
+    /**
+     * The main method of the application.
+     *
+     * @param args the command-line arguments
+     */
     public static void main(String[] args) {
         launch(args);
     }
@@ -122,6 +136,12 @@ public class Main extends Application {
         gameStateO.setValue(gameStateO.getValue().withStartingTilePlaced());
     }
 
+    /**
+     * Returns a map of players with their respective colors.
+     *
+     * @param playerNames the list of player names
+     * @return a map of players with their respective colors
+     */
     private static Map<PlayerColor, String> getPlayers(List<String> playerNames) {
         Preconditions.checkArgument(playerNames.size() >= 2 && playerNames.size() <= 5);
         Map<PlayerColor, String> players = new HashMap<>();
@@ -132,6 +152,12 @@ public class Main extends Application {
         return players;
     }
 
+    /**
+     * Returns a shuffled deck of tiles.
+     *
+     * @param seedMap the seed map
+     * @return a shuffled deck of tiles
+     */
     private static TileDecks getShuffledTiles(Map<String, String> seedMap) {
         String seedString = seedMap.get(SEED_KEY);
         Long seed = seedString == null ? null : parseUnsignedLong(seedString);
@@ -149,14 +175,34 @@ public class Main extends Application {
         );
     }
 
+    /**
+     * Returns whether the placer of the tile is the current player.
+     *
+     * @param state the game state
+     * @param zoneId the zone id
+     * @return whether the placer of the tile is the current player
+     */
     private static boolean placerIsCurrentPlayer(GameState state, int zoneId) {
         return state.board().tileWithId(Zone.tileId(zoneId)).placer() == state.currentPlayer();
     }
 
+    /**
+     * Returns whether the game state is in place tile mode.
+     *
+     * @param state the game state
+     * @return whether the game state is in place tile mode
+     */
     private static boolean isPlaceTileMode(GameState state) {
         return state.nextAction() == GameState.Action.PLACE_TILE;
     }
 
+    /**
+     * Updates the game state and the list of actions.
+     *
+     * @param gameState the game state
+     * @param actions the list of actions
+     * @param stateAction the state action
+     */
     private static void updateGameAndActions(SimpleObjectProperty<GameState> gameState,
                                              SimpleObjectProperty<List<String>> actions,
                                              ActionEncoder.StateAction stateAction
@@ -169,6 +215,13 @@ public class Main extends Application {
         }
     }
 
+    /**
+     * Returns a consumer that updates the rotation of the tile to place.
+     *
+     * @param rotationTileToPlace the rotation of the tile to place
+     * @param gameState the game state
+     * @return a consumer that updates the rotation of the tile to place
+     */
     private Consumer<Rotation> rotationConsumer(SimpleObjectProperty<Rotation> rotationTileToPlace, SimpleObjectProperty<GameState> gameState) {
         return rotation -> {
             if (isPlaceTileMode(gameState.getValue()))
@@ -176,6 +229,14 @@ public class Main extends Application {
         };
     }
 
+    /**
+     * Returns a consumer that updates the position of the tile to place.
+     *
+     * @param gameState the game state
+     * @param actions the list of actions
+     * @param rotationTileToPlace the rotation of the tile to place
+     * @return a consumer that updates the position of the tile to place
+     */
     private Consumer<Pos> posConsumer(SimpleObjectProperty<GameState> gameState,
                                       SimpleObjectProperty<List<String>> actions,
                                       SimpleObjectProperty<Rotation> rotationTileToPlace
@@ -198,6 +259,13 @@ public class Main extends Application {
         };
     }
 
+    /**
+     * Returns a consumer that updates the occupant of a tile (put or remove)
+     *
+     * @param gameState the game state
+     * @param actions the list of actions
+     * @return a consumer that updates the occupant of a tile
+     */
     private Consumer<Occupant> occcupantConsumer(SimpleObjectProperty<GameState> gameState, SimpleObjectProperty<List<String>> actions) {
         return occupant -> {
             GameState currentGameState = gameState.getValue();
@@ -216,6 +284,13 @@ public class Main extends Application {
         };
     }
 
+    /**
+     * Returns a consumer that updates the game state and the list of actions.
+     *
+     * @param gameState the game state
+     * @param actions the list of actions
+     * @return a consumer that updates the game state and the list of actions
+     */
     private Consumer<String> actionConsumer(SimpleObjectProperty<GameState> gameState, SimpleObjectProperty<List<String>> actions) {
         return action -> {
             if (Base32.isValid(action)) {
@@ -225,6 +300,13 @@ public class Main extends Application {
         };
     }
 
+    /**
+     * Returns a consumer that updates the game state and the list of actions when no pawn is selected.
+     *
+     * @param gameState the game state
+     * @param actions the list of actions
+     * @return a consumer that updates the game state and the list of actions
+     */
     private Consumer<Occupant> noPawnEventHandler(SimpleObjectProperty<GameState> gameState, SimpleObjectProperty<List<String>> actions) {
         return occupant -> {
             GameState currentGameState = gameState.getValue();
