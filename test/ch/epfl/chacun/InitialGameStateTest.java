@@ -2,7 +2,6 @@
 
 package ch.epfl.chacun;
 
-import ch.epfl.chacun.tile.Tiles;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Modifier;
