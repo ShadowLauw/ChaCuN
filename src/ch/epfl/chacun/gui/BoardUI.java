@@ -220,14 +220,16 @@ public final class BoardUI {
 
                 //Click effect management
                 tileGroup.setOnMouseClicked(e -> {
-                    MouseButton button = e.getButton();
-                    if (button == MouseButton.PRIMARY) {
-                        posConsumer.accept(posOfTile);
-                    } else if (button == MouseButton.SECONDARY) {
-                        if (e.isAltDown()) {
-                            rotationConsumer.accept(Rotation.RIGHT);
-                        } else {
-                            rotationConsumer.accept(Rotation.LEFT);
+                    if (e.isStillSincePress()) {
+                        MouseButton button = e.getButton();
+                        if (button == MouseButton.PRIMARY) {
+                            posConsumer.accept(posOfTile);
+                        } else if (button == MouseButton.SECONDARY) {
+                            if (e.isAltDown()) {
+                                rotationConsumer.accept(Rotation.RIGHT);
+                            } else {
+                                rotationConsumer.accept(Rotation.LEFT);
+                            }
                         }
                     }
                 });
@@ -252,7 +254,11 @@ public final class BoardUI {
                             markerOccupant.setId(STR."\{occupant.kind().toString().toLowerCase()}_\{occupant.zoneId()}");
                             markerOccupant.visibleProperty().bind(visibleOccupants.map(s -> s.contains(occupant)));
                             markerOccupant.rotateProperty().bind(observableTile.map(t -> -t.rotation));
-                            markerOccupant.setOnMouseClicked(_ -> occupantConsumer.accept(occupant));
+                            markerOccupant.setOnMouseClicked(e -> {
+                                if (e.isStillSincePress()) {
+                                    occupantConsumer.accept(occupant);
+                                }
+                            });
                             tileGroup.getChildren().add(markerOccupant);
                         }
                     }

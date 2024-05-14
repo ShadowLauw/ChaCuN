@@ -73,9 +73,9 @@ public final class PlayersUI {
         ObservableValue<Map<PlayerColor, Integer>> points = gameState.map(g -> g.messageBoard().points());
         ObservableValue<PlayerColor> currentPlayer = gameState.map(GameState::currentPlayer);
 
-        for (PlayerColor player : PlayerColor.ALL) {
+        for (PlayerColor player : gameState.getValue().players()) {
             String playerName = textMaker.playerName(player);
-            if (playerName != null) {
+            //if (playerName != null) {
                 //Player node
                 TextFlow playerInfos = new TextFlow();
                 playerInfos.getStyleClass().add(PLAYER_STYLE_CLASS);
@@ -125,7 +125,7 @@ public final class PlayersUI {
                 });
 
                 playersUI.getChildren().add(playerInfos);
-            }
+            //}
         }
 
         return playersUI;
