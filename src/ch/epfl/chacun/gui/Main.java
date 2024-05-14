@@ -81,6 +81,7 @@ public class Main extends Application {
                     if (g.nextAction() == GameState.Action.OCCUPY_TILE) {
                         visibleOccupantsSet.addAll(g.lastTilePotentialOccupants());
                     }
+
                     return visibleOccupantsSet;
                 }
         );

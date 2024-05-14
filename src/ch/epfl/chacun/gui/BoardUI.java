@@ -61,17 +61,6 @@ public final class BoardUI {
     private static final double OPACITY_VEIL = 0.5;
 
     /**
-     * A basic color input for a veil.
-     */
-    private static final ColorInput BASE_COLOR_INPUT_VEIL =  new ColorInput(
-            0,
-            0,
-            ImageLoader.NORMAL_TILE_FIT_SIZE,
-            ImageLoader.NORMAL_TILE_FIT_SIZE,
-            Color.TRANSPARENT
-    );
-
-    /**
      * The position of the middle of the window.
      */
     private static final double MID_WINDOW = 0.5;
@@ -260,7 +249,13 @@ public final class BoardUI {
 
                 //Others effects management
                 tileGroup.rotateProperty().bind(observableTile.map(t -> t.rotation));
-                ColorInput veilInput = BASE_COLOR_INPUT_VEIL;
+                ColorInput veilInput = new ColorInput(
+                        0,
+                        0,
+                        ImageLoader.NORMAL_TILE_FIT_SIZE,
+                        ImageLoader.NORMAL_TILE_FIT_SIZE,
+                        Color.TRANSPARENT
+                );
                 veilInput.paintProperty().bind(observableTile.map(t -> t.veilColor));
 
                 tileGroup.setEffect(new Blend(BlendMode.SRC_OVER, null, veilInput));
