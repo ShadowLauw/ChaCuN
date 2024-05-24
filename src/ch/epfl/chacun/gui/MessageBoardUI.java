@@ -3,7 +3,6 @@ package ch.epfl.chacun.gui;
 import ch.epfl.chacun.MessageBoard;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ObservableValue;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
@@ -12,8 +11,6 @@ import javafx.scene.text.Text;
 import java.util.List;
 import java.util.Set;
 
-import static javafx.application.Platform.runLater;
-
 /**
  * Displays the message board part of the interface of the game
  *
@@ -21,11 +18,11 @@ import static javafx.application.Platform.runLater;
  * @author Emmanuel Omont (372632)
  */
 public final class MessageBoardUI {
-
     /**
      * The path to the CSS file for the message board UI.
      */
     private static final String MESSAGE_BOARD_CSS = "message-board.css";
+
     /**
      * ID of the base node of the message board UI.
      */
@@ -60,10 +57,8 @@ public final class MessageBoardUI {
                 text.setWrappingWidth(ImageLoader.LARGE_TILE_FIT_SIZE);
                 messagesBox.getChildren().add(text);
             }
-            runLater(() -> {
-                scrollPane.layout();
-                scrollPane.setVvalue(1);
-            });
+            scrollPane.layout();
+            scrollPane.setVvalue(1);
         });
 
         return scrollPane;

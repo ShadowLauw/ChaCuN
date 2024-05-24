@@ -3,6 +3,7 @@ package ch.epfl.chacun.gui;
 import ch.epfl.chacun.*;
 import ch.epfl.chacun.Tiles;
 import javafx.application.Application;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
@@ -13,6 +14,7 @@ import javafx.stage.Stage;
 
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.random.RandomGenerator;
 import java.util.random.RandomGeneratorFactory;
 import java.util.stream.Collectors;
@@ -30,14 +32,31 @@ public class Main extends Application {
      * The key for the seed parameter.
      */
     private static final String SEED_KEY = "seed";
+
+    /**
+     * The title of the window
+     */
+    private static final String WINDOW_TITLE = "ChaCuN";
+
     /**
      * The height of the window.
      */
     private static final double WINDOW_HEIGHT = 1080;
+
     /**
      * The width of the window.
      */
     private static final double WINDOW_WIDTH = 1440;
+
+    /**
+     * The minimum number of players
+     */
+    private static final int MIN_PLAYERS = 2;
+
+    /**
+     * The maximum number of players
+     */
+    private static final int MAX_PLAYERS = 5;
 
     /**
      * The main method of the application.
@@ -49,60 +68,42 @@ public class Main extends Application {
     }
 
     /**
-     * The main entry point for all JavaFX applications.
-     * The start method is called after the init method has returned,
-     * and after the system is ready for the application to begin running.
+     * Starts the game.
      *
-     * <p>
-     * NOTE: This method is called on the JavaFX Application Thread.
-     * </p>
-     *
-     * @param primaryStage the primary stage for this application, onto which
-     *                     the application scene can be set.
-     *                     Applications may create other stages, if needed, but they will not be
-     *                     primary stages.
-     * @throws Exception if something goes wrong
+     * @param primaryStage the primary stage
+     * @throws Exception if an exception occurs
      */
     @Override
     public void start(Stage primaryStage) throws Exception {
+        //Parameters & Players management
         Parameters param = getParameters();
         List<String> playerNames = param.getUnnamed();
         Map<String, String> seedMap = param.getNamed();
         Map<PlayerColor, String> players = getPlayers(playerNames);
 
+        //Initial game state management
         TileDecks myTileDecks = getShuffledTiles(seedMap);
         TextMakerFr textMaker = new TextMakerFr(players);
-        GameState gameState = GameState.initial(players.keySet().stream().sorted().toList(), myTileDecks, textMaker);
-        SimpleObjectProperty<GameState> gameStateO = new SimpleObjectProperty<>(gameState);
+        GameState initialGameState = GameState.initial(players.keySet().stream().sorted().toList(), myTileDecks, textMaker);
+        ObjectProperty<GameState> gameStateO = new SimpleObjectProperty<>(initialGameState);
 
-        SimpleObjectProperty<Rotation> rotationTileToPlace = new SimpleObjectProperty<>(Rotation.NONE);
-        ObservableValue<Set<Occupant>> visibleOccupants = gameStateO.map(g -> {
-                    Set<Occupant> visibleOccupantsSet = new HashSet<>(g.board().occupants());
-                    if (g.nextAction() == GameState.Action.OCCUPY_TILE) {
-                        visibleOccupantsSet.addAll(g.lastTilePotentialOccupants());
-                    }
-
-                    return visibleOccupantsSet;
-                }
-        );
-        SimpleObjectProperty<Set<Integer>> highlightedTiles = new SimpleObjectProperty<>(Set.of());
-        SimpleObjectProperty<List<String>> actions = new SimpleObjectProperty<>(List.of());
-        ObservableValue<List<MessageBoard.Message>> messages = gameStateO.map(g -> g.messageBoard().messages());
-        ObservableValue<Tile> tileToPlace = gameStateO.map(GameState::tileToPlace);
-        ObservableValue<Integer> normalDeckSize = gameStateO.map(g -> g.tileDecks().deckSize(Tile.Kind.NORMAL));
-        ObservableValue<Integer> menhirDeckSize = gameStateO.map(g -> g.tileDecks().deckSize(Tile.Kind.MENHIR));
+        //Parameters for the GUI creation
+        ObjectProperty<Rotation> rotationTileToPlace = new SimpleObjectProperty<>(Rotation.NONE);
+        ObjectProperty<Set<Integer>> highlightedTiles = new SimpleObjectProperty<>(Set.of());
+        ObjectProperty<List<String>> actions = new SimpleObjectProperty<>(List.of());
         ObservableValue<String> textToDisplayDeck = gameStateO.map(g -> switch (g.nextAction()) {
             case OCCUPY_TILE -> textMaker.clickToOccupy();
             case RETAKE_PAWN -> textMaker.clickToUnoccupy();
             default -> "";
         });
 
+        //Root node creation (Board, Players, MessageBoard, Actions, Decks)
         BorderPane rootNode = new BorderPane();
         Node board = BoardUI.create(
                 Board.REACH,
                 gameStateO,
                 rotationTileToPlace,
-                visibleOccupants,
+                gameStateO.map(getVisibleOccupants()),
                 highlightedTiles,
                 rotationConsumer(rotationTileToPlace, gameStateO),
                 posConsumer(gameStateO, actions, rotationTileToPlace),
@@ -112,14 +113,18 @@ public class Main extends Application {
         rootNode.setCenter(board);
         rootNode.setRight(rightPane);
 
+        //Players, MessageBoard, Actions, Decks nodes creation
         Node playersNode = PlayersUI.create(gameStateO, textMaker);
-        Node messageBoardNode = MessageBoardUI.create(messages, highlightedTiles);
+        Node messageBoardNode = MessageBoardUI.create(
+                gameStateO.map(g -> g.messageBoard().messages()),
+                highlightedTiles
+        );
         VBox deckBox = new VBox();
         Node actionsNode = ActionsUI.create(actions, actionConsumer(gameStateO, actions));
         Node deckNode = DecksUI.create(
-                tileToPlace,
-                normalDeckSize,
-                menhirDeckSize,
+                gameStateO.map(GameState::tileToPlace),
+                gameStateO.map(g -> g.tileDecks().deckSize(Tile.Kind.NORMAL)),
+                gameStateO.map(g -> g.tileDecks().deckSize(Tile.Kind.MENHIR)),
                 textToDisplayDeck,
                 noPawnEventHandler(gameStateO, actions)
         );
@@ -128,13 +133,30 @@ public class Main extends Application {
         rightPane.setCenter(messageBoardNode);
         rightPane.setBottom(deckBox);
 
+        //Scene setup
         primaryStage.setScene(new Scene(rootNode));
-        primaryStage.setTitle("ChaCuN");
+        primaryStage.setTitle(WINDOW_TITLE);
         primaryStage.setHeight(WINDOW_HEIGHT);
         primaryStage.setWidth(WINDOW_WIDTH);
         primaryStage.show();
 
+        //Start the game
         gameStateO.setValue(gameStateO.getValue().withStartingTilePlaced());
+    }
+
+    /**
+     * Returns a function that returns the visible occupants given a game state.
+     *
+     * @return a function that returns the visible occupants given a game state
+     */
+    private static Function<GameState, Set<Occupant>> getVisibleOccupants () {
+        return g -> {
+            Set<Occupant> visibleOccupantsSet = new HashSet<>(g.board().occupants());
+            if (g.nextAction() == GameState.Action.OCCUPY_TILE) {
+                visibleOccupantsSet.addAll(g.lastTilePotentialOccupants());
+            }
+            return visibleOccupantsSet;
+        };
     }
 
     /**
@@ -144,7 +166,7 @@ public class Main extends Application {
      * @return a map of players with their respective colors
      */
     private static Map<PlayerColor, String> getPlayers(List<String> playerNames) {
-        Preconditions.checkArgument(playerNames.size() >= 2 && playerNames.size() <= 5);
+        Preconditions.checkArgument(playerNames.size() >= MIN_PLAYERS && playerNames.size() <= MAX_PLAYERS);
         Map<PlayerColor, String> players = new HashMap<>();
         for (int i = 0; i < playerNames.size(); i++) {
             players.put(PlayerColor.ALL.get(i), playerNames.get(i));
@@ -204,15 +226,16 @@ public class Main extends Application {
      * @param actions the list of actions
      * @param stateAction the state action
      */
-    private static void updateGameAndActions(SimpleObjectProperty<GameState> gameState,
-                                             SimpleObjectProperty<List<String>> actions,
-                                             ActionEncoder.StateAction stateAction
+    private static void updateGameAndActions(
+            ObjectProperty<GameState> gameState,
+            ObjectProperty<List<String>> actions,
+            ActionEncoder.StateAction stateAction
     ) {
         if (stateAction != null) {
             gameState.setValue(stateAction.state());
             List<String> actionList = new ArrayList<>(actions.getValue());
             actionList.add(stateAction.action());
-            actions.setValue(actionList);
+            actions.setValue(List.copyOf(actionList));
         }
     }
 
@@ -223,7 +246,10 @@ public class Main extends Application {
      * @param gameState the game state
      * @return a consumer that updates the rotation of the tile to place
      */
-    private Consumer<Rotation> rotationConsumer(SimpleObjectProperty<Rotation> rotationTileToPlace, SimpleObjectProperty<GameState> gameState) {
+    private static Consumer<Rotation> rotationConsumer(
+            ObjectProperty<Rotation> rotationTileToPlace,
+            ObjectProperty<GameState> gameState)
+    {
         return rotation -> {
             if (isPlaceTileMode(gameState.getValue()))
                 rotationTileToPlace.setValue(rotationTileToPlace.getValue().add(rotation));
@@ -238,9 +264,10 @@ public class Main extends Application {
      * @param rotationTileToPlace the rotation of the tile to place
      * @return a consumer that updates the position of the tile to place
      */
-    private Consumer<Pos> posConsumer(SimpleObjectProperty<GameState> gameState,
-                                      SimpleObjectProperty<List<String>> actions,
-                                      SimpleObjectProperty<Rotation> rotationTileToPlace
+    private static Consumer<Pos> posConsumer(
+            ObjectProperty<GameState> gameState,
+            ObjectProperty<List<String>> actions,
+            ObjectProperty<Rotation> rotationTileToPlace
     ) {
         return pos -> {
             GameState currentGameState = gameState.getValue();
@@ -267,7 +294,10 @@ public class Main extends Application {
      * @param actions the list of actions
      * @return a consumer that updates the occupant of a tile
      */
-    private Consumer<Occupant> occcupantConsumer(SimpleObjectProperty<GameState> gameState, SimpleObjectProperty<List<String>> actions) {
+    private static Consumer<Occupant> occcupantConsumer(
+            ObjectProperty<GameState> gameState,
+            ObjectProperty<List<String>> actions
+    ) {
         return occupant -> {
             GameState currentGameState = gameState.getValue();
             if (currentGameState.nextAction() == GameState.Action.OCCUPY_TILE
@@ -292,7 +322,10 @@ public class Main extends Application {
      * @param actions the list of actions
      * @return a consumer that updates the game state and the list of actions
      */
-    private Consumer<String> actionConsumer(SimpleObjectProperty<GameState> gameState, SimpleObjectProperty<List<String>> actions) {
+    private static Consumer<String> actionConsumer(
+            ObjectProperty<GameState> gameState,
+            ObjectProperty<List<String>> actions
+    ) {
         return action -> {
             if (Base32.isValid(action)) {
                 ActionEncoder.StateAction stateAction = ActionEncoder.decodeAndApply(gameState.getValue(), action);
@@ -308,7 +341,10 @@ public class Main extends Application {
      * @param actions the list of actions
      * @return a consumer that updates the game state and the list of actions
      */
-    private Consumer<Occupant> noPawnEventHandler(SimpleObjectProperty<GameState> gameState, SimpleObjectProperty<List<String>> actions) {
+    private static Consumer<Occupant> noPawnEventHandler(
+            ObjectProperty<GameState> gameState,
+            ObjectProperty<List<String>> actions
+    ) {
         return occupant -> {
             GameState currentGameState = gameState.getValue();
             ActionEncoder.StateAction stateAction = switch (currentGameState.nextAction()) {

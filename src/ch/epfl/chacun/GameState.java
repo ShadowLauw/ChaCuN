@@ -9,12 +9,12 @@ import static java.util.Objects.requireNonNull;
 /**
  * Represents the state of the game
  *
- * @param players
- * @param tileDecks
- * @param tileToPlace
- * @param board
- * @param nextAction
- * @param messageBoard
+ * @param players the players of the game
+ * @param tileDecks the tile decks of the game
+ * @param tileToPlace the tile to place
+ * @param board the board of the game
+ * @param nextAction the next action to do
+ * @param messageBoard the message board of the game
  * @author Laura Paraboschi (364161)
  * @author Emmanuel Omont (372632)
  */

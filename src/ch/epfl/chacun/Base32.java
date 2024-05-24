@@ -47,6 +47,7 @@ public final class Base32 {
      * @return the Base32 String representation of the 5 least significant bits of the number
      */
     public static String encodeBits5(int value) {
+        Preconditions.checkArgument(value >= 0 && value < 1 << BITS_PER_CHAR);
         return String.valueOf(ALPHABET.charAt(value & MASK_5BITS));
     }
 
@@ -57,6 +58,7 @@ public final class Base32 {
      * @return the Base32 String representation of the 10 least significant bits of the number
      */
     public static String encodeBits10(int value) {
+        Preconditions.checkArgument(value >= 0 && value < 1 << (BITS_PER_CHAR * 2));
         return encodeBits5(value >> BITS_PER_CHAR) + encodeBits5(value);
     }
 
@@ -68,7 +70,10 @@ public final class Base32 {
      * @throws IllegalArgumentException if the string is empty or has more than 2 characters
      */
     public static int decode(String encoded) {
-        Preconditions.checkArgument(!encoded.isEmpty() && encoded.length() <= MAX_NUMBER_OF_CHAR && isValid(encoded));
+        Preconditions.checkArgument(!encoded.isEmpty()
+                && encoded.length() <= MAX_NUMBER_OF_CHAR
+                && isValid(encoded)
+        );
 
         return encoded.length() == MAX_NUMBER_OF_CHAR ? decodeTwoChars(encoded) : decodeOneChar(encoded.charAt(0));
     }

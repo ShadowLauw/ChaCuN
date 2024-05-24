@@ -52,15 +52,31 @@ public final class ActionsUI {
      * @return a node displaying the actions
      */
     public static Node create(ObservableValue<List<String>> actions, Consumer<String> actionConsumer) {
-        HBox hbox = new HBox();
-        hbox.setId(ACTIONS_ID);
-        hbox.getStylesheets().add(ACTIONS_CSS);
+        HBox actionBox = new HBox();
+        actionBox.setId(ACTIONS_ID);
+        actionBox.getStylesheets().add(ACTIONS_CSS);
 
+        // Text displaying the last 4 actions
         Text text = new Text();
         text.textProperty().bind(actions.map(ActionsUI::actionListLastFourBuilder));
+        TextField textField = getTextField(actionConsumer);
+
+        actionBox.getChildren().addAll(text, textField);
+
+        return actionBox;
+    }
+
+    /**
+     * Creates a text field for the actions
+     *
+     * @param actionConsumer the consumer to call when an action is entered
+     * @return the text field
+     */
+    private static TextField getTextField(Consumer<String> actionConsumer) {
         TextField textField = new TextField();
         textField.setId(FIELD_ID);
 
+        // When the user presses enter, the action is sent to the consumer
         textField.setOnKeyPressed(e -> {
             if (e.getCode() == KeyCode.ENTER) {
                 actionConsumer.accept(textField.getText());
@@ -68,16 +84,21 @@ public final class ActionsUI {
             }
         });
 
+        // Text formatter to only allow valid characters
         textField.setTextFormatter(new TextFormatter<>(change -> {
             change.setText(textFormatter(change.getText()));
             return change;
         }));
 
-        hbox.getChildren().addAll(text, textField);
-
-        return hbox;
+        return textField;
     }
 
+    /**
+     * Builds the text to display the last 4 actions
+     *
+     * @param list the list of actions
+     * @return the text to display
+     */
     private static String actionListLastFourBuilder(List<String> list) {
         if (list.isEmpty()) {
             return "";
@@ -96,6 +117,12 @@ public final class ActionsUI {
         return sb.toString();
     }
 
+    /**
+     * Formats the text to only allow valid characters
+     *
+     * @param text the text to format
+     * @return the formatted text
+     */
     private static String textFormatter(String text) {
         return text.toUpperCase()
                 .chars()

@@ -24,22 +24,27 @@ public final class DecksUI {
      * The path to the CSS file for the decks UI.
      */
     private static final String DECKS_CSS = "decks.css";
+
     /**
      * ID of the next tile node.
      */
     private static final String NEXT_TILE_ID = "next-tile";
+
     /**
      * ID of the decks' node.
      */
     private static final String DECKS_ID = "decks";
+
     /**
      * ID of the normal deck node.
      */
     private static final String NORMAL_DECK_ID = "NORMAL";
+
     /**
      * ID of the menhir deck node.
      */
     private static final String MENHIR_DECK_ID = "MENHIR";
+
     /**
      * The percentage of the image size to use for the text display.
      */
@@ -54,11 +59,11 @@ public final class DecksUI {
     /**
      * Creates a Node of the decks and next action display
      *
-     * @param tileToPlace    the tile to place
-     * @param normalDeckSize the size of the normal deck
-     * @param menhirDeckSize the size of the menhir deck
-     * @param textToDisplay  the text to display
-     * @param noPawnEventHandler   the event handler for the next tile
+     * @param tileToPlace        the tile to place
+     * @param normalDeckSize     the size of the normal deck
+     * @param menhirDeckSize     the size of the menhir deck
+     * @param textToDisplay      the text to display
+     * @param noPawnEventHandler the event handler for the next tile
      * @return a Node displaying the decks and next action
      */
     public static Node create(
@@ -74,8 +79,8 @@ public final class DecksUI {
         //------------Constructing the tile decks--------------------
         HBox decks = new HBox();
         decks.setId(DECKS_ID);
-        decks.getChildren().add(constructImageStackPane(NORMAL_DECK_ID, normalDeckSize));
-        decks.getChildren().add(constructImageStackPane(MENHIR_DECK_ID, menhirDeckSize));
+        decks.getChildren().add(constructDeckStackPane(NORMAL_DECK_ID, normalDeckSize));
+        decks.getChildren().add(constructDeckStackPane(MENHIR_DECK_ID, menhirDeckSize));
 
         //------------Constructing the view of the tile to place--------------------
         StackPane stackPaneNextTile = new StackPane();
@@ -84,8 +89,7 @@ public final class DecksUI {
         ImageView imageViewNextTile = new ImageView();
         Text textNextTile = new Text();
         imageViewNextTile.imageProperty().bind(tileToPlace.map(t -> ImageLoader.largeImageForTile(t.id())));
-        imageViewNextTile.setFitWidth(ImageLoader.LARGE_TILE_FIT_SIZE);
-        imageViewNextTile.setFitHeight(ImageLoader.LARGE_TILE_FIT_SIZE);
+        setSizeImageView(imageViewNextTile, ImageLoader.LARGE_TILE_FIT_SIZE);
 
         textNextTile.textProperty().bind(textToDisplay);
         textNextTile.visibleProperty().bind(textToDisplay.map(s -> !s.isEmpty()));
@@ -107,16 +111,26 @@ public final class DecksUI {
      * @param deckSize the size of the deck
      * @return the stack pane
      */
-    private static StackPane constructImageStackPane(String deckId, ObservableValue<Integer> deckSize) {
+    private static StackPane constructDeckStackPane(String deckId, ObservableValue<Integer> deckSize) {
         StackPane stackPane = new StackPane();
         ImageView imageView = new ImageView();
         imageView.setId(deckId);
-        imageView.setFitHeight(ImageLoader.NORMAL_TILE_FIT_SIZE);
-        imageView.setFitWidth(ImageLoader.NORMAL_TILE_FIT_SIZE);
+        setSizeImageView(imageView, ImageLoader.NORMAL_TILE_FIT_SIZE);
         Text deckText = new Text();
         deckText.textProperty().bind(deckSize.map(Objects::toString));
         stackPane.getChildren().addAll(imageView, deckText);
 
         return stackPane;
+    }
+
+    /**
+     * Sets the size of the image view.
+     *
+     * @param imageView the image view
+     * @param size      the size
+     */
+    private static void setSizeImageView(ImageView imageView, int size) {
+        imageView.setFitHeight(size);
+        imageView.setFitWidth(size);
     }
 }

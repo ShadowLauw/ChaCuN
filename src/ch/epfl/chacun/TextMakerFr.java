@@ -40,6 +40,9 @@ public final class TextMakerFr implements TextMaker {
         SIMPLE("s"),
         MEDIAN_POINT("·s");
 
+        /**
+         * The pluralization
+         */
         private final String pluralization;
 
         /**
@@ -70,7 +73,13 @@ public final class TextMakerFr implements TextMaker {
         LAKE("lac", ""),
         TILE("tuile", "");
 
+        /**
+         * The name of the object
+         */
         private final String name;
+        /**
+         * The appendix of the object
+         */
         private final String appendix;
 
         /**
@@ -158,11 +167,11 @@ public final class TextMakerFr implements TextMaker {
      */
     @Override
     public String playersScoredForest(Set<PlayerColor> scorers, int points, int mushroomGroupCount, int tileCount) {
-        String scorersString = getScorersString(scorers, points, ScorersType.MAJORITY);
-        String mushroomString = getMiscString(mushroomGroupCount, MiscObjects.MUSHROOM, " et de ");
-        String tileString = getMiscString(tileCount, MiscObjects.TILE, "composée de ");
+        String scorersInfo = getScorersString(scorers, points, ScorersType.MAJORITY);
+        String mushroomInfo = getMiscString(mushroomGroupCount, MiscObjects.MUSHROOM, " et de ");
+        String tileInfo = getMiscString(tileCount, MiscObjects.TILE, "composée de ");
 
-        return STR."\{scorersString} d'une forêt \{tileString}\{mushroomString}.";
+        return STR."\{scorersInfo} d'une forêt \{tileInfo}\{mushroomInfo}.";
     }
 
     /**
@@ -178,10 +187,10 @@ public final class TextMakerFr implements TextMaker {
      */
     @Override
     public String playersScoredRiver(Set<PlayerColor> scorers, int points, int fishCount, int tileCount) {
-        String scorersString = getScorersString(scorers, points, ScorersType.MAJORITY);
-        String fishString = getMiscString(fishCount, MiscObjects.FISH, " et contenant ");
-        String tileString = getMiscString(tileCount, MiscObjects.TILE, "composée de ");
-        return STR."\{scorersString} d'une rivière \{tileString}\{fishString}.";
+        String scorersInfo = getScorersString(scorers, points, ScorersType.MAJORITY);
+        String fishInfo = getMiscString(fishCount, MiscObjects.FISH, " et contenant ");
+        String tileInfo = getMiscString(tileCount, MiscObjects.TILE, "composée de ");
+        return STR."\{scorersInfo} d'une rivière \{tileInfo}\{fishInfo}.";
     }
 
     /**
@@ -196,9 +205,9 @@ public final class TextMakerFr implements TextMaker {
      */
     @Override
     public String playerScoredHuntingTrap(PlayerColor scorer, int points, Map<Animal.Kind, Integer> animals) {
-        String scorersString = getScorersString(Set.of(scorer), points, ScorersType.POINTS);
-        String animalsString = getAnimalString(animals);
-        return STR."\{scorersString} en plaçant la fosse à pieux dans un pré dans lequel elle est entourée de \{animalsString}.";
+        String scorersInfo = getScorersString(Set.of(scorer), points, ScorersType.POINTS);
+        String animalsInfo = getAnimalString(animals);
+        return STR."\{scorersInfo} en plaçant la fosse à pieux dans un pré dans lequel elle est entourée de \{animalsInfo}.";
     }
 
     /**
@@ -213,9 +222,9 @@ public final class TextMakerFr implements TextMaker {
      */
     @Override
     public String playerScoredLogboat(PlayerColor scorer, int points, int lakeCount) {
-        String scorersString = getScorersString(Set.of(scorer), points, ScorersType.POINTS);
-        String lakeString = getMiscString(lakeCount, MiscObjects.LAKE, "contenant ");
-        return STR."\{scorersString} en plaçant la pirogue dans un réseau hydrographique \{lakeString}.";
+        String scorersInfo = getScorersString(Set.of(scorer), points, ScorersType.POINTS);
+        String lakeInfo = getMiscString(lakeCount, MiscObjects.LAKE, "contenant ");
+        return STR."\{scorersInfo} en plaçant la pirogue dans un réseau hydrographique \{lakeInfo}.";
     }
 
     /**
@@ -230,9 +239,9 @@ public final class TextMakerFr implements TextMaker {
      */
     @Override
     public String playersScoredMeadow(Set<PlayerColor> scorers, int points, Map<Animal.Kind, Integer> animals) {
-        String scorersString = getScorersString(scorers, points, ScorersType.MAJORITY);
-        String animalsString = getAnimalString(animals);
-        return STR."\{scorersString} d'un pré contenant \{animalsString}.";
+        String scorersInfo = getScorersString(scorers, points, ScorersType.MAJORITY);
+        String animalsInfo = getAnimalString(animals);
+        return STR."\{scorersInfo} d'un pré contenant \{animalsInfo}.";
     }
 
     /**
@@ -247,9 +256,9 @@ public final class TextMakerFr implements TextMaker {
      */
     @Override
     public String playersScoredRiverSystem(Set<PlayerColor> scorers, int points, int fishCount) {
-        String scorersString = getScorersString(scorers, points, ScorersType.MAJORITY);
-        String fishString = getMiscString(fishCount, MiscObjects.FISH, "contenant ");
-        return STR."\{scorersString} d'un réseau hydrographique \{fishString}.";
+        String scorersInfo = getScorersString(scorers, points, ScorersType.MAJORITY);
+        String fishInfo = getMiscString(fishCount, MiscObjects.FISH, "contenant ");
+        return STR."\{scorersInfo} d'un réseau hydrographique \{fishInfo}.";
     }
 
     /**
@@ -264,9 +273,9 @@ public final class TextMakerFr implements TextMaker {
      */
     @Override
     public String playersScoredPitTrap(Set<PlayerColor> scorers, int points, Map<Animal.Kind, Integer> animals) {
-        String scorersString = getScorersString(scorers, points, ScorersType.MAJORITY);
-        String animalsString = getAnimalString(animals);
-        return STR."\{scorersString} d'un pré contenant la grande fosse à pieux entourée de \{animalsString}.";
+        String scorersInfo = getScorersString(scorers, points, ScorersType.MAJORITY);
+        String animalsInfo = getAnimalString(animals);
+        return STR."\{scorersInfo} d'un pré contenant la grande fosse à pieux entourée de \{animalsInfo}.";
     }
 
     /**
@@ -281,9 +290,9 @@ public final class TextMakerFr implements TextMaker {
      */
     @Override
     public String playersScoredRaft(Set<PlayerColor> scorers, int points, int lakeCount) {
-        String scorersString = getScorersString(scorers, points, ScorersType.MAJORITY);
-        String lakeString = getMiscString(lakeCount, MiscObjects.LAKE, "");
-        return STR."\{scorersString} d'un réseau hydrographique contenant le radeau et \{lakeString}.";
+        String scorersInfo = getScorersString(scorers, points, ScorersType.MAJORITY);
+        String lakeInfo = getMiscString(lakeCount, MiscObjects.LAKE, "");
+        return STR."\{scorersInfo} d'un réseau hydrographique contenant le radeau et \{lakeInfo}.";
     }
 
     /**
@@ -350,14 +359,18 @@ public final class TextMakerFr implements TextMaker {
      * Return a string representation of miscellaneous objects and their number, with possibly a string to prepend
      *
      * @param objectNumber the number of objects
-     * @param object       the type of object
+     * @param misc       the type of object
      * @param prepend      the string to prepend
      * @return the string representation of miscellaneous objects and their number, with possibly a string to prepend
      */
-    private static String getMiscString(int objectNumber, MiscObjects object, String prepend) {
-        String objectString = STR."\{object.getName()}\{pluralize(objectNumber, PluralizationType.SIMPLE)}\{object.getAppendix()}";
+    private static String getMiscString(int objectNumber, MiscObjects misc, String prepend) {
+        if (!(objectNumber > 0)) {
+            return "";
+        }
+        String objectInfo =
+                STR."\{misc.getName()}\{pluralize(objectNumber, PluralizationType.SIMPLE)}\{misc.getAppendix()}";
 
-        return objectNumber > 0 ? STR."\{prepend}\{objectNumber} \{objectString}" : "";
+        return STR."\{prepend}\{objectNumber} \{objectInfo}";
     }
 
     /**

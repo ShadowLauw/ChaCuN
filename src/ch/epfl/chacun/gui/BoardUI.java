@@ -94,9 +94,9 @@ public final class BoardUI {
      * @param rotationOfTile   the observable value of the rotation of the tile
      * @param visibleOccupants the observable value of the visible occupants
      * @param highlightedTiles the observable value of the highlighted tiles
-     * @param rotationConsumer  the consumer to call when a rotation is clicked
-     * @param posConsumer  the consumer to call when a tile is chosen
-     * @param occupantConsumer   the consumer to call when an occupant is chosen
+     * @param rotationConsumer the consumer to call when a rotation is clicked
+     * @param posConsumer      the consumer to call when a tile is chosen
+     * @param occupantConsumer the consumer to call when an occupant is chosen
      * @return a node displaying the board
      */
     public static Node create(int range,
@@ -185,8 +185,7 @@ public final class BoardUI {
                                     //No veil otherwise, the image of the tile to place is displayed
                                     return new CellData(tileImage, rotationOfTile.getValue().degreesCW());
                                 }/* If the mouse is not over the cell, but it is part of the insertion positions
-                                     and the action is to place a tile -> Player color veil, empty image */
-                                else if (currentPlayer != null) {
+                                     and the action is to place a tile -> Player color veil, empty image */ else if (currentPlayer != null) {
                                     return new CellData(
                                             rotationOfTile.getValue().degreesCW(),
                                             deriveColorMidOpacity(ColorMap.fillColor(currentPlayer))
@@ -224,8 +223,8 @@ public final class BoardUI {
                 });
 
                 //Add the markers if the tile is placed
-                tileAtPos.addListener((_, _, newTile) -> {
-                    if (newTile != null) {
+                tileAtPos.addListener((_, oldTile, newTile) -> {
+                    if (oldTile == null) {
                         for (Zone.Meadow meadow : newTile.meadowZones()) {
                             for (Animal animal : meadow.animals()) {
                                 ImageView markerAnimal = new ImageView();
@@ -255,15 +254,8 @@ public final class BoardUI {
 
                 //Others effects management
                 tileGroup.rotateProperty().bind(observableTile.map(t -> t.rotation));
-                ColorInput veilInput = new ColorInput(
-                        0,
-                        0,
-                        ImageLoader.NORMAL_TILE_FIT_SIZE,
-                        ImageLoader.NORMAL_TILE_FIT_SIZE,
-                        Color.TRANSPARENT
-                );
+                ColorInput veilInput = createVeilInput();
                 veilInput.paintProperty().bind(observableTile.map(t -> t.veilColor));
-
                 tileGroup.setEffect(new Blend(BlendMode.SRC_OVER, null, veilInput));
 
                 grid.add(tileGroup, x + range, y + range);
@@ -332,5 +324,20 @@ public final class BoardUI {
      */
     private static Color deriveColorMidOpacity(Color color) {
         return color.deriveColor(0, 1, 1, OPACITY_VEIL);
+    }
+
+    /**
+     * Create a veil input with a transparent color
+     *
+     * @return a veil input with a transparent color
+     */
+    private static ColorInput createVeilInput() {
+        return new ColorInput(
+                0,
+                0,
+                ImageLoader.NORMAL_TILE_FIT_SIZE,
+                ImageLoader.NORMAL_TILE_FIT_SIZE,
+                Color.TRANSPARENT
+        );
     }
 }
