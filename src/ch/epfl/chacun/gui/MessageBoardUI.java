@@ -41,7 +41,10 @@ public final class MessageBoardUI {
      * @param tilesId  the ids of the tiles to highlight
      * @return a node displaying the message board
      */
-    public static Node create(ObservableValue<List<MessageBoard.Message>> messages, ObjectProperty<Set<Integer>> tilesId) {
+    public static Node create(
+            ObservableValue<List<MessageBoard.Message>> messages,
+            ObjectProperty<Set<Integer>> tilesId
+    ) {
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setId(UI_ID);
         scrollPane.getStylesheets().add(MESSAGE_BOARD_CSS);

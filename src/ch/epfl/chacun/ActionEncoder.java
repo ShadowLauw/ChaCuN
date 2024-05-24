@@ -13,30 +13,37 @@ public final class ActionEncoder {
      * The number of bits to shift to encode the position of the tile.
      */
     private static final int POS_TILE_SHIFT = 2;
+
     /**
      * The number of bits to shift to encode the kind of occupant.
      */
     private static final int OCCUPANT_KIND_SHIFT = 4;
+
     /**
      * The value to represent no occupant.
      */
     private static final int NO_OCCUPANT = 0b11111;
+
     /**
      * The mask to get the rotation of the tile.
      */
     private static final int MASK_ROTATION = 0b11;
+
     /**
      * The mask to get the zone local ID of the occupant.
      */
     private static final int MASK_ZONE_OCCUPANT = 0b1111;
+
     /**
      * The length of the action to place a tile.
      */
     private static final int LENGTH_PLACE_TILE = 2;
+
     /**
      * The length of the action to occupy a tile.
      */
     private static final int LENGTH_OCCUPY_TILE = 1;
+
     /**
      * The length of the action to retake a pawn.
      */
@@ -261,4 +268,3 @@ public final class ActionEncoder {
      */
     private static class ActionException extends Exception {}
 }
-

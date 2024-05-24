@@ -16,6 +16,17 @@ public final class TextMakerFr implements TextMaker {
     private final Map<PlayerColor, String> playerNames;
 
     /**
+     * String for the occupy deck
+     */
+    private static final String OCCUPY_STRING =
+            "Cliquez sur le pion ou la hutte que vous désirez placer, ou ici pour ne pas en placer.";
+    /**
+     * String for the unoccupy deck
+     */
+    private static final String UNOCCUPY_STRING =
+            "Cliquez sur le pion que vous désirez reprendre, ou ici pour ne pas en reprendre.";
+
+    /**
      * Map of the association between the animal kind and its name
      */
     private static final Map<Animal.Kind, String> animalNames = Map.of(
@@ -304,8 +315,8 @@ public final class TextMakerFr implements TextMaker {
      */
     @Override
     public String playersWon(Set<PlayerColor> winners, int points) {
-        String scorersString = getScorersString(winners, points, ScorersType.SIMPLE);
-        return STR."\{scorersString} la partie avec \{points(points)} !";
+        String scorersInfo = getScorersString(winners, points, ScorersType.SIMPLE);
+        return STR."\{scorersInfo} la partie avec \{points(points)} !";
     }
 
     /**
@@ -315,7 +326,7 @@ public final class TextMakerFr implements TextMaker {
      */
     @Override
     public String clickToOccupy() {
-        return "Cliquez sur le pion ou la hutte que vous désirez placer, ou ici pour ne pas en placer.";
+        return OCCUPY_STRING;
     }
 
     /**
@@ -325,7 +336,7 @@ public final class TextMakerFr implements TextMaker {
      */
     @Override
     public String clickToUnoccupy() {
-        return "Cliquez sur le pion que vous désirez reprendre, ou ici pour ne pas en reprendre.";
+        return UNOCCUPY_STRING;
     }
 
     /**
@@ -401,16 +412,16 @@ public final class TextMakerFr implements TextMaker {
      */
     private String getScorersString(Set<PlayerColor> scorers, int points, ScorersType type) {
         String[] scorersNameArray = scorers.stream().sorted().map(playerNames::get).toArray(String[]::new);
-        StringBuilder scorersString = new StringBuilder(arrayToString(scorersNameArray));
-        scorersString.append(scorers.size() > 1 ? " ont remporté" : " a remporté");
+        StringBuilder scorersInfo = new StringBuilder(arrayToString(scorersNameArray));
+        scorersInfo.append(scorers.size() > 1 ? " ont remporté" : " a remporté");
         if (type != ScorersType.SIMPLE) {
-            scorersString.append(STR." \{points(points)}");
+            scorersInfo.append(STR." \{points(points)}");
             if (type == ScorersType.MAJORITY) {
-                scorersString.append(STR." en tant qu'occupant·e\{pluralize(scorers.size(), PluralizationType.MEDIAN_POINT)}");
-                scorersString.append(STR." majoritaire\{pluralize(scorers.size(), PluralizationType.SIMPLE)}");
+                scorersInfo.append(STR." en tant qu'occupant·e\{pluralize(scorers.size(), PluralizationType.MEDIAN_POINT)}");
+                scorersInfo.append(STR." majoritaire\{pluralize(scorers.size(), PluralizationType.SIMPLE)}");
             }
         }
 
-        return scorersString.toString();
+        return scorersInfo.toString();
     }
 }

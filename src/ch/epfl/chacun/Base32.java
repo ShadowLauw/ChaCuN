@@ -11,14 +11,17 @@ public final class Base32 {
      * The Base32 alphabet used for encoding/decoding
      */
     public static final String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+
     /**
      * The number of bits per character in Base32
      */
     private static final int BITS_PER_CHAR = 5;
+
     /**
      * The mask to get the 5 least significant bits of a number
      */
     private static final int MASK_5BITS = 0b11111;
+
     /**
      * The maximum number of characters in our Base32 strings
      */
