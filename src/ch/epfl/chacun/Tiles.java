@@ -6,8 +6,8 @@ import java.util.List;
 
 public final class Tiles {
     private Tiles() {}
-
-    public static final List<Tile> TILES = createTiles();
+    static List<Integer> idToPlay = List.of(1,2,3,4,56, 92);
+    public static final List<Tile> TILES = new ArrayList<>(createTiles().stream().filter(t -> idToPlay.contains(t.id())).toList());
 
     private static List<Tile> createTiles() {
         ArrayList<Tile> tiles = new ArrayList<>();
