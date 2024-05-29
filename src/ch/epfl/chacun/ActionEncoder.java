@@ -124,15 +124,13 @@ public final class ActionEncoder {
     private static StateAction dAAHandler(GameState state, String action) throws ActionException {
         if (!Base32.isValid(action)) throw new ActionException();
 
-        int decoded = Base32.decode(action);
-
         return switch (state.nextAction()) {
             case PLACE_TILE -> {
+                checkStringLength(action, LENGTH_PLACE_TILE);
+                int decoded = Base32.decode(action);
                 int indexTile = decoded >> POS_TILE_SHIFT;
                 int rotation = decoded & MASK_ROTATION;
                 List<Pos> insertionPositions = posSorter(state);
-
-                checkStringLength(action, LENGTH_PLACE_TILE);
                 checkListSize(insertionPositions, indexTile);
 
                 PlacedTile tile = new PlacedTile(
@@ -146,13 +144,13 @@ public final class ActionEncoder {
                 yield new StateAction(state.withPlacedTile(tile), action);
             }
             case OCCUPY_TILE -> {
+                checkStringLength(action, LENGTH_OCCUPY_TILE);
+                int decoded = Base32.decode(action);
                 if (decoded == NO_OCCUPANT) {
                     yield new StateAction(state.withNewOccupant(null), action);
                 }
                 int zoneLocalId = decoded & MASK_ZONE_OCCUPANT;
                 int kind = decoded >> OCCUPANT_KIND_SHIFT;
-
-                checkStringLength(action, LENGTH_OCCUPY_TILE);
 
                 Occupant occupant = state.lastTilePotentialOccupants().stream()
                         .filter(o -> o.kind().ordinal() == kind)
@@ -163,12 +161,13 @@ public final class ActionEncoder {
                 yield new StateAction(state.withNewOccupant(occupant), action);
             }
             case RETAKE_PAWN -> {
+                checkStringLength(action, LENGTH_RETAKE_PAWN);
+                int decoded = Base32.decode(action);
                 if (decoded == NO_OCCUPANT) {
                     yield new StateAction(state.withOccupantRemoved(null), action);
                 }
                 List<Occupant> pawns = pawnsSorter(state);
 
-                checkStringLength(action, LENGTH_RETAKE_PAWN);
                 checkListSize(pawns, decoded);
 
                 Occupant pawn = pawns.get(decoded);

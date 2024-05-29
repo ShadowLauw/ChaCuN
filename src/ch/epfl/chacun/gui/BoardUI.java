@@ -99,14 +99,15 @@ public final class BoardUI {
      * @param occupantConsumer the consumer to call when an occupant is chosen
      * @return a node displaying the board
      */
-    public static Node create(int range,
-                              ObservableValue<GameState> gameState,
-                              ObservableValue<Rotation> rotationOfTile,
-                              ObservableValue<Set<Occupant>> visibleOccupants,
-                              ObservableValue<Set<Integer>> highlightedTiles,
-                              Consumer<Rotation> rotationConsumer,
-                              Consumer<Pos> posConsumer,
-                              Consumer<Occupant> occupantConsumer
+    public static Node create(
+            int range,
+            ObservableValue<GameState> gameState,
+            ObservableValue<Rotation> rotationOfTile,
+            ObservableValue<Set<Occupant>> visibleOccupants,
+            ObservableValue<Set<Integer>> highlightedTiles,
+            Consumer<Rotation> rotationConsumer,
+            Consumer<Pos> posConsumer,
+            Consumer<Occupant> occupantConsumer
     ) {
         // Create the base node
         ScrollPane baseNode = new ScrollPane();
@@ -185,9 +186,11 @@ public final class BoardUI {
                                     //No veil otherwise, the image of the tile to place is displayed
                                     return new CellData(tileImage, rotationOfTile.getValue().degreesCW());
                                 }/* If the mouse is not over the cell, but it is part of the insertion positions
-                                     and the action is to place a tile -> Player color veil, empty image */ else if (currentPlayer != null) {
+                                     and the action is to place a tile -> Player color veil, empty image */
+                                else {
                                     return new CellData(
                                             rotationOfTile.getValue().degreesCW(),
+                                            //currentPlayer can't be null as we are in PLACE_TILE action
                                             deriveColorMidOpacity(ColorMap.fillColor(currentPlayer))
                                     );
                                 }
@@ -212,7 +215,7 @@ public final class BoardUI {
                         MouseButton button = e.getButton();
                         if (button == MouseButton.PRIMARY) {
                             posConsumer.accept(posOfTile);
-                        } else if (button == MouseButton.SECONDARY) {
+                        } else if (button == MouseButton.SECONDARY && isInsertionAndDisplayed.getValue()) {
                             if (e.isAltDown()) {
                                 rotationConsumer.accept(Rotation.RIGHT);
                             } else {
@@ -272,9 +275,10 @@ public final class BoardUI {
      * @param rotation  the rotation of the tile in degrees
      * @param veilColor the color of the veil
      */
-    private record CellData(Image tileImage,
-                            int rotation,
-                            Color veilColor
+    private record CellData(
+            Image tileImage,
+            int rotation,
+            Color veilColor
     ) {
         /**
          * Creates a cell data with the empty tile image, no rotation and no veil color

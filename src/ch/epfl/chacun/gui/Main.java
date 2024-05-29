@@ -105,7 +105,7 @@ public class Main extends Application {
                 rotationTileToPlace,
                 gameStateO.map(getVisibleOccupants()),
                 highlightedTiles,
-                rotationConsumer(rotationTileToPlace, gameStateO),
+                rotationConsumer(rotationTileToPlace),
                 posConsumer(gameStateO, actions, rotationTileToPlace),
                 occcupantConsumer(gameStateO, actions)
         );
@@ -149,7 +149,7 @@ public class Main extends Application {
      *
      * @return a function that returns the visible occupants given a game state
      */
-    private static Function<GameState, Set<Occupant>> getVisibleOccupants () {
+    private static Function<GameState, Set<Occupant>> getVisibleOccupants() {
         return g -> {
             Set<Occupant> visibleOccupantsSet = new HashSet<>(g.board().occupants());
             if (g.nextAction() == GameState.Action.OCCUPY_TILE) {
@@ -180,6 +180,7 @@ public class Main extends Application {
      *
      * @param seedMap the seed map
      * @return a shuffled deck of tiles
+     * @throws NullPointerException if there aren't start tile or normal tile in the Tiles
      */
     private static TileDecks getShuffledTiles(Map<String, String> seedMap) {
         String seedString = seedMap.get(SEED_KEY);
@@ -191,17 +192,18 @@ public class Main extends Application {
         Collections.shuffle(myTiles, randomGen);
         Map<Tile.Kind, List<Tile>> tilesByKind = myTiles.stream().collect(Collectors.groupingBy(Tile::kind));
 
+        // We make sure that the start tile is present and at least one normal tile is present
         return new TileDecks(
                 tilesByKind.get(Tile.Kind.START),
                 tilesByKind.get(Tile.Kind.NORMAL),
-                tilesByKind.get(Tile.Kind.MENHIR)
+                tilesByKind.getOrDefault(Tile.Kind.MENHIR, List.of())
         );
     }
 
     /**
      * Returns whether the placer of the tile is the current player.
      *
-     * @param state the game state
+     * @param state  the game state
      * @param zoneId the zone id
      * @return whether the placer of the tile is the current player
      */
@@ -215,15 +217,15 @@ public class Main extends Application {
      * @param state the game state
      * @return whether the game state is in place tile mode
      */
-    private static boolean isPlaceTileMode(GameState state) {
-        return state.nextAction() == GameState.Action.PLACE_TILE;
+    private static boolean isGameInGoodMode(GameState state, GameState.Action action) {
+        return state.nextAction() == action;
     }
 
     /**
      * Updates the game state and the list of actions.
      *
-     * @param gameState the game state
-     * @param actions the list of actions
+     * @param gameState   the game state
+     * @param actions     the list of actions
      * @param stateAction the state action
      */
     private static void updateGameAndActions(
@@ -243,24 +245,23 @@ public class Main extends Application {
      * Returns a consumer that updates the rotation of the tile to place.
      *
      * @param rotationTileToPlace the rotation of the tile to place
-     * @param gameState the game state
      * @return a consumer that updates the rotation of the tile to place
      */
-    private static Consumer<Rotation> rotationConsumer(
-            ObjectProperty<Rotation> rotationTileToPlace,
-            ObjectProperty<GameState> gameState)
-    {
-        return rotation -> {
-            if (isPlaceTileMode(gameState.getValue()))
-                rotationTileToPlace.setValue(rotationTileToPlace.getValue().add(rotation));
-        };
+    private static Consumer<Rotation> rotationConsumer(ObjectProperty<Rotation> rotationTileToPlace) {
+        // We already checked that we have clicked on an insertion position and the game is in place tile mode in BoardUI
+        // as we have no info of the position of the mouse in this consumer. We could have checked if the game is in place
+        // tile mode here, but it is not necessary as the variable in BoardUI that checks if we clicked on an insertion
+        // position also checks that the game is in place tile mode. (Creating a new variable in BoardUI to only check
+        // if we are on an insertion position would be redundant, considering other places where we need to check that
+        // need to check that the game is in place tile mode as well)
+        return rotation -> rotationTileToPlace.setValue(rotationTileToPlace.getValue().add(rotation));
     }
 
     /**
      * Returns a consumer that updates the position of the tile to place.
      *
-     * @param gameState the game state
-     * @param actions the list of actions
+     * @param gameState           the game state
+     * @param actions             the list of actions
      * @param rotationTileToPlace the rotation of the tile to place
      * @return a consumer that updates the position of the tile to place
      */
@@ -271,7 +272,7 @@ public class Main extends Application {
     ) {
         return pos -> {
             GameState currentGameState = gameState.getValue();
-            if (isPlaceTileMode(currentGameState)) {
+            if (isGameInGoodMode(currentGameState, GameState.Action.PLACE_TILE)) {
                 PlacedTile tileToAdd = new PlacedTile(
                         currentGameState.tileToPlace(),
                         currentGameState.currentPlayer(),
@@ -291,7 +292,7 @@ public class Main extends Application {
      * Returns a consumer that updates the occupant of a tile (put or remove)
      *
      * @param gameState the game state
-     * @param actions the list of actions
+     * @param actions   the list of actions
      * @return a consumer that updates the occupant of a tile
      */
     private static Consumer<Occupant> occcupantConsumer(
@@ -300,18 +301,18 @@ public class Main extends Application {
     ) {
         return occupant -> {
             GameState currentGameState = gameState.getValue();
-            if (currentGameState.nextAction() == GameState.Action.OCCUPY_TILE
+            ActionEncoder.StateAction stateAction = null;
+            if (isGameInGoodMode(currentGameState, GameState.Action.OCCUPY_TILE)
                     && currentGameState.lastTilePotentialOccupants().contains(occupant)
             ) {
-                ActionEncoder.StateAction stateAction = ActionEncoder.withNewOccupant(currentGameState, occupant);
-                updateGameAndActions(gameState, actions, stateAction);
-            } else if (currentGameState.nextAction() == GameState.Action.RETAKE_PAWN
+                stateAction = ActionEncoder.withNewOccupant(currentGameState, occupant);
+            } else if (isGameInGoodMode(currentGameState, GameState.Action.RETAKE_PAWN)
                     && occupant.kind() == Occupant.Kind.PAWN
                     && placerIsCurrentPlayer(currentGameState, occupant.zoneId())
             ) {
-                ActionEncoder.StateAction stateAction = ActionEncoder.withOccupantRemoved(currentGameState, occupant);
-                updateGameAndActions(gameState, actions, stateAction);
+                stateAction = ActionEncoder.withOccupantRemoved(currentGameState, occupant);
             }
+            updateGameAndActions(gameState, actions, stateAction);
         };
     }
 
@@ -319,7 +320,7 @@ public class Main extends Application {
      * Returns a consumer that updates the game state and the list of actions.
      *
      * @param gameState the game state
-     * @param actions the list of actions
+     * @param actions   the list of actions
      * @return a consumer that updates the game state and the list of actions
      */
     private static Consumer<String> actionConsumer(
@@ -338,7 +339,7 @@ public class Main extends Application {
      * Returns a consumer that updates the game state and the list of actions when no pawn is selected.
      *
      * @param gameState the game state
-     * @param actions the list of actions
+     * @param actions   the list of actions
      * @return a consumer that updates the game state and the list of actions
      */
     private static Consumer<Occupant> noPawnEventHandler(
