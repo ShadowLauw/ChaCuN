@@ -18,7 +18,7 @@ import java.util.function.Consumer;
  * @author Laura Paraboschi (364161)
  * @author Emmanuel Omont (372632)
  */
-public final class ActionsUI {
+public final class ActionUI {
     /**
      * The path to the CSS file for the actions UI.
      */
@@ -42,7 +42,7 @@ public final class ActionsUI {
     /**
      * Private constructor to prevent instantiation.
      */
-    private ActionsUI() {}
+    private ActionUI() {}
 
     /**
      * Creates a Node of the actions display
@@ -58,7 +58,7 @@ public final class ActionsUI {
 
         // Text displaying the last 4 actions
         Text text = new Text();
-        text.textProperty().bind(actions.map(ActionsUI::actionListLastFourBuilder));
+        text.textProperty().bind(actions.map(ActionUI::actionListLastFourBuilder));
         TextField textField = getTextField(actionConsumer);
 
         actionBox.getChildren().addAll(text, textField);

@@ -120,7 +120,7 @@ public class Main extends Application {
                 highlightedTiles
         );
         VBox deckBox = new VBox();
-        Node actionsNode = ActionsUI.create(actions, actionConsumer(gameStateO, actions));
+        Node actionsNode = ActionUI.create(actions, actionConsumer(gameStateO, actions));
         Node deckNode = DecksUI.create(
                 gameStateO.map(GameState::tileToPlace),
                 gameStateO.map(g -> g.tileDecks().deckSize(Tile.Kind.NORMAL)),

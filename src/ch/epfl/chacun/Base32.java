@@ -18,11 +18,6 @@ public final class Base32 {
     private static final int BITS_PER_CHAR = 5;
 
     /**
-     * The mask to get the 5 least significant bits of a number
-     */
-    private static final int MASK_5BITS = 0b11111;
-
-    /**
      * The maximum number of characters in our Base32 strings
      */
     private static final int MAX_NUMBER_OF_CHAR = 2;
@@ -50,18 +45,18 @@ public final class Base32 {
      * @return the Base32 String representation of the 5 least significant bits of the number
      */
     public static String encodeBits5(int value) {
-        Preconditions.checkArgument(value >= 0 && value < 1 << BITS_PER_CHAR);
-        return String.valueOf(ALPHABET.charAt(value & MASK_5BITS));
+        Preconditions.checkArgument(value >= 0 && value < (1 << BITS_PER_CHAR));
+        return String.valueOf(ALPHABET.charAt(value));
     }
 
     /**
-     * Encodes the 10 least significant bits of a number into a Base32 string
+     * Encodes the 10 least significant bits of a number into a Base32 string of 2 characters
      *
      * @param value the number to encode
      * @return the Base32 String representation of the 10 least significant bits of the number
      */
     public static String encodeBits10(int value) {
-        Preconditions.checkArgument(value >= 0 && value < 1 << (BITS_PER_CHAR * 2));
+        Preconditions.checkArgument(value >= 0 && value < (1 << (BITS_PER_CHAR * 2)));
         return encodeBits5(value >> BITS_PER_CHAR) + encodeBits5(value);
     }
 

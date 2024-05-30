@@ -1,6 +1,6 @@
 package ch.epfl.chacun;
 
-import ch.epfl.chacun.gui.ActionsUI;
+import ch.epfl.chacun.gui.ActionUI;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
@@ -27,7 +27,7 @@ public class ActionsUITest extends Application{
         messageBoard = messageBoard.withScoredForest(forest);
 
         var listMessages32 = new SimpleObjectProperty<>(List.of("Hello", "World"));
-        var actionsUI = ActionsUI.create(listMessages32, (e) -> System.out.println("Hello World!"));
+        var actionsUI = ActionUI.create(listMessages32, (e) -> System.out.println("Hello World!"));
 
         var rootNode = new BorderPane(actionsUI);
         primaryStage.setScene(new Scene(rootNode));
