@@ -18,6 +18,11 @@ public final class Base32 {
     private static final int BITS_PER_CHAR = 5;
 
     /**
+     * The number of bits for two characters in Base32
+     */
+    private static final int BITS_FOR_TWO_CHARS = 10;
+
+    /**
      * The maximum number of characters in our Base32 strings
      */
     private static final int MAX_NUMBER_OF_CHAR = 2;
@@ -56,7 +61,7 @@ public final class Base32 {
      * @return the Base32 String representation of the 10 least significant bits of the number
      */
     public static String encodeBits10(int value) {
-        Preconditions.checkArgument(value >= 0 && value < (1 << (BITS_PER_CHAR * 2)));
+        Preconditions.checkArgument(value >= 0 && value < (1 << BITS_FOR_TWO_CHARS));
         return encodeBits5(value >> BITS_PER_CHAR) + encodeBits5(value);
     }
 

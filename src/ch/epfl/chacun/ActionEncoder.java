@@ -123,7 +123,6 @@ public final class ActionEncoder {
      */
     private static StateAction dAAHandler(GameState state, String action) throws ActionException {
         if (!Base32.isValid(action)) throw new ActionException();
-
         return switch (state.nextAction()) {
             case PLACE_TILE -> {
                 checkStringLength(action, LENGTH_PLACE_TILE);
