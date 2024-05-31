@@ -56,11 +56,6 @@ public final class PlayersUI {
     private static final String CURRENT_PLAYER_STYLE_CLASS = "current";
 
     /**
-     * The separator between the player's name and points.
-     */
-    private static final Text SEPARATOR = new Text("   ");
-
-    /**
      * Private constructor to prevent instantiation.
      */
     private PlayersUI() {
@@ -122,7 +117,7 @@ public final class PlayersUI {
 
             playerInfos.getChildren().addAll(circle, pointsText);
             playerInfos.getChildren().addAll(huts);
-            playerInfos.getChildren().add(SEPARATOR);
+            playerInfos.getChildren().add(separator());
             playerInfos.getChildren().addAll(pawns);
 
             //Current player style management
@@ -138,5 +133,14 @@ public final class PlayersUI {
         }
 
         return playersUI;
+    }
+
+    /**
+     * Gives the separator between the points and the pawns/huts
+     *
+     * @return the separator text
+     */
+    private static Text separator() {
+        return new Text("   ");
     }
 }
