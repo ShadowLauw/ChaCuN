@@ -62,7 +62,6 @@ public final class Base32 {
      */
     public static String encodeBits10(int value) {
         Preconditions.checkArgument(value >= 0 && value < (1 << BITS_FOR_TWO_CHARS));
-        System.out.println("value: " + value);
         return encodeBits5(value >> BITS_PER_CHAR) + encodeBits5(value & ((1 << BITS_PER_CHAR) - 1));
     }
 
